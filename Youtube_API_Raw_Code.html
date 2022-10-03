@@ -54,7 +54,7 @@
       const playButtonSizing = '35%'; // Sets Sizing Of Play Button Icon Over Video Thumbnail Relative To The HEight Of The Video Thumbnail In Percentage.  Default Value Is: '35%'
       const playButtonOpacity = 75 / 100; // Sets Opacity Of Play Button Icon Over Video Thumbnail.  Divides Number By 100 To Convert Percentage To Decimal. Default Value Is: 75
       const closeButtonSize = '32px'; // Sets Size Of Lighbox Close Button On Top Right Corner Of Screen When Lighbox Is Active.  Default Value Is: '32px'
-      const minimumWidthOfEachVideoItem = 480; // Sets Minimun Width Size Of Each Video.  Default Value Is: 480
+      const minimumWidthOfEachVideoItem = 26.25; // Sets Minimun Width Size Of Each Video.  Default Value Is: 26.25 (REM value)
       const mediaQueryBreakpoint = minimumWidthOfEachVideoItem * 2; // Sets Media Query Break Point Of When Video Containers Should Stack In One Column.  Calculation Based Upon minimumWidthOfEachVideo Number.  Default Value Is: minimumWidthOfEachVideoItem * 2
 
     // Error Handling Variables
@@ -331,7 +331,7 @@
 
       @media(min-width: ${mediaQueryBreakpoint + 1}px) {
         ${widgetId} .video-list {
-          grid-template-columns: repeat(auto-fill, minmax(${minimumWidthOfEachVideoItem}px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(${minimumWidthOfEachVideoItem}rem, 1fr));
         }
       }
     `
