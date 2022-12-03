@@ -482,8 +482,8 @@
           htmlRender = 
             `
               <!-- ${snippet.title} -->
-              <a class="video-item" data-videoid="${snippet.resourceId.videoId}">
-                <div class="video-thumbnail-wrapper" data-itemclickable="true">
+              <a class="video-item" data-itemclickable="true" data-videoid="${snippet.resourceId.videoId}">
+                <div class="video-thumbnail-wrapper">
                   <img src="${image.url}" width="${image.width}" height="${image.height}" alt="${snippet.title}">
                   ${showPlayButtons ? playButtonIcon() : ''}
                   <div class="hover-text-container">
@@ -651,7 +651,7 @@
 
       // Video Index And Base Url For Youtube Embed Iframe
 
-      let currentVideoIndex = playListSorted.findIndex(video => video.snippet.resourceId.videoId === itemClicked.parentNode.dataset.videoid);
+      let currentVideoIndex = playListSorted.findIndex(video => video.snippet.resourceId.videoId === itemClicked.dataset.videoid);
 
       // Check For Starting Position To See If Arrows Should Be Shown Based Upon Starting Video Index Position And Set Corresponding Iframe Urls
 
