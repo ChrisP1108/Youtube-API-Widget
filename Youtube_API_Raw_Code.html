@@ -32,9 +32,10 @@
       const showVideoInfo = false; // Sets If Text Information About Video Should Be Displayed Below Video Thumbnail.  Default Value Is: false
       const showDescriptionText = false; // If showVideoInfo Is Set To True, Sets If Video Description Text Should Be Displayed.  Default Value Is: false
       const lightboxDisplayBreakpoint = 1400; // Sets Breakpoint Between LightBox Being Enabled And Opening In Another Tab When Video Thumbnail Is Clicked.  Default Value Is: 1400
-      const playlistLayout = false; // Determines The Layout Of Videos On Page.  If False, Video Thumbnail Will Be Shown In Grid Layout.  If True, Playlist Layout Will Be Shown
+      const playlistLayout = 'grid'; // Determines The Layout Of Videos On Page.
       const showAllInLightbox = false; // Determines If Lightbox Will Allow User To See All Videos On PlayList If True. If False, User Can Only View Videos Shown On Page  
       let playListSorted = []; // Captures All Videos After Filtering And Sorting Before They're Reduced To Output Amount For Showing All Videos When Navigating Through Lightbox
+      const lightboxFrameVideoBaseUrl = 'https://www.youtube.com/embed/'; // Video Base Url For Lightbox Video Iframes
       
       // CSS Variable Declarations
 
@@ -58,7 +59,7 @@
       const closeButtonSize = '32px'; // Sets Size Of Lighbox Close Button On Top Right Corner Of Screen When Lighbox Is Active.  Default Value Is: '32px'
       const minimumWidthOfEachVideoItem = 480; // Sets Minimun Width Size Of Each Video.  Default Value Is: 480
       const mediaQueryBreakpoint = minimumWidthOfEachVideoItem * 2; // Sets Media Query Break Point Of When Video Containers Should Stack In One Column.  Calculation Based Upon minimumWidthOfEachVideo Number.  Default Value Is: minimumWidthOfEachVideoItem * 2
-      const lightboxFrameTransition = 0.5; // Sets Transition Time Of LightBox Carousel Frame Transitioning In Seconds
+      const frameTransition = 0.5; // Sets Transition Time Of LightBox Carousel Frame Transitioning In Seconds
 
     // Error Handling Variables
 
@@ -134,13 +135,13 @@
         margin: 0!important;
       }
 
-      ${widgetId} .video-list {
+      ${widgetId} .grid-layout {
         display: grid;
         gap: ${gapBetweenVideos};
       }
 
       ${widgetId} .loading-spinner {
-		filter: drop-shadow(2px 4px 6px #00000090);
+		    filter: drop-shadow(2px 4px 6px #00000090);
         position: absolute;
         width: 50vw;
         height: 50vw;
@@ -151,7 +152,7 @@
         transform: translate(-50%, -50%);
       }
 
-      ${widgetId} .video-item {
+      ${widgetId} .grid-layout .video-item {
         max-width: 100%;
         text-align: center;
         position: relative;
@@ -165,9 +166,9 @@
       }
 
       @keyframes fade-in {
-  		from { opacity: 0;}
+  		  from { opacity: 0;}
         to { opacity: 1;}
-	  }
+	    }
 
       ${widgetId} .video-thumbnail-wrapper {
         background: black;
@@ -281,14 +282,14 @@
         transform: rotate(180deg);
       }
 
-      .lightbox-transition-left {
+      .frame-transition-left {
         transform: translateX(-50vw) rotateY(90deg) scale(0);
         opacity: 0;
         z-index: -1 !important;
         pointer-events: none !important;
       }
 
-      .lightbox-transition-right {
+      .frame-transition-right {
         transform: translateX(50vw) rotateY(-90deg) scale(0);
         opacity: 0;
         z-index: -1 !important;
@@ -396,18 +397,18 @@
         position: absolute;
         box-shadow: 0px 0px 48px black;
         filter: drop-shadow(rgba(255, 255, 255, 0.44) 0px 0px 80px);
-        transition: ${lightboxFrameTransition}s !important;
+        transition: ${frameTransition}s !important;
         z-index: 10;
       }
 
       @media(max-width: ${mediaQueryBreakpoint}px) {
-        ${widgetId} .video-list {
+        ${widgetId} .grid-layout {
           grid-template-columns: 1fr;
         }
       }
 
       @media(min-width: ${mediaQueryBreakpoint + 1}px) {
-        ${widgetId} .video-list {
+        ${widgetId} .grid-layout {
           grid-template-columns: repeat(auto-fill, minmax(${minimumWidthOfEachVideoItem}px, 1fr));
           grid-auto-rows: 1fr;
         }
@@ -432,11 +433,11 @@
           </g>
         </svg>
         <div class="lightbox-video-container">
-          <iframe data-lightboxposition="-1" class="lightbox-transition-left" width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+          <iframe data-frameposition="-1" class="frame-transition-left" width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
           </iframe>
-          <iframe data-lightboxposition="0" width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+          <iframe data-frameposition="0" width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
           </iframe>
-          <iframe data-lightboxposition="1" class="lightbox-transition-right" width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+          <iframe data-frameposition="1" class="frame-transition-right" width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
           </iframe>
         </div>
         <svg version="1.0" xmlns="http://www.w3.org/2000/svg" class="rotate-180" data-hideonidle="true" data-lightboxarrowdirection="right" data-lightboxarrow="true"
@@ -466,33 +467,40 @@
       return playbackButton
     }
 
-    // Video Item Container HTML
+    // Grid Layout Video Item HTML
 
-    function renderPlaylistItem(item) {
+    function renderItem(item) {
       const { snippet } = item;
       const thumbnails = snippet.thumbnails;
       const image = thumbnails.maxres ? thumbnails.maxres : thumbnails.standard ? thumbnails.standard : thumbnails.high ? thumbnails.high : thumbnails.medium ? thumbnails.medium : thumbnails.default;
-      const htmlRender = 
-      `
-        <!-- ${snippet.title} -->
-        <a class="video-item" data-videoid="${snippet.resourceId.videoId}">
-          <div class="video-thumbnail-wrapper">
-            <img src="${image.url}" width="${image.width}" height="${image.height}" alt="${snippet.title}">
-            ${showPlayButtons ? playButtonIcon() : ''}
-            <div class="hover-text-container">
-              ${item.titledEpisode !== -1 ? `<h3>Episode ${item.titledEpisode}</h3>` : `<h3>${snippet.title}</h3>`}
-              ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
-            </div>
-          </div>
-          ${ showVideoInfo ? 
-            `<div class="video-info-text-container">
-                  ${item.titledEpisode !== -1 ? `<h3>Episode ${item.titledEpisode}</h3>` : `<h3>${snippet.title}</h3>`}
-              ${snippet.description !== '' && showDescriptionText ? `<span>${snippet.description}</span>` : ''}
-            </div>`
-            : ''
-          } 
-        </a>
-      `;
+      let htmlRender;
+      switch(playlistLayout) {
+
+        // Render Grid Layout Item HTML
+
+        case 'grid':
+          htmlRender = 
+            `
+              <!-- ${snippet.title} -->
+              <a class="video-item" data-videoid="${snippet.resourceId.videoId}">
+                <div class="video-thumbnail-wrapper" data-itemclickable="true">
+                  <img src="${image.url}" width="${image.width}" height="${image.height}" alt="${snippet.title}">
+                  ${showPlayButtons ? playButtonIcon() : ''}
+                  <div class="hover-text-container">
+                    ${item.titledEpisode !== -1 ? `<h3>Episode ${item.titledEpisode}</h3>` : `<h3>${snippet.title}</h3>`}
+                    ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
+                  </div>
+                </div>
+                ${ showVideoInfo ? 
+                  `<div class="video-info-text-container">
+                        ${item.titledEpisode !== -1 ? `<h3>Episode ${item.titledEpisode}</h3>` : `<h3>${snippet.title}</h3>`}
+                    ${snippet.description !== '' && showDescriptionText ? `<span>${snippet.description}</span>` : ''}
+                  </div>`
+                  : ''
+                } 
+              </a>
+            `;
+      }
       return htmlRender
     }
 
@@ -510,15 +518,92 @@
       }
     }
 
+    function arrowClickTransitionFrame(frame, direction, type, currentVideoIndex) {
+      switch(frame.dataset.frameposition) {
+        case '-1':
+          if (direction === 'left') {
+            if (type === 'lightbox' && playListSorted[currentVideoIndex] && 
+              frame.src !== lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId) {
+                frame.src = lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId
+            }
+            frame.classList.remove('frame-transition-left');
+            frame.dataset.frameposition = 0;
+          }
+          if (direction === 'right') {
+            if (type === 'lightbox') {
+              frame.src = 'about:blank';
+            }
+            frame.classList.remove('frame-transition-left');
+            frame.classList.add('frame-transition-right');
+            frame.dataset.frameposition = 1;
+            setTimeout(() => { 
+              if (type === 'lightbox' && playListSorted[currentVideoIndex + 1]) {
+                frame.src = lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex + 1].snippet.resourceId.videoId 
+              }
+            }, frameTransition)
+          }
+          break;
+        case '0':
+          if (direction === 'left') {
+            if (type === 'lightbox') {
+              frame.src = 'about:blank';
+            }
+            frame.classList.add('frame-transition-right');
+            frame.dataset.frameposition = 1;
+            setTimeout(() => { 
+              if (type === 'lightbox' && playListSorted[currentVideoIndex + 1]) {
+                frame.src = lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex + 1].snippet.resourceId.videoId 
+              }
+            }, frameTransition)
+          }
+          if (direction === 'right') { 
+            if (type === 'lightbox') {
+              frame.src = 'about:blank';
+            }
+            frame.classList.add('frame-transition-left');
+            frame.dataset.frameposition = -1;
+            setTimeout(() => { 
+              if (type === 'lightbox' && playListSorted[currentVideoIndex - 1]) {
+                frame.src = lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex - 1].snippet.resourceId.videoId 
+              }
+            }, frameTransition)
+          }
+          break;
+        case '1':
+          if (direction === 'left') {
+            if (type === 'lightbox') {
+              frame.src = 'about:blank';
+            }
+            frame.classList.remove('frame-transition-right');
+            frame.classList.add('frame-transition-left');
+            frame.dataset.frameposition = -1;
+            setTimeout(() => { 
+              if (type === 'lightbox' && playListSorted[currentVideoIndex - 1]) {
+                frame.src = lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex - 1].snippet.resourceId.videoId 
+              }
+            }, frameTransition) 
+          }
+          if (direction === 'right') { 
+            if (type === 'lightbox' && playListSorted[currentVideoIndex] && 
+              frame.src !== lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId) {
+                frame.src = lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId
+            }
+            frame.classList.remove('frame-transition-right');
+            frame.dataset.frameposition = 0;
+          }
+          break;
+      }
+    }
+
     function lightboxActivateHandler(itemClicked) {
 
       // Select DOM Elements
 
       lightbox.innerHTML = '';
       lightbox.innerHTML = lightboxHTML;
-      const startingLightboxActive = lightbox.querySelector('[data-lightboxposition="0"]');
-      const lightboxStartingLeft = lightbox.querySelector('[data-lightboxposition="-1"]');
-      const lightboxStartingRight = lightbox.querySelector('[data-lightboxposition="1"]');
+      const startingLightboxActive = lightbox.querySelector('[data-frameposition="0"]');
+      const lightboxStartingLeft = lightbox.querySelector('[data-frameposition="-1"]');
+      const lightboxStartingRight = lightbox.querySelector('[data-frameposition="1"]');
       const lightframes = lightbox.querySelectorAll('iframe');
       const lightboxArrowLeft = document.querySelector('[data-lightboxarrowdirection="left"]');
       const lightboxArrowRight = document.querySelector('[data-lightboxarrowdirection="right"]');
@@ -531,6 +616,8 @@
       let mouseOverElement = false;
       let lastMouseOverTime = new Date().getTime();
       const idleDelayTime = 5000;
+
+      // Monitors Mouse Movements And Clicks In Lightbox
 
       function lightboxMouseMoveHandler(e, elementsToHideWhenIdle) {
         mouseOverElement = false;
@@ -555,6 +642,8 @@
         }
       }
 
+      // Calls Upon lightboxMouseMoveHandler Function
+
       lightboxMouseMoveHandler();
 
       lightbox.addEventListener('mousemove', e => lightboxMouseMoveHandler(e, elementsToHideWhenIdle));
@@ -563,34 +652,30 @@
       // Video Index And Base Url For Youtube Embed Iframe
 
       let currentVideoIndex = playListSorted.findIndex(video => video.snippet.resourceId.videoId === itemClicked.parentNode.dataset.videoid);
-      const videoBaseUrl = 'https://www.youtube.com/embed/';
 
       // Check For Starting Position To See If Arrows Should Be Shown Based Upon Starting Video Index Position And Set Corresponding Iframe Urls
 
       if (!playListSorted[currentVideoIndex + 1]) {
         lightboxArrowRight.classList.add('disable-arrow');
-      } else lightboxStartingRight.src = videoBaseUrl + playListSorted[currentVideoIndex + 1].snippet.resourceId.videoId;
+      } else lightboxStartingRight.src = lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex + 1].snippet.resourceId.videoId;
       if (!playListSorted[currentVideoIndex - 1]) {
         lightboxArrowLeft.classList.add('disable-arrow');
-      } else lightboxStartingLeft.src = videoBaseUrl + playListSorted[currentVideoIndex - 1].snippet.resourceId.videoId;
+      } else lightboxStartingLeft.src = lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex - 1].snippet.resourceId.videoId;
 
       // Check If Video Index Has Video And Check For Browser Window Width And Set For Lightbox Or Full Screen Iframe On Mobile, Tablet
 
       if (playListSorted[currentVideoIndex]) {
         if (window.innerWidth > lightboxDisplayBreakpoint) {
-          startingLightboxActive.src = videoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId;
-        } else window.open(videoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId)
+          startingLightboxActive.src = lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId;
+        } else window.open(lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId)
       }
       if (window.innerWidth > lightboxDisplayBreakpoint) {
+        startingLightboxActive.contentDocument.body.addEventListener('keyup', escapeKeyListener);
         lightbox.classList.toggle('show-lightbox');
         html.classList.toggle('hide-scroll');
       } else {
         lightboxClear();
-      }
-
-      // Event Listener To Exit On Escape Key.  Won't Work If Video Is Playing Or Iframe Is Active Selected
-
-      startingLightboxActive.contentDocument.body.addEventListener('keyup', escapeKeyListener);
+      }      
 
       // Event Listener On Exit Button Click To Exit LightBox
 
@@ -602,72 +687,32 @@
 
       lightboxArrowLeft.addEventListener('click', () => {
         currentVideoIndex -= 1;
+
         if (playListSorted[currentVideoIndex - 1]) {
           lightboxArrowLeft.classList.remove('disable-arrow');
-        } else lightboxArrowLeft.classList.add('disable-arrow')
+        } else lightboxArrowLeft.classList.add('disable-arrow');
+
         if (playListSorted[currentVideoIndex + 1]) {
           lightboxArrowRight.classList.remove('disable-arrow')
         } else lightboxArrowRight.classList.add('disable-arrow')
-        lightframes.forEach(frame => {
-          switch(frame.dataset.lightboxposition) {
-            case '-1':
-              if (frame.src !== videoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId) {
-                frame.src = videoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId
-              }
-              frame.classList.remove('lightbox-transition-left');
-              frame.dataset.lightboxposition = 0;
-              break;
-            case '0':
-              frame.src = 'about:blank';
-              frame.classList.add('lightbox-transition-right');
-              frame.dataset.lightboxposition = 1;
-              setTimeout(() => frame.src = videoBaseUrl + playListSorted[currentVideoIndex + 1].snippet.resourceId.videoId ,lightboxFrameTransition)
-              break;
-            case '1':
-              frame.src = 'about:blank';
-              frame.classList.remove('lightbox-transition-right');
-              frame.classList.add('lightbox-transition-left');
-              frame.dataset.lightboxposition = -1;
-              setTimeout(() => frame.src = videoBaseUrl + playListSorted[currentVideoIndex - 1].snippet.resourceId.videoId ,lightboxFrameTransition) 
-              break;
-          }
-        });
+
+        lightframes.forEach(frame => arrowClickTransitionFrame(frame, 'left', 'lightbox', currentVideoIndex));
       });
 
       // Right Arrow Click Event Listener
 
       lightboxArrowRight.addEventListener('click', () => {
         currentVideoIndex += 1;
+
         if (playListSorted[currentVideoIndex + 1]) {
           lightboxArrowRight.classList.remove('disable-arrow');
         } else lightboxArrowRight.classList.add('disable-arrow');
+
         if (playListSorted[currentVideoIndex - 1]) {
-          lightboxArrowLeft.classList.remove('disable-arrow')
-        } else lightboxArrowLeft.classList.add('disable-arrow')
-        lightframes.forEach(frame => {
-          switch(frame.dataset.lightboxposition) {
-            case '-1':
-              frame.src = 'about:blank';
-              frame.classList.remove('lightbox-transition-left');
-              frame.classList.add('lightbox-transition-right');
-              frame.dataset.lightboxposition = 1;
-              setTimeout(() => frame.src = videoBaseUrl + playListSorted[currentVideoIndex + 1].snippet.resourceId.videoId ,lightboxFrameTransition)
-              break;
-            case '0':
-              frame.src = 'about:blank';
-              frame.classList.add('lightbox-transition-left');
-              frame.dataset.lightboxposition = -1;
-              setTimeout(() => frame.src = videoBaseUrl + playListSorted[currentVideoIndex - 1].snippet.resourceId.videoId ,lightboxFrameTransition)
-              break;
-            case '1':  
-              if (frame.src !== videoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId) {
-                frame.src = videoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId
-              }
-              frame.classList.remove('lightbox-transition-right');
-              frame.dataset.lightboxposition = 0;
-              break;
-          }
-        });
+          lightboxArrowLeft.classList.remove('disable-arrow');
+        } else lightboxArrowLeft.classList.add('disable-arrow');
+
+        lightframes.forEach(frame => arrowClickTransitionFrame(frame, 'right', 'lightbox', currentVideoIndex));
       });
     }
 
@@ -877,7 +922,7 @@
 
           // HTML Rendering
 
-          const listOutput = pageOutputList.map(item => {
+          const listMapping = pageOutputList.map(item => {
             if (!item) {
               console.error(`Playlist VideoID: ${item.snippet.resourceId.videoId} Failed To Load`);
               failedItemTally++
@@ -885,9 +930,11 @@
               console.warn('Failed To Load Playlist Item Due To Lack Of Sufficient Data.  Playlist Could Possibly Be Empty')
             } else if (item.snippet.title.toLowerCase() === 'deleted video' || item.snippet.title.toLowerCase() === 'private video') {
               console.warn(`Video Playlist Item ${item.snippet.resourceId.videoId} Could Not Be Loaded As Its Status Is: ${item.snippet.title}`);
-            } else return renderPlaylistItem(item)
+            } else return renderItem(item);
           }).join('');
-          playlistItems.innerHTML = listOutput;
+          if (playlistLayout === 'grid') {
+            playlistItems.innerHTML = '<div class="grid-layout">' + listMapping + '<div>';
+          }
 
           // Error Logging
 
@@ -897,7 +944,7 @@
 
           // Click Event Listener Initialization After HTML Rendering Of Video Items
 
-          const items = document.querySelectorAll('.video-item .video-thumbnail-wrapper');
+          const items = document.querySelectorAll('[data-itemclickable="true"]');
           items.forEach(item => {
             item.addEventListener('click', () => lightboxActivateHandler(item));
           });
