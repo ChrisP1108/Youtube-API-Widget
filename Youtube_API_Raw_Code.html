@@ -1,8 +1,7 @@
-<!-- Youtube API Code Insertion Here -->
-<div id="youtube_api_1"></div>
+<div id="uc_magellan_youtube_playlist_api_elementor18883"></div>
 
 <script>
-    function initialize_youtube_api_1() { // ALL YOUTUBE PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
+    function initialize_uc_magellan_youtube_playlist_api_elementor18883() { // ALL YOUTUBE PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
   // ALL HTML, CSS, JAVASCRIPT CODE FOR THE YOUTUBE PLAYLIST API IS PRESENT HERE, MINUS THE ROOT WIDGET HTML CONTAINER.  A CONTAINER MUST BE PRESENT IN THE HTML WITH THE ID OF THE WIDGET FOR THE "widgetRoot" DOM SELECTOR TO INITIATE THE WIDGET.
 
@@ -12,8 +11,8 @@
 
       // Programming Variable Declarations
       
-      const apiKey = 'AIzaSyB7e52CWQyd2_yAJ9agwqeb48g91hS0VNg'; // API Key For Youtube API Through Google Cloud
-      const playlistId = 'PLE69e89d5PM2IjZCEP0VYluWMuVuISZSX'; // Youtube Playlist Id
+      const apiKey = 'AIzaSyCI7Y5K9XF-l1G0mb7qGNp3vd7-1vm2PrU'; // API Key For Youtube API Through Google Cloud
+      const playlistId = 'PLE69e89d5PM1U_JyAV5U-dguNaMQ4yGJm'; // Youtube Playlist Id
       const resultLimitPerRequest = 50; // Youtube API Has A Limit Of 50 Results Per Request.
       const limitVideos = true; // Limit Videos Displayed.  Default Value Is: true
       const maxResults = 6; // If limitVideos Is Set To: true, Limit Number Of Videos Displayed.  Default Value Is: 6
@@ -28,19 +27,23 @@
       const showNonNumberedEpisodesOnly = false; // Shows Videos That Do Not Have An Episode Number Only. Default Value Is: false 
       const hideNonNumberedVideos = false; // Hides Non-Numbered Videos In Playlist.  Default Value Is: false   
       const timeStorageInterval = 60 * 60000; // Sets Time Interval That Another API Call Request Can Be Made Instead Of Loading From Local Storage In Minutes That Is Multiplied By 60000 To Convert Minutes To Milliseconds.  Default Value is 60
+      const instructionMessage = 'Click Here To Watch'; // Instruction Message Text.  Default Value is: 'Click Here To Watch'
       const showPlayButtons = true; // Sets If Play Button Icons Should Be Shown Over Video Thumbnails.  Default Value Is: true
       const showVideoInfo = false; // Sets If Text Information About Video Should Be Displayed Below Video Thumbnail.  Default Value Is: false
       const showDescriptionText = false; // If showVideoInfo Is Set To True, Sets If Video Description Text Should Be Displayed.  Default Value Is: false
       const lightboxDisplayBreakpoint = 1400; // Sets Breakpoint Between LightBox Being Enabled And Opening In Another Tab When Video Thumbnail Is Clicked.  Default Value Is: 1400
-
+      const playlistLayout = false; // Determines The Layout Of Videos On Page.  If False, Video Thumbnail Will Be Shown In Grid Layout.  If True, Playlist Layout Will Be Shown
+      const showAllInLightbox = false; // Determines If Lightbox Will Allow User To See All Videos On PlayList If True. If False, User Can Only View Videos Shown On Page  
+      let playListSorted = []; // Captures All Videos After Filtering And Sorting Before They're Reduced To Output Amount For Showing All Videos When Navigating Through Lightbox
+      
       // CSS Variable Declarations
 
       const playButtonColor = '#ffffff'; // Sets Color Of Play Button Icon Over Video Thumbnail.  Default Value IS: '#ffffff'
       const gapBetweenVideos = '60px'; // Sets Spacing Between Video Item Containers.  Default Value Is: '48px'
       const videoContainerBorderThickness = '0px'; // Sets Video Container Border Thickness: Default Value Is: '0px'
       const videoContainerBorderColor = '#000000'; // Sets Video Container Border Color: Default Value Is: '#000000'
-      const dropShadowValues = '4px 4px 8px'; // Sets Drop-Shadow Values For Video Container.  Default Value Is: 0px 0px 0px
-      const dropShadowColor = '#00000070'; // Sets Drop-Shadow Color For Video Container.  Default Value Is: '#00000036'
+      const dropShadowValues = '4px 4px 12px'; // Sets Drop-Shadow Values For Video Container.  Default Value Is: 0px 0px 0px
+      const dropShadowColor = '#01010147'; // Sets Drop-Shadow Color For Video Container.  Default Value Is: '#00000036'
       const textBelowThumbnailTopBottomMargin = '24px'; // Sets Text Below Video Thumbnail Margins On Top And Bottom. Default Value Is: '24px'
       const textBelowThumbnailSideMargins = '24px'; // Sets Text Below Video Thumbnail Margins On Sides.  Default Value Is: '24px'
       const titleTextColorBelowThumbnail = '#000000'; // Sets Color Of Video Title Text Below Video Thumbnail.  Default Value Is: '#000000'
@@ -49,12 +52,13 @@
       const imageDarkeningOpacity = '20'; // Sets How Dark The Video Thumbnail Should Get Opacity On Mouse Hover.  Default Value Is: '20'
       const textOverThumbnailColor = '#ffffff'; // Sets Color Of Text Over Video Thumbnail On Mouse Hover.  Default Value Is: '#ffffff'
       const textContainerMargin = '24px'; // Sets Padding Of Text Container That Cover Over Video Thumbnail For Text On Mouse Hover.  Default Value Is: '24px'
-      const spaceBetweenTitleAndClickToPlayText = '2.5rem'; // Sets Vertical Spacing Between Episode Number Or Video Title Text And Instruction Text On Mouse Hover Over Thumbnail.  Default Value Is: '2.5rem'
+      const spaceBetweenTitleAndClickToPlayText = '40px'; // Sets Vertical Spacing Between Episode Number Or Video Title Text And Instruction Text On Mouse Hover Over Thumbnail.  Default Value Is: '40px'
       const playButtonSizing = '35%'; // Sets Sizing Of Play Button Icon Over Video Thumbnail Relative To The HEight Of The Video Thumbnail In Percentage.  Default Value Is: '35%'
       const playButtonOpacity = 75 / 100; // Sets Opacity Of Play Button Icon Over Video Thumbnail.  Divides Number By 100 To Convert Percentage To Decimal. Default Value Is: 75
       const closeButtonSize = '32px'; // Sets Size Of Lighbox Close Button On Top Right Corner Of Screen When Lighbox Is Active.  Default Value Is: '32px'
-      const minimumWidthOfEachVideoItem = 26.25; // Sets Minimun Width Size Of Each Video.  Default Value Is: 26.25 (REM value)
-      const mediaQueryBreakpoint = (minimumWidthOfEachVideoItem * 16) * 2; // Sets Media Query Break Point Of When Video Containers Should Stack In One Column.  Calculation Based Upon minimumWidthOfEachVideo Number.  Default Value Is: minimumWidthOfEachVideoItem * 2
+      const minimumWidthOfEachVideoItem = 480; // Sets Minimun Width Size Of Each Video.  Default Value Is: 480
+      const mediaQueryBreakpoint = minimumWidthOfEachVideoItem * 2; // Sets Media Query Break Point Of When Video Containers Should Stack In One Column.  Calculation Based Upon minimumWidthOfEachVideo Number.  Default Value Is: minimumWidthOfEachVideoItem * 2
+      const lightboxFrameTransition = 0.5; // Sets Transition Time Of LightBox Carousel Frame Transitioning In Seconds
 
     // Error Handling Variables
 
@@ -82,7 +86,7 @@
 
     // HTML Base Containers Initialization.  Loading Spinner Is Included On Initialization
 
-      const widgetId = '#youtube_api_1';
+      const widgetId = '#uc_magellan_youtube_playlist_api_elementor18883';
       const widgetRoot = document.querySelector(`${widgetId}`);
 
       widgetRoot.innerHTML = 
@@ -96,7 +100,7 @@
 
     // Lightbox Container Created And Appended To Body Of HTML
 
-	  const lightboxDiv = document.createElement('div');
+	    const lightboxDiv = document.createElement('div');
       lightboxDiv.dataset.lightboxid = widgetId;
       document.body.appendChild(lightboxDiv);
 
@@ -112,8 +116,6 @@
   // CSS Generation 
 
     const playlistStyling = `
-      @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-
       ${widgetId} {
         margin: 0;
         padding: 0;
@@ -261,7 +263,6 @@
         width: ${playButtonSizing};
         height: ${playButtonSizing};
         opacity: ${playButtonOpacity};
-        filter: drop-shadow(0px 0px 6px #00000090);
       }
 
       .show-lightbox {
@@ -276,8 +277,35 @@
         display: none!important;
       }
 
+      .rotate-180 {
+        transform: rotate(180deg);
+      }
+
+      .lightbox-transition-left {
+        transform: translateX(-50vw) rotateY(90deg) scale(0);
+        opacity: 0;
+        z-index: -1 !important;
+        pointer-events: none !important;
+      }
+
+      .lightbox-transition-right {
+        transform: translateX(50vw) rotateY(-90deg) scale(0);
+        opacity: 0;
+        z-index: -1 !important;
+        pointer-events: none !important;
+      }
+
+      .disable-arrow {
+        opacity: 0;
+        pointer-events: none !important;
+      }
+
+      .element-invisible {
+        opacity: 0 !important;
+      }
+
       [data-lightboxid="${widgetId}"] {
-        width: 100vw;
+        width: 100%;
         height: 100vh;
         display: none;
         background: #000000E2;
@@ -285,6 +313,18 @@
         top: 0;
         left: 0;
         z-index: 100000;
+      }
+
+      [data-lightboxid="${widgetId}"] .lightbox-content-container {
+        width: 100%;
+        height: 100%;
+        margin: 0 auto;
+        max-width: 1920px;
+        box-sizing: border-box;
+        padding: 40px 2%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
 
       [data-lightboxid="${widgetId}"] .lightbox-close-button {
@@ -305,21 +345,59 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        transition: 0.5s;
+        transition: 0.25s;
       }
 
-      [data-lightboxid="${widgetId}"] iframe {
+      [data-lightboxid="${widgetId}"] .lightbox-close-button:hover {
+        transform: translateX(-100%) scale(1.25);
+      }
+
+      [data-lightboxid="${widgetId}"] svg {
+        max-width: 60px;
+        min-width: 2%;
+        height: 100px;
+        cursor: pointer;
+        z-index: 3;
+        transition: 0.25s;
+      }
+
+      [data-lightboxid="${widgetId}"] .lightbox-video-container {
         width: 78vw!important;
         height: 43.9vw!important;
         max-height: 90vh!important;
         max-width: 160vh!important;
+        position: relative;
+      }
+
+      [data-lightboxid="${widgetId}"] [data-lightboxarrowdirection="left"]:hover {
+        transform: scale(1.25);
+        transition: 0.25s;
+      }
+
+      [data-lightboxid="${widgetId}"] [data-lightboxarrowdirection="right"]:hover {
+        transform: scale(1.25) rotate(180deg);
+        transition: 0.25s;
+      }
+
+      [data-lightboxid="${widgetId}"] [data-lightboxarrowdirection="left"]:active {
+        transform: translate(-10%);
+        transition: 0.1s;
+      }
+
+      [data-lightboxid="${widgetId}"] [data-lightboxarrowdirection="right"]:active {
+        transform: translate(10%) rotate(180deg);
+        transition: 0.1s;
+      }
+
+      [data-lightboxid="${widgetId}"] iframe {
+        width: 100%;
+        height: 100%;
         border: 0px;
         position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
         box-shadow: 0px 0px 48px black;
         filter: drop-shadow(rgba(255, 255, 255, 0.44) 0px 0px 80px);
+        transition: ${lightboxFrameTransition}s !important;
+        z-index: 10;
       }
 
       @media(max-width: ${mediaQueryBreakpoint}px) {
@@ -330,7 +408,8 @@
 
       @media(min-width: ${mediaQueryBreakpoint + 1}px) {
         ${widgetId} .video-list {
-          grid-template-columns: repeat(auto-fill, minmax(${minimumWidthOfEachVideoItem}rem, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(${minimumWidthOfEachVideoItem}px, 1fr));
+          grid-auto-rows: 1fr;
         }
       }
     `
@@ -342,7 +421,36 @@
 
     // Lightbox HTML
 
-    const lightboxHTML = `<iframe width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><div class="lightbox-close-button">X</div>`;
+    const lightboxHTML = `
+      <div class="lightbox-content-container">
+        <svg version="1.0" xmlns="http://www.w3.org/2000/svg" data-hideonidle="true" data-lightboxarrowdirection="left" data-lightboxarrow="true"
+          width="100.000000pt" height="100.000000pt" viewBox="0 0 100.000000 100.000000"
+          preserveAspectRatio="xMidYMid meet">
+          <g data-hideonidle="true" transform="translate(0.000000,100.000000) scale(0.100000,-0.100000)"
+          fill="#ffffff" stroke="none">
+          <path data-hideonidle="true" d="M415 720 l-220 -220 223 -222 222 -223 72 73 73 72 -148 148 -147 147 145 145 c80 80 145 149 145 155 0 0 -140 145 -140 145 0 0 -104 -99 -225 -220z"/>
+          </g>
+        </svg>
+        <div class="lightbox-video-container">
+          <iframe data-lightboxposition="-1" class="lightbox-transition-left" width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+          </iframe>
+          <iframe data-lightboxposition="0" width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+          </iframe>
+          <iframe data-lightboxposition="1" class="lightbox-transition-right" width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+          </iframe>
+        </div>
+        <svg version="1.0" xmlns="http://www.w3.org/2000/svg" class="rotate-180" data-hideonidle="true" data-lightboxarrowdirection="right" data-lightboxarrow="true"
+          width="100.000000pt" height="100.000000pt" viewBox="0 0 100.000000 100.000000"
+          preserveAspectRatio="xMidYMid meet">
+
+          <g data-hideonidle="true" transform="translate(0.000000,100.000000) scale(0.100000,-0.100000)"
+          fill="#ffffff" stroke="none">
+          <path data-hideonidle="true" d="M415 720 l-220 -220 223 -222 222 -223 72 73 73 72 -148 148 -147 147 145 145 c80 80 145 149 145 155 0 0 -140 145 -140 145 0 0 -104 -99 -225 -220z"/>
+          </g>
+        </svg>
+      </div>
+      <div class="lightbox-close-button" data-hideonidle="true" data-lightboxclosebutton="true">X</div>
+      `;
 
     // Video Item Play Button Icon HTML
 
@@ -367,13 +475,13 @@
       const htmlRender = 
       `
         <!-- ${snippet.title} -->
-        <div class="video-item" data-videoid="${snippet.resourceId.videoId}">
+        <a class="video-item" data-videoid="${snippet.resourceId.videoId}">
           <div class="video-thumbnail-wrapper">
             <img src="${image.url}" width="${image.width}" height="${image.height}" alt="${snippet.title}">
             ${showPlayButtons ? playButtonIcon() : ''}
             <div class="hover-text-container">
               ${item.titledEpisode !== -1 ? `<h3>Episode ${item.titledEpisode}</h3>` : `<h3>${snippet.title}</h3>`}
-              <p>${window.innerWidth > 1200 ? 'Click' : 'Tap'} Here To Watch</p>
+              ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
             </div>
           </div>
           ${ showVideoInfo ? 
@@ -383,7 +491,7 @@
             </div>`
             : ''
           } 
-        </div>
+        </a>
       `;
       return htmlRender
     }
@@ -391,6 +499,7 @@
   // Event Methods
 
     function lightboxClear() {
+      lightbox.innerHTML = '';
       lightbox.classList.remove('show-lightbox');
       html.classList.remove('hide-scroll');
     }
@@ -401,15 +510,76 @@
       }
     }
 
-    function clickListener(item) {
+    function lightboxActivateHandler(itemClicked) {
+
+      // Select DOM Elements
+
       lightbox.innerHTML = '';
       lightbox.innerHTML = lightboxHTML;
-      const iframe = lightbox.querySelector('iframe');
-      if (item.parentNode.dataset.videoid) {
-        const videoUrl = `https://www.youtube.com/embed/${item.parentNode.dataset.videoid}`
+      const startingLightboxActive = lightbox.querySelector('[data-lightboxposition="0"]');
+      const lightboxStartingLeft = lightbox.querySelector('[data-lightboxposition="-1"]');
+      const lightboxStartingRight = lightbox.querySelector('[data-lightboxposition="1"]');
+      const lightframes = lightbox.querySelectorAll('iframe');
+      const lightboxArrowLeft = document.querySelector('[data-lightboxarrowdirection="left"]');
+      const lightboxArrowRight = document.querySelector('[data-lightboxarrowdirection="right"]');
+      const lightboxCloseButton = document.querySelector('[data-lightboxclosebutton="true"]');
+
+      // Elements To Hide When User Idle In Lightbox After 5 Seconds
+
+      const elementsToHideWhenIdle = [lightboxArrowLeft, lightboxArrowRight, lightboxCloseButton];
+
+      let mouseOverElement = false;
+      let lastMouseOverTime = new Date().getTime();
+      const idleDelayTime = 5000;
+
+      function lightboxMouseMoveHandler(e, elementsToHideWhenIdle) {
+        mouseOverElement = false;
+        lastMouseOverTime = new Date().getTime();
+        if (e && e.path) {
+          e.path.forEach(p => {
+            if (p.dataset && p.dataset.hideonidle) {
+              mouseOverElement = true;
+            }
+          })
+        }
+        if (e && e.type && !mouseOverElement && e.type === 'click') {
+          lightboxClear();
+        }
+        if (elementsToHideWhenIdle && elementsToHideWhenIdle[0] !== null && !mouseOverElement) {
+          elementsToHideWhenIdle.forEach(element => element.classList.remove('element-invisible'));
+          setTimeout(() => {
+            if (!mouseOverElement && (new Date().getTime() - lastMouseOverTime) >= idleDelayTime) {
+              elementsToHideWhenIdle.forEach(element => element.classList.add('element-invisible'))
+            }
+          }, idleDelayTime)
+        }
+      }
+
+      lightboxMouseMoveHandler();
+
+      lightbox.addEventListener('mousemove', e => lightboxMouseMoveHandler(e, elementsToHideWhenIdle));
+      lightbox.addEventListener('click', e => lightboxMouseMoveHandler(e, elementsToHideWhenIdle));
+
+      // Video Index And Base Url For Youtube Embed Iframe
+
+      let currentVideoIndex = playListSorted.findIndex(video => video.snippet.resourceId.videoId === itemClicked.parentNode.dataset.videoid);
+      const videoBaseUrl = 'https://www.youtube.com/embed/';
+
+      // Check For Starting Position To See If Arrows Should Be Shown Based Upon Starting Video Index Position And Set Corresponding Iframe Urls
+
+      if (!playListSorted[currentVideoIndex + 1]) {
+        lightboxArrowRight.classList.add('disable-arrow');
+      } else lightboxStartingRight.src = videoBaseUrl + playListSorted[currentVideoIndex + 1].snippet.resourceId.videoId;
+      if (!playListSorted[currentVideoIndex - 1]) {
+        lightboxArrowLeft.classList.add('disable-arrow');
+      } else lightboxStartingLeft.src = videoBaseUrl + playListSorted[currentVideoIndex - 1].snippet.resourceId.videoId;
+
+      // Check If Video Index Has Video And Check For Browser Window Width And Set For Lightbox Or Full Screen Iframe On Mobile, Tablet
+
+      if (playListSorted[currentVideoIndex]) {
         if (window.innerWidth > lightboxDisplayBreakpoint) {
-          iframe.src = videoUrl;
-        } else window.open(videoUrl)
+          startingLightboxActive.src = videoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId;
+        } else window.open(videoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId)
       }
       if (window.innerWidth > lightboxDisplayBreakpoint) {
         lightbox.classList.toggle('show-lightbox');
@@ -417,8 +587,88 @@
       } else {
         lightboxClear();
       }
-      iframe.addEventListener('click', () => console.log('test'))
-      iframe.contentDocument.body.addEventListener('keyup', escapeKeyListener);
+
+      // Event Listener To Exit On Escape Key.  Won't Work If Video Is Playing Or Iframe Is Active Selected
+
+      startingLightboxActive.contentDocument.body.addEventListener('keyup', escapeKeyListener);
+
+      // Event Listener On Exit Button Click To Exit LightBox
+
+      lightboxCloseButton.addEventListener('click', lightboxClear);
+
+      // Event Listeners For Left And Right Lightbox Arrows
+
+      // Left Arrow Click Event Listener
+
+      lightboxArrowLeft.addEventListener('click', () => {
+        currentVideoIndex -= 1;
+        if (playListSorted[currentVideoIndex - 1]) {
+          lightboxArrowLeft.classList.remove('disable-arrow');
+        } else lightboxArrowLeft.classList.add('disable-arrow')
+        if (playListSorted[currentVideoIndex + 1]) {
+          lightboxArrowRight.classList.remove('disable-arrow')
+        } else lightboxArrowRight.classList.add('disable-arrow')
+        lightframes.forEach(frame => {
+          switch(frame.dataset.lightboxposition) {
+            case '-1':
+              if (frame.src !== videoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId) {
+                frame.src = videoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId
+              }
+              frame.classList.remove('lightbox-transition-left');
+              frame.dataset.lightboxposition = 0;
+              break;
+            case '0':
+              frame.src = 'about:blank';
+              frame.classList.add('lightbox-transition-right');
+              frame.dataset.lightboxposition = 1;
+              setTimeout(() => frame.src = videoBaseUrl + playListSorted[currentVideoIndex + 1].snippet.resourceId.videoId ,lightboxFrameTransition)
+              break;
+            case '1':
+              frame.src = 'about:blank';
+              frame.classList.remove('lightbox-transition-right');
+              frame.classList.add('lightbox-transition-left');
+              frame.dataset.lightboxposition = -1;
+              setTimeout(() => frame.src = videoBaseUrl + playListSorted[currentVideoIndex - 1].snippet.resourceId.videoId ,lightboxFrameTransition) 
+              break;
+          }
+        });
+      });
+
+      // Right Arrow Click Event Listener
+
+      lightboxArrowRight.addEventListener('click', () => {
+        currentVideoIndex += 1;
+        if (playListSorted[currentVideoIndex + 1]) {
+          lightboxArrowRight.classList.remove('disable-arrow');
+        } else lightboxArrowRight.classList.add('disable-arrow');
+        if (playListSorted[currentVideoIndex - 1]) {
+          lightboxArrowLeft.classList.remove('disable-arrow')
+        } else lightboxArrowLeft.classList.add('disable-arrow')
+        lightframes.forEach(frame => {
+          switch(frame.dataset.lightboxposition) {
+            case '-1':
+              frame.src = 'about:blank';
+              frame.classList.remove('lightbox-transition-left');
+              frame.classList.add('lightbox-transition-right');
+              frame.dataset.lightboxposition = 1;
+              setTimeout(() => frame.src = videoBaseUrl + playListSorted[currentVideoIndex + 1].snippet.resourceId.videoId ,lightboxFrameTransition)
+              break;
+            case '0':
+              frame.src = 'about:blank';
+              frame.classList.add('lightbox-transition-left');
+              frame.dataset.lightboxposition = -1;
+              setTimeout(() => frame.src = videoBaseUrl + playListSorted[currentVideoIndex - 1].snippet.resourceId.videoId ,lightboxFrameTransition)
+              break;
+            case '1':  
+              if (frame.src !== videoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId) {
+                frame.src = videoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId
+              }
+              frame.classList.remove('lightbox-transition-right');
+              frame.dataset.lightboxposition = 0;
+              break;
+          }
+        });
+      });
     }
 
   // Data Retrieval From LocalStorage / API Method
@@ -559,44 +809,80 @@
 
     getPlaylistItems().then(res => {
         if (res.ok) {
-          let sortedList = [...res.data.items];
+          let pageOutputList = [...res.data.items];
 
-          // Data Sorting 
+          // Filter By Name
+
+          if (!pageOutputList[0].snippet) {
+            console.warn('Failed To Load Playlist Due To Lack Of Sufficient Data.  Playlist May Be Empty');
+            playlistItems.innerHTML = `
+              <h2>The Playlist Is Currently Empty.</h2>
+            `
+            return
+          }
 
           if (filterByName) {
-              sortedList = sortedList.filter(item => item.snippet.title.toLowerCase().includes(filterNameParameters));
+              pageOutputList = pageOutputList.filter(item => item.snippet.title.toLowerCase().includes(filterNameParameters));
           }  
-          sortedList = sortedList.map(item => ({...item, titledEpisode: numberReducer(item.snippet.title)}));
+          // Sorting 
+
+          pageOutputList = pageOutputList.map(item => ({...item, titledEpisode: numberReducer(item.snippet.title)}));
           for (let i = 0; i < 2; i++) {
-              sortedList.sort((a, b) => listSorter(a, b));
+              pageOutputList.sort((a, b) => listSorter(a, b));
           }
-          sortedList = sortedList.filter((item, index) => {
-            if (sortedList[index + 1]) {
-              return sortedList[index + 1].titledEpisode !== item.titledEpisode ? true : false;
+
+          // Removes Duplicates If Found 
+
+          pageOutputList = pageOutputList.filter((item, index) => {
+            if (pageOutputList[index + 1]) {
+              return pageOutputList[index + 1].titledEpisode !== item.titledEpisode ? true : false;
             } else return true
           });
 
-          // Data Filtering
+          // Filter By Episode Range If listByRange Is True
 
           if (listByRange) {
-            sortedList = sortedList.filter(item => item.titledEpisode >= fromEpisodeNumber && item.titledEpisode <= toEpisodeNumber);
+            pageOutputList = pageOutputList.filter(item => item.titledEpisode >= fromEpisodeNumber && item.titledEpisode <= toEpisodeNumber);
           }
+
+          // Filter Out Numbered Episodes Only Non Numbered Episodes Are Shown If showNonNumberedEpisodesOnly Is True
+
           if (showNonNumberedEpisodesOnly) {
-              sortedList = sortedList.filter(item => item.titledEpisode === - 1);
+              pageOutputList = pageOutputList.filter(item => item.titledEpisode === - 1);
           }
+
+          // Filter Out Non Numbered Episodes If hideNonNumberedVideos Is True
+
           if (hideNonNumberedVideos) {
-              sortedList = sortedList.filter(item => item.titledEpisode !== - 1);
+              pageOutputList = pageOutputList.filter(item => item.titledEpisode !== - 1);
           }
-          if (maxResults < sortedList.length && limitVideos) {
-              sortedList = sortedList.filter((item, index) => (index + 1) <= maxResults);
+
+          // Capture All Videos After Filtering And Sorting Before Quantity For Output Is Reduced If showAllInLightbox Is True To Show All Videos In Lightbox
+
+          if (showAllInLightbox) {
+            playListSorted = [...pageOutputList];
+          }
+
+          // Reduces Amount Of Video Thumbnails To Be Displayed On Page
+
+          if (maxResults < pageOutputList.length && limitVideos) {
+              pageOutputList = pageOutputList.filter((item, index) => (index + 1) <= maxResults);
+          }
+
+          // Make playListSorted Show The Same as pageOutputList if showAllInLightbox Is False
+
+          if (!showAllInLightbox) {
+            playListSorted = [...pageOutputList];
           }
 
           // HTML Rendering
 
-          const listOutput = sortedList.map(item => {
+          const listOutput = pageOutputList.map(item => {
             if (!item) {
               console.error(`Playlist VideoID: ${item.snippet.resourceId.videoId} Failed To Load`);
               failedItemTally++
+            } else if (!item.snippet || !item.titledEpisode) {
+              console.warn('Failed To Load Playlist Item Due To Lack Of Sufficient Data.  Playlist Could Possibly Be Empty')
             } else if (item.snippet.title.toLowerCase() === 'deleted video' || item.snippet.title.toLowerCase() === 'private video') {
               console.warn(`Video Playlist Item ${item.snippet.resourceId.videoId} Could Not Be Loaded As Its Status Is: ${item.snippet.title}`);
             } else return renderPlaylistItem(item)
@@ -613,13 +899,13 @@
 
           const items = document.querySelectorAll('.video-item .video-thumbnail-wrapper');
           items.forEach(item => {
-            item.addEventListener('click', () => clickListener(item));
+            item.addEventListener('click', () => lightboxActivateHandler(item));
           });
 
           // Escape Key And Click Event Listener Initialization For Lightbox
 
           window.addEventListener('keyup', escapeKeyListener);
-          lightbox.addEventListener('click', () => clickListener(lightbox));
+          // lightbox.addEventListener('click', (e) => lightboxActivateHandler(lightbox, e));
 
       } else {
 
@@ -634,5 +920,5 @@
   // END CONTROLLER
 }
 
-initialize_youtube_api_1();
+initialize_uc_magellan_youtube_playlist_api_elementor18883();
 </script>
