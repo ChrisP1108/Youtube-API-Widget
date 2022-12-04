@@ -32,7 +32,7 @@
       const showVideoInfo = false; // Sets If Text Information About Video Should Be Displayed Below Video Thumbnail.  Default Value Is: false
       const showDescriptionText = false; // If showVideoInfo Is Set To True, Sets If Video Description Text Should Be Displayed.  Default Value Is: false
       const lightboxDisplayBreakpoint = 1400; // Sets Breakpoint Between LightBox Being Enabled And Opening In Another Tab When Video Thumbnail Is Clicked.  Default Value Is: 1400
-      const playlistLayout = 'grid'; // Determines The Layout Of Videos On Page.
+      const playlistLayout = 'carousel'; // Determines The Layout Of Videos On Page.
       const showAllInLightbox = false; // Determines If Lightbox Will Allow User To See All Videos On PlayList If True. If False, User Can Only View Videos Shown On Page  
       let playListSorted = []; // Captures All Videos After Filtering And Sorting Before They're Reduced To Output Amount For Showing All Videos When Navigating Through Lightbox
       let pageOutputList = []; // The Actual List Of Video That Will Be Shown On The Page (Grid Or Carousel Layout)
@@ -61,6 +61,7 @@
       const minimumWidthOfEachVideoItem = 480; // Sets Minimun Width Size Of Each Video.  Default Value Is: 480
       const mediaQueryBreakpoint = minimumWidthOfEachVideoItem * 2; // Sets Media Query Break Point Of When Video Containers Should Stack In One Column.  Calculation Based Upon minimumWidthOfEachVideo Number.  Default Value Is: minimumWidthOfEachVideoItem * 2
       const frameTransition = 500; // Sets Transition Time Of LightBox Carousel Frame Transitioning In Seconds
+      const carouselWidth = 32.5 // Set Width Of Carousel Layout Thumbnails In REMs
 
     // Error Handling Variables
 
@@ -123,7 +124,6 @@
         padding: 0;
         box-sizing: border-box;
       }
-
       ${widgetId} h2 {
         display: block;
         width: 100vw;
@@ -131,16 +131,13 @@
         font-size: 1.5rem;
         color: black;
       }
-
       ${widgetId} h3 {
         margin: 0!important;
       }
-
       ${widgetId} .grid-layout {
         display: grid;
         gap: ${gapBetweenVideos};
       }
-
       ${widgetId} .loading-spinner {
 		    filter: drop-shadow(2px 4px 6px #00000090);
         position: absolute;
@@ -152,7 +149,6 @@
         left: 50%;
         transform: translate(-50%, -50%);
       }
-
       ${widgetId} .video-item {
         max-width: 100%;
         text-align: center;
@@ -164,44 +160,35 @@
         animation-name: fade-in;
         animation-duration: 1s;
       }
-
       @keyframes fade-in {
   		  from { opacity: 0;}
         to { opacity: 1;}
 	    }
-
       ${widgetId} .video-thumbnail-wrapper {
         background: black;
         position: relative;
         cursor: pointer;
         ${!showInformationBelow ? `height: 100%;` : ``}
       }
-
       ${widgetId} .video-info-text-container {
         padding: ${textBelowThumbnailTopBottomMargin} ${textBelowThumbnailSideMargins};	
       }
-
       ${widgetId} .video-info-text-container h3 {
         color: ${titleTextColorBelowThumbnail};
         margin-bottom: ${spaceBetweenTitleAndDescriptionBelowThumbnail};
       }
-
       ${widgetId} .video-info-text-container span {
         color: ${descriptionTextColorBelowThumbnail};
       }
-
       ${widgetId} .video-thumbnail-wrapper:hover img {
         opacity: calc(${imageDarkeningOpacity} / 100);
       }
-
       ${widgetId} .video-thumbnail-wrapper:hover svg {
         opacity: 0;
       }
-
       ${widgetId} .video-thumbnail-wrapper:hover .hover-text-container {
         opacity: 1;
       }
-
       ${widgetId} .video-thumbnail-wrapper img {
         object-fit: cover;
         width: 100%!important;
@@ -209,11 +196,9 @@
         height: 100%!important;
         max-height: 100%!important;
       }
-
       .video-thumbnail-wrapper img {
         transition: 0.5s;
       }
-
       ${widgetId} .video-thumbnail-wrapper .hover-text-container {
         font-family: 'Roboto';
         position: absolute;
@@ -231,29 +216,23 @@
         transition: 0.5s;
         gap: ${spaceBetweenTitleAndClickToPlayText};
       }
-
       ${widgetId} .video-thumbnail-wrapper .hover-text-container h3 {
           font-size: 2.5rem;
           font-weight: 600;
       }
-
       ${widgetId} .video-thumbnail-wrapper .hover-text-container p {
           font-size: 1.75rem;
           font-weight: 400;
       }
-
       ${widgetId} .video-info-text-container {
         opacity: 1;
       }
-
       ${widgetId} .video-thumbnail-wrapper .hover-text-container h3 {
         margin: 0
       }
-
       ${widgetId} .video-thumbnail-wrapper .hover-text-container p {
         margin: 0
       }
-
       ${widgetId} .video-thumbnail-wrapper svg {
         position: absolute;
         transition: 0.5s;
@@ -265,46 +244,34 @@
         height: ${playButtonSizing};
         opacity: ${playButtonOpacity};
       }
-
       .show-lightbox {
         display: block!important;
       }
-
       .hide-scroll {
         overflow: hidden!important;
       }
-
       .hide-header {
         display: none!important;
       }
-
       .frame-transition-left {
         transform: translateX(-50vw) rotateY(90deg) scale(0);
         opacity: 0;
         z-index: -1 !important;
         pointer-events: none !important;
       }
-
       .frame-transition-right {
         transform: translateX(50vw) rotateY(-90deg) scale(0);
         opacity: 0;
         z-index: -1 !important;
         pointer-events: none !important;
       }
-
       .disable-arrow {
         opacity: 0;
         pointer-events: none !important;
       }
-
       .element-invisible {
         opacity: 0 !important;
       }
-
-      .position-absolute {
-        position: absolute;
-      }
-
       [data-lightboxid="${widgetId}"] {
         width: 100%;
         height: 100vh;
@@ -315,7 +282,6 @@
         left: 0;
         z-index: 100000;
       }
-
       [data-lightboxid="${widgetId}"] .lightbox-content-container {
         width: 100%;
         height: 100%;
@@ -327,7 +293,6 @@
         justify-content: space-between;
         align-items: center;
       }
-
       [data-lightboxid="${widgetId}"] .lightbox-close-button {
         color: white;
         position: fixed;
@@ -348,11 +313,9 @@
         align-items: center;
         transition: 0.25s;
       }
-
       [data-lightboxid="${widgetId}"] .lightbox-close-button:hover {
         transform: translateX(-100%) scale(1.25);
       }
-
       [data-lightboxid="${widgetId}"] svg {
         max-width: 60px;
         min-width: 2%;
@@ -361,7 +324,6 @@
         z-index: 3;
         transition: 0.25s;
       }
-
       [data-lightboxid="${widgetId}"] .lightbox-video-container {
         width: 78vw!important;
         height: 43.9vw!important;
@@ -369,36 +331,29 @@
         max-width: 160vh!important;
         position: relative;
       }
-
       .arrow-left {
         cursor: pointer;
       }
-
       .arrow-left:hover {
         transform: scale(1.25);
         transition: 0.25s;
       }
-
       .arrow-right {
         cursor: pointer;
         transform: rotate(180deg);
       }
-
       .arrow-right:hover {
         transform: scale(1.25) rotate(180deg);
         transition: 0.25s;
       }
-
       .arrow-left:active {
         transform: translate(-10%);
         transition: 0.1s;
       }
-
       .arrow-right:active {
         transform: translate(10%) rotate(180deg);
         transition: 0.1s;
       }
-
       [data-lightboxid="${widgetId}"] iframe {
         width: 100%;
         height: 100%;
@@ -409,34 +364,49 @@
         transition: ${frameTransition / 1000}s !important;
         z-index: 10;
       }
-
       ${widgetId} .carousel-layout {
         width: 100%;
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
         background: red;
       }
-
-      ${widgetId} .carousel-layout svg {
+      ${widgetId} .carousel-layout a {
+        position: absolute;
+      }
+      ${widgetId} [data-carouselarrow="true"] {
         width: 48px;
       }
-
       ${widgetId} .carousel-layout .carousel-video-items-container {
         position: relative;
-        height: 18.75rem;
+        height: ${carouselWidth / 1.777}rem;
+        width: ${carouselWidth}rem;
+        margin: 0 4%;
       }
-
       @media(max-width: ${mediaQueryBreakpoint}px) {
         ${widgetId} .grid-layout {
           grid-template-columns: 1fr;
         }
       }
-
       @media(min-width: ${mediaQueryBreakpoint + 1}px) {
         ${widgetId} .grid-layout {
           grid-template-columns: repeat(auto-fill, minmax(${minimumWidthOfEachVideoItem}px, 1fr));
           grid-auto-rows: 1fr;
+        }
+      }
+      @media(max-width: ${carouselWidth * 20}px) {
+        ${widgetId} .carousel-layout .carousel-video-items-container {
+          width: 72vw;
+          height: calc(72vw / 1.777);
+        }
+        ${widgetId} .carousel-layout .carousel-video-items-container .hover-text-container {
+          gap: 7vw;
+        }
+        ${widgetId} .carousel-layout .carousel-video-items-container h3 {
+          font-size: 8vw;
+        }
+        ${widgetId} .carousel-layout .carousel-video-items-container p {
+          font-size: 5vw;
         }
       }
     `
@@ -450,6 +420,13 @@
       const thumbnails = item.snippet.thumbnails;
       const image = thumbnails.maxres ? thumbnails.maxres : thumbnails.standard ? thumbnails.standard : thumbnails.high ? thumbnails.high : thumbnails.medium ? thumbnails.medium : thumbnails.default;
       return image
+    }
+
+  // Set Thumbnail Episode Number Or Title Text
+
+    function setThumbnailText(item) {
+      const { snippet } = item;
+      return item.titledEpisode !== -1 ? `<h3>Episode ${item.titledEpisode}</h3>` : `<h3>${snippet.title}</h3>`
     }
 
   // HTML Generation Methods
@@ -477,7 +454,6 @@
         <svg version="1.0" xmlns="http://www.w3.org/2000/svg" class="arrow-right" data-hideonidle="true" data-lightboxarrowdirection="right" data-lightboxarrow="true"
           width="100.000000pt" height="100.000000pt" viewBox="0 0 100.000000 100.000000"
           preserveAspectRatio="xMidYMid meet">
-
           <g data-hideonidle="true" transform="translate(0.000000,100.000000) scale(0.100000,-0.100000)"
           fill="#ffffff" stroke="none">
           <path data-hideonidle="true" d="M415 720 l-220 -220 223 -222 222 -223 72 73 73 72 -148 148 -147 147 145 145 c80 80 145 149 145 155 0 0 -140 145 -140 145 0 0 -104 -99 -225 -220z"/>
@@ -500,7 +476,7 @@
             </g>
           </svg>
           <div class="carousel-video-items-container">
-            <a class="video-item position-absolute" data-itemclickable="true" data-frameposition="-1" class="frame-transition-left">
+            <a class="video-item frame-transition-left" data-itemclickable="true" data-frameposition="-1" class="frame-transition-left">
               <div class="video-thumbnail-wrapper">
                 <img src="" width="" height="" alt="">
                 ${showPlayButtons ? playButtonIcon() : ''}
@@ -510,7 +486,7 @@
                 </div>
               </div>
             </a>
-            <a class="video-item position-absolute" data-itemclickable="true" data-frameposition="0">
+            <a class="video-item" data-itemclickable="true" data-frameposition="0">
               <div class="video-thumbnail-wrapper">
                 <img src="" width="" height="" alt="">
                 ${showPlayButtons ? playButtonIcon() : ''}
@@ -520,7 +496,7 @@
                 </div>
               </div>
             </a>
-            <a class="video-item position-absolute" data-itemclickable="true" data-frameposition="1" class="frame-transition-right">
+            <a class="video-item frame-transition-right" data-itemclickable="true" data-frameposition="1" class="frame-transition-right">
               <div class="video-thumbnail-wrapper">
                 <img src="" width="" height="" alt="">
                 ${showPlayButtons ? playButtonIcon() : ''}
@@ -534,7 +510,6 @@
             <svg version="1.0" xmlns="http://www.w3.org/2000/svg" class="arrow-right" data-hideonidle="true" data-carouselarrowdirection="right" data-carouselarrow="true"
               width="100.000000pt" height="100.000000pt" viewBox="0 0 100.000000 100.000000"
               preserveAspectRatio="xMidYMid meet">
-
               <g data-hideonidle="true" transform="translate(0.000000,100.000000) scale(0.100000,-0.100000)"
               fill="#ffffff" stroke="none">
               <path data-hideonidle="true" d="M415 720 l-220 -220 223 -222 222 -223 72 73 73 72 -148 148 -147 147 145 145 c80 80 145 149 145 155 0 0 -140 145 -140 145 0 0 -104 -99 -225 -220z"/>
@@ -570,7 +545,7 @@
               <img src="${image.url}" width="${image.width}" height="${image.height}" alt="${snippet.title}">
               ${showPlayButtons ? playButtonIcon() : ''}
               <div class="hover-text-container">
-                ${item.titledEpisode !== -1 ? `<h3>Episode ${item.titledEpisode}</h3>` : `<h3>${snippet.title}</h3>`}
+                ${setThumbnailText(item)}
                 ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
               </div>
             </div>
@@ -587,6 +562,14 @@
     }
 
   // Event Methods
+
+    function setCarouselThumbnail(element, item) {
+      element.querySelector('img').src = setThumbnailImage(item).url;
+      element.querySelector('img').width = setThumbnailImage(item).width;
+      element.querySelector('img').height = setThumbnailImage(item).height;
+      element.querySelector('h3').innerHTML = setThumbnailText(item);
+      element.dataset.videoid = item.snippet.resourceId.videoId;
+    }
 
   // Carousel Layout Video Event Handling
 
@@ -607,7 +590,19 @@
 
       // Initialize Carousel Frame Images
 
-      startingCarouselFrame.src = playListSorted[currentVideoIndex]
+      // Starting Frame
+
+      setCarouselThumbnail(startingCarouselFrame, playListSorted[currentVideoIndex]);
+
+      // Left Frame
+
+      setCarouselThumbnail(leftCarouselFrame, playListSorted[playListSorted.length - 1]);
+
+      // Right Frame
+
+      setCarouselThumbnail(rightCarouselFrame, playListSorted[currentVideoIndex + 1] ? 
+        playListSorted[currentVideoIndex + 1] : playListSorted[currentVideoIndex]
+      );
 
       // Left Arrow Click Event Listener
 
@@ -766,7 +761,6 @@
       // Video Index And Base Url For Youtube Embed Iframe
 
       let currentVideoIndex = playListSorted.findIndex(video => video.snippet.resourceId.videoId === itemClicked.dataset.videoid);
-
       // Check For Starting Position To See If Arrows Should Be Shown Based Upon Starting Video Index Position And Set Corresponding Iframe Urls
 
       if (!playListSorted[currentVideoIndex + 1]) {
@@ -1067,7 +1061,7 @@
 
           // Click Event Listener Initialization After HTML Rendering Of Video Items
 
-          const items = document.querySelectorAll('[data-itemclickable="true"]');
+          const items = document.querySelectorAll(`${widgetId} [data-itemclickable="true"]`);
           items.forEach(item => {
             item.addEventListener('click', () => lightboxActivateHandler(item));
           });
