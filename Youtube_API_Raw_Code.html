@@ -32,7 +32,7 @@
       const showVideoInfo = false; // Sets If Text Information About Video Should Be Displayed Below Video Thumbnail.  Default Value Is: false
       const showDescriptionText = false; // If showVideoInfo Is Set To True, Sets If Video Description Text Should Be Displayed.  Default Value Is: false
       const lightboxDisplayBreakpoint = 1400; // Sets Breakpoint Between LightBox Being Enabled And Opening In Another Tab When Video Thumbnail Is Clicked.  Default Value Is: 1400
-      const playlistLayout = 'carousel'; // Determines The Layout Of Videos On Page.
+      const playlistLayout = 'grid'; // Determines The Layout Of Videos On Page.
       const showAllInLightbox = false; // Determines If Lightbox Will Allow User To See All Videos On PlayList If True. If False, User Can Only View Videos Shown On Page  
       let playListSorted = []; // Captures All Videos After Filtering And Sorting Before They're Reduced To Output Amount For Showing All Videos When Navigating Through Lightbox
       let pageOutputList = []; // The Actual List Of Video That Will Be Shown On The Page (Grid Or Carousel Layout)
@@ -60,7 +60,7 @@
       const closeButtonSize = '32px'; // Sets Size Of Lighbox Close Button On Top Right Corner Of Screen When Lighbox Is Active.  Default Value Is: '32px'
       const minimumWidthOfEachVideoItem = 480; // Sets Minimun Width Size Of Each Video.  Default Value Is: 480
       const mediaQueryBreakpoint = minimumWidthOfEachVideoItem * 2; // Sets Media Query Break Point Of When Video Containers Should Stack In One Column.  Calculation Based Upon minimumWidthOfEachVideo Number.  Default Value Is: minimumWidthOfEachVideoItem * 2
-      const frameTransition = 0.5; // Sets Transition Time Of LightBox Carousel Frame Transitioning In Seconds
+      const frameTransition = 500; // Sets Transition Time Of LightBox Carousel Frame Transitioning In Seconds
 
     // Error Handling Variables
 
@@ -153,10 +153,9 @@
         transform: translate(-50%, -50%);
       }
 
-      ${widgetId} .grid-layout .video-item {
+      ${widgetId} .video-item {
         max-width: 100%;
         text-align: center;
-        position: relative;
         overflow: hidden;
         border: ${videoContainerBorderThickness} ${videoContainerBorderColor} solid;
         width: 100%;
@@ -279,10 +278,6 @@
         display: none!important;
       }
 
-      .rotate-180 {
-        transform: rotate(180deg);
-      }
-
       .frame-transition-left {
         transform: translateX(-50vw) rotateY(90deg) scale(0);
         opacity: 0;
@@ -304,6 +299,10 @@
 
       .element-invisible {
         opacity: 0 !important;
+      }
+
+      .position-absolute {
+        position: absolute;
       }
 
       [data-lightboxid="${widgetId}"] {
@@ -371,22 +370,31 @@
         position: relative;
       }
 
-      [data-lightboxid="${widgetId}"] [data-lightboxarrowdirection="left"]:hover {
+      .arrow-left {
+        cursor: pointer;
+      }
+
+      .arrow-left:hover {
         transform: scale(1.25);
         transition: 0.25s;
       }
 
-      [data-lightboxid="${widgetId}"] [data-lightboxarrowdirection="right"]:hover {
+      .arrow-right {
+        cursor: pointer;
+        transform: rotate(180deg);
+      }
+
+      .arrow-right:hover {
         transform: scale(1.25) rotate(180deg);
         transition: 0.25s;
       }
 
-      [data-lightboxid="${widgetId}"] [data-lightboxarrowdirection="left"]:active {
+      .arrow-left:active {
         transform: translate(-10%);
         transition: 0.1s;
       }
 
-      [data-lightboxid="${widgetId}"] [data-lightboxarrowdirection="right"]:active {
+      .arrow-right:active {
         transform: translate(10%) rotate(180deg);
         transition: 0.1s;
       }
@@ -398,8 +406,25 @@
         position: absolute;
         box-shadow: 0px 0px 48px black;
         filter: drop-shadow(rgba(255, 255, 255, 0.44) 0px 0px 80px);
-        transition: ${frameTransition}s !important;
+        transition: ${frameTransition / 1000}s !important;
         z-index: 10;
+      }
+
+      ${widgetId} .carousel-layout {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: red;
+      }
+
+      ${widgetId} .carousel-layout svg {
+        width: 48px;
+      }
+
+      ${widgetId} .carousel-layout .carousel-video-items-container {
+        position: relative;
+        height: 18.75rem;
       }
 
       @media(max-width: ${mediaQueryBreakpoint}px) {
@@ -419,13 +444,21 @@
 
   // END - CSS Generation
 
+  // Set Thumbail Images For Grid Layout And Carousel Items
+
+    function setThumbnailImage(item) {
+      const thumbnails = item.snippet.thumbnails;
+      const image = thumbnails.maxres ? thumbnails.maxres : thumbnails.standard ? thumbnails.standard : thumbnails.high ? thumbnails.high : thumbnails.medium ? thumbnails.medium : thumbnails.default;
+      return image
+    }
+
   // HTML Generation Methods
 
     // Lightbox HTML
 
     const lightboxHTML = `
       <div class="lightbox-content-container">
-        <svg version="1.0" xmlns="http://www.w3.org/2000/svg" data-hideonidle="true" data-lightboxarrowdirection="left" data-lightboxarrow="true"
+        <svg version="1.0" xmlns="http://www.w3.org/2000/svg" class="arrow-left" data-hideonidle="true" data-lightboxarrowdirection="left" data-lightboxarrow="true"
           width="100.000000pt" height="100.000000pt" viewBox="0 0 100.000000 100.000000"
           preserveAspectRatio="xMidYMid meet">
           <g data-hideonidle="true" transform="translate(0.000000,100.000000) scale(0.100000,-0.100000)"
@@ -441,7 +474,7 @@
           <iframe data-frameposition="1" class="frame-transition-right" width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
           </iframe>
         </div>
-        <svg version="1.0" xmlns="http://www.w3.org/2000/svg" class="rotate-180" data-hideonidle="true" data-lightboxarrowdirection="right" data-lightboxarrow="true"
+        <svg version="1.0" xmlns="http://www.w3.org/2000/svg" class="arrow-right" data-hideonidle="true" data-lightboxarrowdirection="right" data-lightboxarrow="true"
           width="100.000000pt" height="100.000000pt" viewBox="0 0 100.000000 100.000000"
           preserveAspectRatio="xMidYMid meet">
 
@@ -458,15 +491,55 @@
 
       const carouselHTML = `
         <div class="carousel-layout">
-          <a class="video-item" data-itemclickable="true" data-frameposition="-1" class="frame-transition-left">
-            <img src="" width="" height="" alt="">
-          </a>
-          <a class="video-item" data-itemclickable="true" data-frameposition="0">
-            <img src="" width="" height="" alt="">
-          </a>
-          <a class="video-item" data-itemclickable="true" data-frameposition="1" class="frame-transition-right">
-            <img src="" width="" height="" alt="">
-          </a>
+          <svg version="1.0" xmlns="http://www.w3.org/2000/svg" class="arrow-left" data-hideonidle="true" data-carouselarrowdirection="left" data-carouselarrow="true"
+            width="100.000000pt" height="100.000000pt" viewBox="0 0 100.000000 100.000000"
+            preserveAspectRatio="xMidYMid meet">
+            <g data-hideonidle="true" transform="translate(0.000000,100.000000) scale(0.100000,-0.100000)"
+            fill="#ffffff" stroke="none">
+            <path data-hideonidle="true" d="M415 720 l-220 -220 223 -222 222 -223 72 73 73 72 -148 148 -147 147 145 145 c80 80 145 149 145 155 0 0 -140 145 -140 145 0 0 -104 -99 -225 -220z"/>
+            </g>
+          </svg>
+          <div class="carousel-video-items-container">
+            <a class="video-item position-absolute" data-itemclickable="true" data-frameposition="-1" class="frame-transition-left">
+              <div class="video-thumbnail-wrapper">
+                <img src="" width="" height="" alt="">
+                ${showPlayButtons ? playButtonIcon() : ''}
+                <div class="hover-text-container">
+                  <h3></h3>
+                  ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
+                </div>
+              </div>
+            </a>
+            <a class="video-item position-absolute" data-itemclickable="true" data-frameposition="0">
+              <div class="video-thumbnail-wrapper">
+                <img src="" width="" height="" alt="">
+                ${showPlayButtons ? playButtonIcon() : ''}
+                <div class="hover-text-container">
+                  <h3></h3>
+                  ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
+                </div>
+              </div>
+            </a>
+            <a class="video-item position-absolute" data-itemclickable="true" data-frameposition="1" class="frame-transition-right">
+              <div class="video-thumbnail-wrapper">
+                <img src="" width="" height="" alt="">
+                ${showPlayButtons ? playButtonIcon() : ''}
+                <div class="hover-text-container">
+                  <h3></h3>
+                  ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
+                </div>
+              </div>
+            </a>
+          </div>
+            <svg version="1.0" xmlns="http://www.w3.org/2000/svg" class="arrow-right" data-hideonidle="true" data-carouselarrowdirection="right" data-carouselarrow="true"
+              width="100.000000pt" height="100.000000pt" viewBox="0 0 100.000000 100.000000"
+              preserveAspectRatio="xMidYMid meet">
+
+              <g data-hideonidle="true" transform="translate(0.000000,100.000000) scale(0.100000,-0.100000)"
+              fill="#ffffff" stroke="none">
+              <path data-hideonidle="true" d="M415 720 l-220 -220 223 -222 222 -223 72 73 73 72 -148 148 -147 147 145 145 c80 80 145 149 145 155 0 0 -140 145 -140 145 0 0 -104 -99 -225 -220z"/>
+              </g>
+            </svg>
         </div>
       `;
 
@@ -488,8 +561,7 @@
 
     function renderGridItem(item) {
       const { snippet } = item;
-      const thumbnails = snippet.thumbnails;
-      const image = thumbnails.maxres ? thumbnails.maxres : thumbnails.standard ? thumbnails.standard : thumbnails.high ? thumbnails.high : thumbnails.medium ? thumbnails.medium : thumbnails.default;
+      const image = setThumbnailImage(item);
       const htmlRender = 
         `
           <!-- ${snippet.title} -->
@@ -518,9 +590,30 @@
 
   // Carousel Layout Video Event Handling
 
-  function carouselEventHandling() {
+    function carouselEventHandling() {
+
+      // Select DOM Elements
+
+      const carouselContainer = document.querySelector(`${widgetId} .carousel-layout`);
+      const carouselArrowLeft = carouselContainer.querySelector(`[data-carouselarrowdirection="left"]`);
+      const carouselArrowRight = carouselContainer.querySelector(`[data-carouselarrowdirection="right"]`);
+      const startingCarouselFrame = carouselContainer.querySelector('[data-frameposition="0"]');
+      const leftCarouselFrame = carouselContainer.querySelector('[data-frameposition="-1"]');
+      const rightCarouselFrame = carouselContainer.querySelector('[data-frameposition="1"]');
+      
+      // Video Index Start
+
       let currentVideoIndex = 0;
-      console.log(pageOutputList[currentVideoIndex]);
+
+      // Initialize Carousel Frame Images
+
+      startingCarouselFrame.src = playListSorted[currentVideoIndex]
+
+      // Left Arrow Click Event Listener
+
+      carouselArrowLeft.addEventListener('click', () => {
+        currentVideoIndex -= 1;
+      })
     }
 
     function lightboxClear() {
@@ -626,9 +719,9 @@
       const lightboxStartingLeft = lightbox.querySelector('[data-frameposition="-1"]');
       const lightboxStartingRight = lightbox.querySelector('[data-frameposition="1"]');
       const lightframes = lightbox.querySelectorAll('iframe');
-      const lightboxArrowLeft = document.querySelector('[data-lightboxarrowdirection="left"]');
-      const lightboxArrowRight = document.querySelector('[data-lightboxarrowdirection="right"]');
-      const lightboxCloseButton = document.querySelector('[data-lightboxclosebutton="true"]');
+      const lightboxArrowLeft = lightbox.querySelector('[data-lightboxarrowdirection="left"]');
+      const lightboxArrowRight = lightbox.querySelector('[data-lightboxarrowdirection="right"]');
+      const lightboxCloseButton = lightbox.querySelector('[data-lightboxclosebutton="true"]');
 
       // Elements To Hide When User Idle In Lightbox After 5 Seconds
 
@@ -956,13 +1049,13 @@
                 console.warn(`Video Playlist Item ${item.snippet.resourceId.videoId} Could Not Be Loaded As Its Status Is: ${item.snippet.title}`);
               } else return renderGridItem(item);
             }).join('');       
-            playlistItems.innerHTML = '<div class="grid-layout">' + gridListMapping + '<div>';
+            playlistItems.outerHTML = '<div class="grid-layout">' + gridListMapping + '<div>';
           }
 
           // Carousel Layout Rendering
 
           if (playlistLayout === 'carousel') {
-            playlistItems.innerHTML = carouselHTML;
+            playlistItems.outerHTML = carouselHTML;
             carouselEventHandling();
           }
 
