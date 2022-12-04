@@ -32,9 +32,10 @@
       const showVideoInfo = false; // Sets If Text Information About Video Should Be Displayed Below Video Thumbnail.  Default Value Is: false
       const showDescriptionText = false; // If showVideoInfo Is Set To True, Sets If Video Description Text Should Be Displayed.  Default Value Is: false
       const lightboxDisplayBreakpoint = 1400; // Sets Breakpoint Between LightBox Being Enabled And Opening In Another Tab When Video Thumbnail Is Clicked.  Default Value Is: 1400
-      const playlistLayout = 'grid'; // Determines The Layout Of Videos On Page.
+      const playlistLayout = 'carousel'; // Determines The Layout Of Videos On Page.
       const showAllInLightbox = false; // Determines If Lightbox Will Allow User To See All Videos On PlayList If True. If False, User Can Only View Videos Shown On Page  
       let playListSorted = []; // Captures All Videos After Filtering And Sorting Before They're Reduced To Output Amount For Showing All Videos When Navigating Through Lightbox
+      let pageOutputList = []; // The Actual List Of Video That Will Be Shown On The Page (Grid Or Carousel Layout)
       const lightboxFrameVideoBaseUrl = 'https://www.youtube.com/embed/'; // Video Base Url For Lightbox Video Iframes
       
       // CSS Variable Declarations
@@ -96,7 +97,7 @@
           <div class="video-list">
           	${loadingSpinner}
             <div style="height: 400px; width: 100%;"></div>
-		  </div>
+		      </div>
       `;
 
     // Lightbox Container Created And Appended To Body Of HTML
@@ -453,6 +454,22 @@
       <div class="lightbox-close-button" data-hideonidle="true" data-lightboxclosebutton="true">X</div>
       `;
 
+    // Carousel Layout HTML
+
+      const carouselHTML = `
+        <div class="carousel-layout">
+          <a class="video-item" data-itemclickable="true" data-frameposition="-1" class="frame-transition-left">
+            <img src="" width="" height="" alt="">
+          </a>
+          <a class="video-item" data-itemclickable="true" data-frameposition="0">
+            <img src="" width="" height="" alt="">
+          </a>
+          <a class="video-item" data-itemclickable="true" data-frameposition="1" class="frame-transition-right">
+            <img src="" width="" height="" alt="">
+          </a>
+        </div>
+      `;
+
     // Video Item Play Button Icon HTML
 
     function playButtonIcon() {
@@ -469,42 +486,42 @@
 
     // Grid Layout Video Item HTML
 
-    function renderItem(item) {
+    function renderGridItem(item) {
       const { snippet } = item;
       const thumbnails = snippet.thumbnails;
       const image = thumbnails.maxres ? thumbnails.maxres : thumbnails.standard ? thumbnails.standard : thumbnails.high ? thumbnails.high : thumbnails.medium ? thumbnails.medium : thumbnails.default;
-      let htmlRender;
-      switch(playlistLayout) {
-
-        // Render Grid Layout Item HTML
-
-        case 'grid':
-          htmlRender = 
-            `
-              <!-- ${snippet.title} -->
-              <a class="video-item" data-itemclickable="true" data-videoid="${snippet.resourceId.videoId}">
-                <div class="video-thumbnail-wrapper">
-                  <img src="${image.url}" width="${image.width}" height="${image.height}" alt="${snippet.title}">
-                  ${showPlayButtons ? playButtonIcon() : ''}
-                  <div class="hover-text-container">
+      const htmlRender = 
+        `
+          <!-- ${snippet.title} -->
+          <a class="video-item" data-itemclickable="true" data-videoid="${snippet.resourceId.videoId}">
+            <div class="video-thumbnail-wrapper">
+              <img src="${image.url}" width="${image.width}" height="${image.height}" alt="${snippet.title}">
+              ${showPlayButtons ? playButtonIcon() : ''}
+              <div class="hover-text-container">
+                ${item.titledEpisode !== -1 ? `<h3>Episode ${item.titledEpisode}</h3>` : `<h3>${snippet.title}</h3>`}
+                ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
+              </div>
+            </div>
+            ${ showVideoInfo ? 
+              `<div class="video-info-text-container">
                     ${item.titledEpisode !== -1 ? `<h3>Episode ${item.titledEpisode}</h3>` : `<h3>${snippet.title}</h3>`}
-                    ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
-                  </div>
-                </div>
-                ${ showVideoInfo ? 
-                  `<div class="video-info-text-container">
-                        ${item.titledEpisode !== -1 ? `<h3>Episode ${item.titledEpisode}</h3>` : `<h3>${snippet.title}</h3>`}
-                    ${snippet.description !== '' && showDescriptionText ? `<span>${snippet.description}</span>` : ''}
-                  </div>`
-                  : ''
-                } 
-              </a>
-            `;
-      }
+                ${snippet.description !== '' && showDescriptionText ? `<span>${snippet.description}</span>` : ''}
+              </div>`
+              : ''
+            } 
+          </a>
+        `;
       return htmlRender
     }
 
   // Event Methods
+
+  // Carousel Layout Video Event Handling
+
+  function carouselEventHandling() {
+      let currentVideoIndex = 0;
+      console.log(pageOutputList[currentVideoIndex]);
+    }
 
     function lightboxClear() {
       lightbox.innerHTML = '';
@@ -517,6 +534,8 @@
         lightboxClear();
       }
     }
+
+    // Lightbox and Carousel Arrow Click Event Handlers
 
     function arrowClickTransitionFrame(frame, direction, type, currentVideoIndex) {
       switch(frame.dataset.frameposition) {
@@ -594,6 +613,8 @@
           break;
       }
     }
+
+    // Lightbox Activated Event Handler
 
     function lightboxActivateHandler(itemClicked) {
 
@@ -854,7 +875,7 @@
 
     getPlaylistItems().then(res => {
         if (res.ok) {
-          let pageOutputList = [...res.data.items];
+          pageOutputList = [...res.data.items];
 
           // Filter By Name
 
@@ -922,18 +943,27 @@
 
           // HTML Rendering
 
-          const listMapping = pageOutputList.map(item => {
-            if (!item) {
-              console.error(`Playlist VideoID: ${item.snippet.resourceId.videoId} Failed To Load`);
-              failedItemTally++
-            } else if (!item.snippet || !item.titledEpisode) {
-              console.warn('Failed To Load Playlist Item Due To Lack Of Sufficient Data.  Playlist Could Possibly Be Empty')
-            } else if (item.snippet.title.toLowerCase() === 'deleted video' || item.snippet.title.toLowerCase() === 'private video') {
-              console.warn(`Video Playlist Item ${item.snippet.resourceId.videoId} Could Not Be Loaded As Its Status Is: ${item.snippet.title}`);
-            } else return renderItem(item);
-          }).join('');
+          // Grid Layout Rendering
+
           if (playlistLayout === 'grid') {
-            playlistItems.innerHTML = '<div class="grid-layout">' + listMapping + '<div>';
+            const gridListMapping = pageOutputList.map(item => {
+              if (!item) {
+                console.error(`Playlist VideoID: ${item.snippet.resourceId.videoId} Failed To Load`);
+                failedItemTally++
+              } else if (!item.snippet || !item.titledEpisode) {
+                console.warn('Failed To Load Playlist Item Due To Lack Of Sufficient Data.  Playlist Could Possibly Be Empty')
+              } else if (item.snippet.title.toLowerCase() === 'deleted video' || item.snippet.title.toLowerCase() === 'private video') {
+                console.warn(`Video Playlist Item ${item.snippet.resourceId.videoId} Could Not Be Loaded As Its Status Is: ${item.snippet.title}`);
+              } else return renderGridItem(item);
+            }).join('');       
+            playlistItems.innerHTML = '<div class="grid-layout">' + gridListMapping + '<div>';
+          }
+
+          // Carousel Layout Rendering
+
+          if (playlistLayout === 'carousel') {
+            playlistItems.innerHTML = carouselHTML;
+            carouselEventHandling();
           }
 
           // Error Logging
