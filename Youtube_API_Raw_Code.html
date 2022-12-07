@@ -60,7 +60,9 @@
       const closeButtonSize = '32px'; // Sets Size Of Lighbox Close Button On Top Right Corner Of Screen When Lighbox Is Active.  Default Value Is: '32px'
       const minimumWidthOfEachVideoItem = 480; // Sets Minimun Width Size Of Each Video.  Default Value Is: 480
       const mediaQueryBreakpoint = minimumWidthOfEachVideoItem * 2; // Sets Media Query Break Point Of When Video Containers Should Stack In One Column.  Calculation Based Upon minimumWidthOfEachVideo Number.  Default Value Is: minimumWidthOfEachVideoItem * 2
-      const frameTransition = 500; // Sets Transition Time Of LightBox Carousel Frame Transitioning In Seconds
+      const frameTransition = 500; // Sets Transition Time Of LightBox Carousel Frame Transitioning In Milliseconds
+      const carouselTransition = 1500; // Sets Transition Time Of Carousel Layout Frame Transitioning In Milliseconds
+      const carouselDelay = 6000; // Sets Delay Carousel Layout Between Transitioning In Milliseconds
       const carouselWidth = 32.5 // Set Width Of Carousel Layout Thumbnails In REMs
 
     // Error Handling Variables
@@ -217,12 +219,12 @@
         gap: ${spaceBetweenTitleAndClickToPlayText};
       }
       ${widgetId} .video-thumbnail-wrapper .hover-text-container h3 {
-          font-size: 2.5rem;
-          font-weight: 600;
+        font-size: 2.5rem;
+        font-weight: 600;
       }
       ${widgetId} .video-thumbnail-wrapper .hover-text-container p {
-          font-size: 1.75rem;
-          font-weight: 400;
+        font-size: 1.75rem;
+        font-weight: 400;
       }
       ${widgetId} .video-info-text-container {
         opacity: 1;
@@ -254,15 +256,13 @@
         display: none!important;
       }
       .frame-transition-left {
-        transform: translateX(-50vw) rotateY(90deg) scale(0);
+        transform: translateX(-60%) rotateY(90deg) scale(0);
         opacity: 0;
-        z-index: -1 !important;
         pointer-events: none !important;
       }
       .frame-transition-right {
-        transform: translateX(50vw) rotateY(-90deg) scale(0);
+        transform: translateX(60%) rotateY(-90deg) scale(0);
         opacity: 0;
-        z-index: -1 !important;
         pointer-events: none !important;
       }
       .disable-arrow {
@@ -369,10 +369,12 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        background: red;
+        background: black;
+        position: relative;
       }
       ${widgetId} .carousel-layout a {
         position: absolute;
+        transition: ${carouselTransition / 1000}s !important;
       }
       ${widgetId} [data-carouselarrow="true"] {
         width: 48px;
@@ -381,7 +383,7 @@
         position: relative;
         height: ${carouselWidth / 1.777}rem;
         width: ${carouselWidth}rem;
-        margin: 0 4%;
+        margin: 0 3%;
       }
       @media(max-width: ${mediaQueryBreakpoint}px) {
         ${widgetId} .grid-layout {
@@ -583,6 +585,7 @@
       const startingCarouselFrame = carouselContainer.querySelector('[data-frameposition="0"]');
       const leftCarouselFrame = carouselContainer.querySelector('[data-frameposition="-1"]');
       const rightCarouselFrame = carouselContainer.querySelector('[data-frameposition="1"]');
+      const carouselFrames = carouselContainer.querySelectorAll('.video-item');
       
       // Video Index Start
 
@@ -604,11 +607,52 @@
         playListSorted[currentVideoIndex + 1] : playListSorted[currentVideoIndex]
       );
 
+      // Records When Last Time Carousel Was Advanced To Avoid User Click/Auto Interval Conflict
+
+      let lastTimeAdvanced = new Date().getTime();
+
       // Left Arrow Click Event Listener
 
       carouselArrowLeft.addEventListener('click', () => {
-        currentVideoIndex -= 1;
+
+        lastTimeAdvanced = new Date().getTime();
+
+        if (playListSorted[currentVideoIndex - 1]) {
+          currentVideoIndex -= 1;
+        } else currentVideoIndex = playListSorted.length - 1
+
+        carouselFrames.forEach(frame => 
+          arrowClickTransitionFrame(frame, 'left', 'carousel', currentVideoIndex)
+        );
       })
+
+      // Right Arrow Click And Auto Transitioning 
+
+      function advanceCarouselRight() {
+        if (playListSorted[currentVideoIndex + 1]) {
+          currentVideoIndex += 1;
+        } else currentVideoIndex = 0;
+
+        carouselFrames.forEach(frame => 
+          arrowClickTransitionFrame(frame, 'right', 'carousel', currentVideoIndex)
+        );
+      }
+
+      // Right Arrow Click Event Listener
+
+      carouselArrowRight.addEventListener('click', () => {
+        lastTimeAdvanced = new Date().getTime();
+        advanceCarouselRight();
+      });
+
+      // Automatic Advance Right Interval Handler.  Checks That User Hasn't Advanced The Carousel Via Clicking The Arrows During The carouselDelay Time Period
+
+      setInterval(() => {
+        if (new Date().getTime() - lastTimeAdvanced > carouselDelay * 0.5) {
+          advanceCarouselRight()
+        }
+      }, carouselDelay);
+
     }
 
     function lightboxClear() {
@@ -633,54 +677,54 @@
               frame.src !== lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId) {
                 frame.src = lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId
             }
+            if (type === 'carousel' && playListSorted[currentVideoIndex]) {
+              setCarouselThumbnail(frame, playListSorted[currentVideoIndex])
+            }
             frame.classList.remove('frame-transition-left');
             frame.dataset.frameposition = 0;
           }
           if (direction === 'right') {
-            if (type === 'lightbox') {
-              frame.src = 'about:blank';
-            }
             frame.classList.remove('frame-transition-left');
             frame.classList.add('frame-transition-right');
             frame.dataset.frameposition = 1;
             setTimeout(() => { 
               if (type === 'lightbox' && playListSorted[currentVideoIndex + 1]) {
                 frame.src = lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex + 1].snippet.resourceId.videoId 
+              }
+              if (type === 'carousel' && playListSorted[currentVideoIndex + 1]) {
+                setCarouselThumbnail(frame, playListSorted[currentVideoIndex + 1])
               }
             }, frameTransition)
           }
           break;
         case '0':
           if (direction === 'left') {
-            if (type === 'lightbox') {
-              frame.src = 'about:blank';
-            }
             frame.classList.add('frame-transition-right');
             frame.dataset.frameposition = 1;
             setTimeout(() => { 
               if (type === 'lightbox' && playListSorted[currentVideoIndex + 1]) {
                 frame.src = lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex + 1].snippet.resourceId.videoId 
               }
+              if (type === 'carousel' && playListSorted[currentVideoIndex + 1]) {
+                setCarouselThumbnail(frame, playListSorted[currentVideoIndex + 1])
+              }
             }, frameTransition)
           }
           if (direction === 'right') { 
-            if (type === 'lightbox') {
-              frame.src = 'about:blank';
-            }
             frame.classList.add('frame-transition-left');
             frame.dataset.frameposition = -1;
             setTimeout(() => { 
               if (type === 'lightbox' && playListSorted[currentVideoIndex - 1]) {
                 frame.src = lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex - 1].snippet.resourceId.videoId 
               }
+              if (type === 'carousel' && playListSorted[currentVideoIndex + 1]) {
+                setCarouselThumbnail(frame, playListSorted[currentVideoIndex + 1])
+              }
             }, frameTransition)
           }
           break;
         case '1':
           if (direction === 'left') {
-            if (type === 'lightbox') {
-              frame.src = 'about:blank';
-            }
             frame.classList.remove('frame-transition-right');
             frame.classList.add('frame-transition-left');
             frame.dataset.frameposition = -1;
@@ -688,12 +732,18 @@
               if (type === 'lightbox' && playListSorted[currentVideoIndex - 1]) {
                 frame.src = lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex - 1].snippet.resourceId.videoId 
               }
+              if (type === 'carousel' && playListSorted[currentVideoIndex - 1]) {
+                setCarouselThumbnail(frame, playListSorted[currentVideoIndex - 1])
+              }
             }, frameTransition) 
           }
           if (direction === 'right') { 
             if (type === 'lightbox' && playListSorted[currentVideoIndex] && 
               frame.src !== lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId) {
                 frame.src = lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex].snippet.resourceId.videoId
+            }
+            if (type === 'carousel' && playListSorted[currentVideoIndex]) {
+              setCarouselThumbnail(frame, playListSorted[currentVideoIndex])
             }
             frame.classList.remove('frame-transition-right');
             frame.dataset.frameposition = 0;
