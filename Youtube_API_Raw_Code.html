@@ -354,6 +354,11 @@
         transform: translate(10%) rotate(180deg);
         transition: 0.1s;
       }
+
+      .carousel-fast-transition {
+        transition: ${frameTransition / 1000}s !important;
+      }
+
       [data-lightboxid="${widgetId}"] iframe {
         width: 100%;
         height: 100%;
@@ -374,7 +379,7 @@
       }
       ${widgetId} .carousel-layout a {
         position: absolute;
-        transition: ${carouselTransition / 1000}s !important;
+        transition: ${carouselTransition / 1000}s;
       }
       ${widgetId} [data-carouselarrow="true"] {
         width: 48px;
@@ -622,19 +627,19 @@
         } else currentVideoIndex = playListSorted.length - 1
 
         carouselFrames.forEach(frame => 
-          arrowClickTransitionFrame(frame, 'left', 'carousel', currentVideoIndex)
+          frameTransitionHandler(frame, 'left', 'carousel', currentVideoIndex)
         );
       })
 
       // Right Arrow Click And Auto Transitioning 
 
-      function advanceCarouselRight() {
+      function advanceCarouselRight(automated) {
         if (playListSorted[currentVideoIndex + 1]) {
           currentVideoIndex += 1;
         } else currentVideoIndex = 0;
 
         carouselFrames.forEach(frame => 
-          arrowClickTransitionFrame(frame, 'right', 'carousel', currentVideoIndex)
+          frameTransitionHandler(frame, 'right', 'carousel', currentVideoIndex, automated)
         );
       }
 
@@ -649,7 +654,7 @@
 
       setInterval(() => {
         if (new Date().getTime() - lastTimeAdvanced > carouselDelay * 0.5) {
-          advanceCarouselRight()
+          advanceCarouselRight(true)
         }
       }, carouselDelay);
 
@@ -669,7 +674,15 @@
 
     // Lightbox and Carousel Arrow Click Event Handlers
 
-    function arrowClickTransitionFrame(frame, direction, type, currentVideoIndex) {
+    function frameTransitionHandler(frame, direction, type, currentVideoIndex, automated) {
+      const transitionSpeed = type === 'lightbox' ? frameTransition : automated ? carouselTransition
+        : type === 'carousel' && !automated ? frameTransition : frameTransition
+
+      if (type === 'carousel' && !automated) {
+        frame.classList.add('carousel-fast-transition');
+        setTimeout(() => frame.classList.remove('carousel-fast-transition') ,transitionSpeed)
+      }
+
       switch(frame.dataset.frameposition) {
         case '-1':
           if (direction === 'left') {
@@ -694,7 +707,7 @@
               if (type === 'carousel' && playListSorted[currentVideoIndex + 1]) {
                 setCarouselThumbnail(frame, playListSorted[currentVideoIndex + 1])
               }
-            }, frameTransition)
+            }, transitionSpeed)
           }
           break;
         case '0':
@@ -708,7 +721,7 @@
               if (type === 'carousel' && playListSorted[currentVideoIndex + 1]) {
                 setCarouselThumbnail(frame, playListSorted[currentVideoIndex + 1])
               }
-            }, frameTransition)
+            }, transitionSpeed)
           }
           if (direction === 'right') { 
             frame.classList.add('frame-transition-left');
@@ -720,7 +733,7 @@
               if (type === 'carousel' && playListSorted[currentVideoIndex + 1]) {
                 setCarouselThumbnail(frame, playListSorted[currentVideoIndex + 1])
               }
-            }, frameTransition)
+            }, transitionSpeed)
           }
           break;
         case '1':
@@ -735,7 +748,7 @@
               if (type === 'carousel' && playListSorted[currentVideoIndex - 1]) {
                 setCarouselThumbnail(frame, playListSorted[currentVideoIndex - 1])
               }
-            }, frameTransition) 
+            }, transitionSpeed) 
           }
           if (direction === 'right') { 
             if (type === 'lightbox' && playListSorted[currentVideoIndex] && 
@@ -854,7 +867,7 @@
           lightboxArrowRight.classList.remove('disable-arrow')
         } else lightboxArrowRight.classList.add('disable-arrow')
 
-        lightframes.forEach(frame => arrowClickTransitionFrame(frame, 'left', 'lightbox', currentVideoIndex));
+        lightframes.forEach(frame => frameTransitionHandler(frame, 'left', 'lightbox', currentVideoIndex));
       });
 
       // Right Arrow Click Event Listener
@@ -870,7 +883,7 @@
           lightboxArrowLeft.classList.remove('disable-arrow');
         } else lightboxArrowLeft.classList.add('disable-arrow');
 
-        lightframes.forEach(frame => arrowClickTransitionFrame(frame, 'right', 'lightbox', currentVideoIndex));
+        lightframes.forEach(frame => frameTransitionHandler(frame, 'right', 'lightbox', currentVideoIndex));
       });
     }
 
