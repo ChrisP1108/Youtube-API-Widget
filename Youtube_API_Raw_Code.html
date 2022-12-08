@@ -37,6 +37,7 @@
       let playListSorted = []; // Captures All Videos After Filtering And Sorting Before They're Reduced To Output Amount For Showing All Videos When Navigating Through Lightbox
       let pageOutputList = []; // The Actual List Of Video That Will Be Shown On The Page (Grid Or Carousel Layout)
       const lightboxFrameVideoBaseUrl = 'https://www.youtube.com/embed/'; // Video Base Url For Lightbox Video Iframes
+      const fastForwardSpeed = 150; // Set The Speed That Frames Should Be Fast Forwarded Through On Carousel And Lightbox When User Holds Down Arrow.
       
       // CSS Variable Declarations
 
@@ -265,12 +266,30 @@
         opacity: 0;
         pointer-events: none !important;
       }
+      .carousel-arrow-hold {
+        animation-iteration-count: infinite;
+        animation-duration: ${fastForwardSpeed / 1000}s;
+        animation-name: carousel-fast-forward;
+      }
+      @keyframes carousel-fast-forward {
+        from { filter: drop-shadow(0px 0px 0px white) }
+        to { filter: drop-shadow(24px 0px 0px white) }
+      }
       .disable-arrow {
         opacity: 0;
         pointer-events: none !important;
       }
       .element-invisible {
         opacity: 0 !important;
+        z-index: -1 !important;
+      }
+      .fast-forward-overlay {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
       }
       [data-lightboxid="${widgetId}"] {
         width: 100%;
@@ -384,7 +403,7 @@
       ${widgetId} [data-carouselarrow="true"] {
         width: 48px;
       }
-      ${widgetId} .carousel-layout .carousel-video-items-container {
+      ${widgetId} .carousel-layout .carousel-video-frame {
         position: relative;
         height: ${carouselWidth / 1.777}rem;
         width: ${carouselWidth}rem;
@@ -402,17 +421,17 @@
         }
       }
       @media(max-width: ${carouselWidth * 20}px) {
-        ${widgetId} .carousel-layout .carousel-video-items-container {
+        ${widgetId} .carousel-layout .carousel-video-frame {
           width: 72vw;
           height: calc(72vw / 1.777);
         }
-        ${widgetId} .carousel-layout .carousel-video-items-container .hover-text-container {
+        ${widgetId} .carousel-layout .carousel-video-frame .hover-text-container {
           gap: 7vw;
         }
-        ${widgetId} .carousel-layout .carousel-video-items-container h3 {
+        ${widgetId} .carousel-layout .carousel-video-frame h3 {
           font-size: 8vw;
         }
-        ${widgetId} .carousel-layout .carousel-video-items-container p {
+        ${widgetId} .carousel-layout .carousel-video-frame p {
           font-size: 5vw;
         }
       }
@@ -482,37 +501,42 @@
             <path data-hideonidle="true" d="M415 720 l-220 -220 223 -222 222 -223 72 73 73 72 -148 148 -147 147 145 145 c80 80 145 149 145 155 0 0 -140 145 -140 145 0 0 -104 -99 -225 -220z"/>
             </g>
           </svg>
-          <div class="carousel-video-items-container">
-            <a class="video-item frame-transition-left" data-itemclickable="true" data-frameposition="-1" class="frame-transition-left">
-              <div class="video-thumbnail-wrapper">
-                <img src="" width="" height="" alt="">
-                ${showPlayButtons ? playButtonIcon() : ''}
-                <div class="hover-text-container">
-                  <h3></h3>
-                  ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
+          <div class="carousel-video-frame">
+            <div class="carousel-video-items" data-carouselvideoitems="true">
+              <a class="video-item frame-transition-left" data-itemclickable="true" data-frameposition="-1" class="frame-transition-left">
+                <div class="video-thumbnail-wrapper">
+                  <img src="" width="" height="" alt="">
+                  ${showPlayButtons ? playButtonIcon() : ''}
+                  <div class="hover-text-container">
+                    <h3></h3>
+                    ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
+                  </div>
                 </div>
-              </div>
-            </a>
-            <a class="video-item" data-itemclickable="true" data-frameposition="0">
-              <div class="video-thumbnail-wrapper">
-                <img src="" width="" height="" alt="">
-                ${showPlayButtons ? playButtonIcon() : ''}
-                <div class="hover-text-container">
-                  <h3></h3>
-                  ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
+              </a>
+              <a class="video-item" data-itemclickable="true" data-frameposition="0">
+                <div class="video-thumbnail-wrapper">
+                  <img src="" width="" height="" alt="">
+                  ${showPlayButtons ? playButtonIcon() : ''}
+                  <div class="hover-text-container">
+                    <h3></h3>
+                    ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
+                  </div>
                 </div>
-              </div>
-            </a>
-            <a class="video-item frame-transition-right" data-itemclickable="true" data-frameposition="1" class="frame-transition-right">
-              <div class="video-thumbnail-wrapper">
-                <img src="" width="" height="" alt="">
-                ${showPlayButtons ? playButtonIcon() : ''}
-                <div class="hover-text-container">
-                  <h3></h3>
-                  ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
+              </a>
+              <a class="video-item frame-transition-right" data-itemclickable="true" data-frameposition="1" class="frame-transition-right">
+                <div class="video-thumbnail-wrapper">
+                  <img src="" width="" height="" alt="">
+                  ${showPlayButtons ? playButtonIcon() : ''}
+                  <div class="hover-text-container">
+                    <h3></h3>
+                    ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
+                  </div>
                 </div>
-              </div>
-            </a>
+              </a>
+            </div>
+            <div class="fast-forward-overlay element-invisible" data-fastforwardoverlay="true">
+              <h1></h1>
+            </div>
           </div>
             <svg version="1.0" xmlns="http://www.w3.org/2000/svg" class="arrow-right" data-hideonidle="true" data-carouselarrowdirection="right" data-carouselarrow="true"
               width="100.000000pt" height="100.000000pt" viewBox="0 0 100.000000 100.000000"
@@ -585,8 +609,12 @@
       // Select DOM Elements
 
       const carouselContainer = document.querySelector(`${widgetId} .carousel-layout`);
+      const carouselFramesContainer = carouselContainer.querySelector('[data-carouselvideoitems="true"]');
+      const carouselFastForwardOverlay = carouselContainer.querySelector('[data-fastforwardoverlay="true"]');
+      const carouselFastForwardText = carouselFastForwardOverlay.querySelector('h1');
       const carouselArrowLeft = carouselContainer.querySelector(`[data-carouselarrowdirection="left"]`);
       const carouselArrowRight = carouselContainer.querySelector(`[data-carouselarrowdirection="right"]`);
+      const carouselArrows = [carouselArrowLeft, carouselArrowRight];
       const startingCarouselFrame = carouselContainer.querySelector('[data-frameposition="0"]');
       const leftCarouselFrame = carouselContainer.querySelector('[data-frameposition="-1"]');
       const rightCarouselFrame = carouselContainer.querySelector('[data-frameposition="1"]');
@@ -616,32 +644,36 @@
 
       let lastTimeAdvanced = new Date().getTime();
 
-      // Left Arrow Click Event Listener
+      // Left Arrow Click Event Handling
 
-      carouselArrowLeft.addEventListener('click', () => {
-
-        lastTimeAdvanced = new Date().getTime();
-
+      function advanceCarouselLeft(transitionType, fastForward) {
         if (playListSorted[currentVideoIndex - 1]) {
           currentVideoIndex -= 1;
         } else currentVideoIndex = playListSorted.length - 1
 
         carouselFrames.forEach(frame => 
-          frameTransitionHandler(frame, 'left', 'carousel', currentVideoIndex)
+          frameTransitionHandler(frame, 'left', 'carousel', currentVideoIndex, null, fastForward)
         );
-      })
+      }
 
       // Right Arrow Click And Auto Transitioning 
 
-      function advanceCarouselRight(automated) {
+      function advanceCarouselRight(transitionType, fastForward) {
         if (playListSorted[currentVideoIndex + 1]) {
           currentVideoIndex += 1;
         } else currentVideoIndex = 0;
 
         carouselFrames.forEach(frame => 
-          frameTransitionHandler(frame, 'right', 'carousel', currentVideoIndex, automated)
+          frameTransitionHandler(frame, 'right', 'carousel', currentVideoIndex, transitionType, fastForward)
         );
       }
+
+      // Left Arrow Click Event Listener
+
+      carouselArrowLeft.addEventListener('click', () => {
+        lastTimeAdvanced = new Date().getTime();
+        advanceCarouselLeft();
+      });
 
       // Right Arrow Click Event Listener
 
@@ -650,11 +682,49 @@
         advanceCarouselRight();
       });
 
+      // Mouse Hold Speed Through Carousel Frames Event Handling.  Variables For Checking For Mouse Down And Running Repeat Interval
+
+      let mouseDownInterval;
+      let mouseDown = false;
+
+      // Left Arrow Mouse Down Event Handler
+
+      carouselArrowLeft.addEventListener('mousedown', () => { 
+        mouseDown = true;
+        setTimeout(() => {
+          if (mouseDown) {
+            mouseDownInterval = setInterval(() => advanceCarouselLeft(null, true), fastForwardSpeed);
+            carouselArrowLeft.classList.add('carousel-arrow-hold');
+          }
+        }, 500)
+      })
+
+      // Right Arrow Mouse Down Event Handler
+
+      carouselArrowRight.addEventListener('mousedown', () => { 
+        mouseDown = true;
+        setTimeout(() => {
+          if (mouseDown) {
+            mouseDownInterval = setInterval(() => advanceCarouselRight(null, true), fastForwardSpeed);
+            carouselArrowRight.classList.add('carousel-arrow-hold');
+          }
+        }, 500)
+      })
+
+      // Arrow Mouse Up Event Handling
+
+      window.addEventListener('mouseup', () => {
+        clearInterval(mouseDownInterval);
+        mouseDown = false;
+        carouselArrowLeft.classList.remove('carousel-arrow-hold');
+        carouselArrowRight.classList.remove('carousel-arrow-hold');
+      })
+
       // Automatic Advance Right Interval Handler.  Checks That User Hasn't Advanced The Carousel Via Clicking The Arrows During The carouselDelay Time Period
 
       setInterval(() => {
         if (new Date().getTime() - lastTimeAdvanced > carouselDelay * 0.5) {
-          advanceCarouselRight(true)
+          advanceCarouselRight('carouselAutomated')
         }
       }, carouselDelay);
 
@@ -674,11 +744,11 @@
 
     // Lightbox and Carousel Arrow Click Event Handlers
 
-    function frameTransitionHandler(frame, direction, type, currentVideoIndex, automated) {
-      const transitionSpeed = type === 'lightbox' ? frameTransition : automated ? carouselTransition
-        : type === 'carousel' && !automated ? frameTransition : frameTransition
+    function frameTransitionHandler(frame, direction, type, currentVideoIndex, transitionType) {
+      const transitionSpeed = type === 'lightbox' ? frameTransition : transitionType === 'carouselAutomated' ? carouselTransition
+        : type === 'carousel' && transitionType !== 'carouselAutomated' ? frameTransition : frameTransition
 
-      if (type === 'carousel' && !automated) {
+      if (type === 'carousel' && transitionType !== 'carouselAutomated') {
         frame.classList.add('carousel-fast-transition');
         setTimeout(() => frame.classList.remove('carousel-fast-transition') ,transitionSpeed)
       }
