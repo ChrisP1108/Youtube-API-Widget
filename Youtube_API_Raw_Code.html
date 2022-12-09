@@ -38,6 +38,7 @@
       let pageOutputList = []; // The Actual List Of Video That Will Be Shown On The Page (Grid Or Carousel Layout)
       const lightboxFrameVideoBaseUrl = 'https://www.youtube.com/embed/'; // Video Base Url For Lightbox Video Iframes
       const fastForwardSpeed = 150; // Set The Speed That Frames Should Be Fast Forwarded Through On Carousel And Lightbox When User Holds Down Arrow.
+      let lightboxToggled = false // Used To Determine If Lightbox Is Toggled
       
       // CSS Variable Declarations
 
@@ -284,6 +285,16 @@
         opacity: 0 !important;
         z-index: -1 !important;
       }
+      .carousel-fast-forward-transitioning {
+        opacity: 0.1 !important;
+        z-index: -1 !important;
+      }
+      .carousel-fast-forward-transitioning a {
+        transition: 0.05s !important;
+      }
+      .carousel-fast-forward-transitioning a svg {
+        opacity: 0 !important;
+      }
       .fast-forward-overlay {
         width: 100%;
         height: 100%;
@@ -374,11 +385,12 @@
         transform: translate(10%) rotate(180deg);
         transition: 0.1s;
       }
-
       .carousel-fast-transition {
         transition: ${frameTransition / 1000}s !important;
       }
-
+      .carousel-zero-transition a {
+        transition: 0.05s !important;
+      }
       [data-lightboxid="${widgetId}"] iframe {
         width: 100%;
         height: 100%;
@@ -649,14 +661,13 @@
       function toggleFastForward(enabled, item) {
         if (enabled) {
           carouselFastForwardOverlay.classList.remove('element-invisible');
-          carouselFramesContainer.classList.add('element-invisible');
+          carouselFramesContainer.classList.add('carousel-fast-forward-transitioning');
           carouselFastForwardText.innerHTML = setThumbnailText(item);
         } else {
-          carouselFastForwardOverlay.classList.add('element-invisible');
-          carouselFramesContainer.classList.remove('element-invisible');
           carouselFastForwardText.innerHTML = '';
+          carouselFastForwardOverlay.classList.add('element-invisible');
+          carouselFramesContainer.classList.remove('carousel-fast-forward-transitioning');
         }
-        
       }
 
       // Left Arrow Click/Mousedown Event Handling
@@ -761,13 +772,13 @@
         carouselArrowLeft.classList.remove('carousel-arrow-hold');
         carouselArrowRight.classList.remove('carousel-arrow-hold');
         toggleFastForward();
-        setTimeout(() => clearInterval(mouseDownInterval), 500);
+        setTimeout(() => clearInterval(mouseDownInterval), 50);
       })
 
       // Automatic Advance Right Interval Handler.  Checks That User Hasn't Advanced The Carousel Via Clicking The Arrows During The carouselDelay Time Period
 
       setInterval(() => {
-        if (new Date().getTime() - lastTimeAdvanced > carouselDelay * 0.5) {
+        if (new Date().getTime() - lastTimeAdvanced > carouselDelay * 0.5 && !lightboxToggled) {
           advanceCarouselRight('carouselAutomated')
         }
       }, carouselDelay);
@@ -776,6 +787,7 @@
 
     function lightboxClear() {
       lightbox.innerHTML = '';
+      lightboxToggled = false;
       lightbox.classList.remove('show-lightbox');
       html.classList.remove('hide-scroll');
     }
@@ -883,6 +895,8 @@
 
     function lightboxActivateHandler(itemClicked) {
 
+      lightboxToggled = true;
+
       // Select DOM Elements
 
       lightbox.innerHTML = '';
@@ -915,7 +929,7 @@
             }
           })
         }
-        if (e && e.type && !mouseOverElement && e.type === 'click') {
+        if (e && e.type && !mouseOverElement && e.type === 'click' && !lightboxArrowClicked) {
           lightboxClear();
         }
         if (elementsToHideWhenIdle && elementsToHideWhenIdle[0] !== null && !mouseOverElement) {
@@ -966,11 +980,25 @@
 
       lightboxCloseButton.addEventListener('click', lightboxClear);
 
+      // Checks If Lightbox Arrow Was Clicked
+
+      let lightboxArrowClicked = false;
+
+      // Set lightboxArrowClicked To True For 500 Milliseconds Then Changed Back To False
+
+      function setLightboxArrowClicked() {
+        lightboxArrowClicked = true;
+        setTimeout(() => {
+          lightboxArrowClicked = false;
+        }, 250)
+      }
+
       // Event Listeners For Left And Right Lightbox Arrows
 
       // Left Arrow Click Event Listener
 
       lightboxArrowLeft.addEventListener('click', () => {
+        setLightboxArrowClicked();
         currentVideoIndex -= 1;
 
         if (playListSorted[currentVideoIndex - 1]) {
@@ -987,6 +1015,7 @@
       // Right Arrow Click Event Listener
 
       lightboxArrowRight.addEventListener('click', () => {
+        setLightboxArrowClicked();
         currentVideoIndex += 1;
 
         if (playListSorted[currentVideoIndex + 1]) {
