@@ -63,7 +63,7 @@
       const minimumWidthOfEachVideoItem = 480; // Sets Minimun Width Size Of Each Video.  Default Value Is: 480
       const mediaQueryMobileBreakpoint = minimumWidthOfEachVideoItem * 2; // Sets Media Query Break Point Of When Video Containers Should Stack In One Column.  Calculation Based Upon minimumWidthOfEachVideo Number.  Default Value Is: minimumWidthOfEachVideoItem * 2
       const frameTransition = 500; // Sets Transition Time Of LightBox Carousel Frame Transitioning In Milliseconds
-      const carouselTransition = 1500; // Sets Transition Time Of Carousel Layout Frame Transitioning In Milliseconds
+      const carouselTransition = 2000; // Sets Transition Time Of Carousel Layout Frame Transitioning In Milliseconds
       const carouselDelay = 6000; // Sets Delay Carousel Layout Between Transitioning In Milliseconds
       const carouselWidth = 32.5 // Set Width Of Carousel Layout Thumbnails In REMs
       const carouselArrowsColor = '#000000' // Sets Color Of Carousel Layout Arrows And Text Overlay During Fast Forward
@@ -193,6 +193,15 @@
       }
       ${widgetId} .video-thumbnail-wrapper:hover .hover-text-container {
         opacity: 1;
+      }
+      .carousel-transitioning-show-text img {
+        opacity: calc(${imageDarkeningOpacity} / 100);
+      }
+      .carousel-transitioning-show-text svg {
+        opacity: 0 !important;
+      }
+      .carousel-transitioning-show-text .hover-text-container  {
+        opacity: 1 !important;
       }
       ${widgetId} .video-thumbnail-wrapper img {
         object-fit: cover;
@@ -723,7 +732,7 @@
         } else toggleFastForward()
 
         carouselFrames.forEach(frame => 
-          frameTransitionHandler(frame, 'left', 'carousel', currentVideoIndex)
+          frameTransitionHandler(frame, 'left', 'carousel', currentVideoIndex, transitionType, fastForward)
         );
       }
 
@@ -739,7 +748,7 @@
         } else toggleFastForward()
 
         carouselFrames.forEach(frame => 
-          frameTransitionHandler(frame, 'right', 'carousel', currentVideoIndex, transitionType)
+          frameTransitionHandler(frame, 'right', 'carousel', currentVideoIndex, transitionType, fastForward)
         );
       }
 
@@ -812,6 +821,12 @@
         carouselArrowLeft.classList.remove('carousel-arrow-hold-transitioning');
         carouselArrowRight.classList.remove('carousel-arrow-hold-transitioning');
         toggleFastForward();
+        setTimeout(() => { 
+          mouseDown = false;
+          carouselArrowLeft.classList.remove('carousel-arrow-hold-transitioning');
+          carouselArrowRight.classList.remove('carousel-arrow-hold-transitioning'); 
+          clearInterval(mouseDownInterval);
+        }, 250)
       })
 
       // Automatic Advance Right Interval Handler.  Checks That User Hasn't Advanced The Carousel Via Clicking The Arrows During The carouselDelay Time Period
@@ -839,13 +854,17 @@
 
     // Lightbox and Carousel Arrow Click Event Handlers
 
-    function frameTransitionHandler(frame, direction, type, currentVideoIndex, transitionType) {
+    function frameTransitionHandler(frame, direction, type, currentVideoIndex, transitionType, fastForward) {
       const transitionSpeed = type === 'lightbox' ? frameTransition : transitionType === 'carouselAutomated' ? carouselTransition
         : type === 'carousel' && transitionType !== 'carouselAutomated' ? frameTransition : frameTransition
 
       if (type === 'carousel' && transitionType !== 'carouselAutomated') {
         frame.classList.add('carousel-fast-transition');
         setTimeout(() => frame.classList.remove('carousel-fast-transition') ,transitionSpeed)
+      }
+
+      if (fastForward) {
+        frame.classList.remove('carousel-transitioning-show-text');
       }
 
       switch(frame.dataset.frameposition) {
@@ -857,6 +876,9 @@
             }
             if (type === 'carousel' && playListSorted[currentVideoIndex]) {
               setCarouselThumbnail(frame, playListSorted[currentVideoIndex])
+              setTimeout(() => {
+                frame.classList.remove('carousel-transitioning-show-text');
+              }, transitionSpeed)
             }
             frame.classList.remove('frame-transition-left');
             frame.dataset.frameposition = 0;
@@ -870,6 +892,9 @@
                 frame.src = lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex + 1].snippet.resourceId.videoId 
               }
               if (type === 'carousel' && playListSorted[currentVideoIndex + 1]) {
+                if (!fastForward) {
+                  frame.classList.add('carousel-transitioning-show-text');
+                }
                 setCarouselThumbnail(frame, playListSorted[currentVideoIndex + 1])
               }
             }, transitionSpeed)
@@ -884,6 +909,9 @@
                 frame.src = lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex + 1].snippet.resourceId.videoId 
               }
               if (type === 'carousel' && playListSorted[currentVideoIndex + 1]) {
+                if (!fastForward) {
+                  frame.classList.add('carousel-transitioning-show-text');
+                }
                 setCarouselThumbnail(frame, playListSorted[currentVideoIndex + 1])
               }
             }, transitionSpeed)
@@ -896,6 +924,9 @@
                 frame.src = lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex - 1].snippet.resourceId.videoId 
               }
               if (type === 'carousel' && playListSorted[currentVideoIndex + 1]) {
+                if (!fastForward) {
+                  frame.classList.add('carousel-transitioning-show-text');
+                }
                 setCarouselThumbnail(frame, playListSorted[currentVideoIndex + 1])
               }
             }, transitionSpeed)
@@ -911,6 +942,9 @@
                 frame.src = lightboxFrameVideoBaseUrl + playListSorted[currentVideoIndex - 1].snippet.resourceId.videoId 
               }
               if (type === 'carousel' && playListSorted[currentVideoIndex - 1]) {
+                if (!fastForward) {
+                  frame.classList.add('carousel-transitioning-show-text');
+                }
                 setCarouselThumbnail(frame, playListSorted[currentVideoIndex - 1])
               }
             }, transitionSpeed) 
@@ -922,6 +956,12 @@
             }
             if (type === 'carousel' && playListSorted[currentVideoIndex]) {
               setCarouselThumbnail(frame, playListSorted[currentVideoIndex])
+              if (!fastForward) {
+                frame.classList.add('carousel-transitioning-show-text');
+              }
+              setTimeout(() => {
+                frame.classList.remove('carousel-transitioning-show-text');
+              }, transitionSpeed)
             }
             frame.classList.remove('frame-transition-right');
             frame.dataset.frameposition = 0;
@@ -975,9 +1015,6 @@
             }
           })
         }
-        // if (e && e.type && !mouseOverElement && e.type === 'click' && !lightboxArrowClicked &&) {
-        //   lightboxClear();
-        // }
         if (elementsToHideWhenIdle && elementsToHideWhenIdle[0] !== null && !mouseOverElement) {
           elementsToHideWhenIdle.forEach(element => element.classList.remove('element-invisible'));
           setTimeout(() => {
@@ -1180,7 +1217,13 @@
         lightboxArrowLeft.classList.remove('lightbox-arrow-hold-transitioning');
         lightboxArrowRight.classList.remove('lightbox-arrow-hold-transitioning');
         toggleFastForward();
-        setTimeout(() => mouseDown = false, 100);
+        setTimeout(() => { 
+          mouseDown = false;
+          clearInterval(mouseDownInterval);
+          lightboxArrowLeft.classList.remove('lightbox-arrow-hold-transitioning');
+          lightboxArrowRight.classList.remove('lightbox-arrow-hold-transitioning');
+          clearInterval(mouseDownInterval);
+        }, 250);
       }
 
       window.addEventListener('mouseup', clearFastForwarding);
