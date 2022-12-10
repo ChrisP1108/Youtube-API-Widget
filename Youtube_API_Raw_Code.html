@@ -61,7 +61,7 @@
       const playButtonOpacity = 75 / 100; // Sets Opacity Of Play Button Icon Over Video Thumbnail.  Divides Number By 100 To Convert Percentage To Decimal. Default Value Is: 75
       const closeButtonSize = '32px'; // Sets Size Of Lighbox Close Button On Top Right Corner Of Screen When Lighbox Is Active.  Default Value Is: '32px'
       const minimumWidthOfEachVideoItem = 480; // Sets Minimun Width Size Of Each Video.  Default Value Is: 480
-      const mediaQueryBreakpoint = minimumWidthOfEachVideoItem * 2; // Sets Media Query Break Point Of When Video Containers Should Stack In One Column.  Calculation Based Upon minimumWidthOfEachVideo Number.  Default Value Is: minimumWidthOfEachVideoItem * 2
+      const mediaQueryMobileBreakpoint = minimumWidthOfEachVideoItem * 2; // Sets Media Query Break Point Of When Video Containers Should Stack In One Column.  Calculation Based Upon minimumWidthOfEachVideo Number.  Default Value Is: minimumWidthOfEachVideoItem * 2
       const frameTransition = 500; // Sets Transition Time Of LightBox Carousel Frame Transitioning In Milliseconds
       const carouselTransition = 1500; // Sets Transition Time Of Carousel Layout Frame Transitioning In Milliseconds
       const carouselDelay = 6000; // Sets Delay Carousel Layout Between Transitioning In Milliseconds
@@ -268,7 +268,7 @@
         opacity: 0;
         pointer-events: none !important;
       }
-      .carousel-arrow-hold {
+      .carousel-arrow-hold-transitioning {
         animation-iteration-count: infinite;
         animation-duration: ${fastForwardSpeed / 1000}s;
         animation-name: carousel-fast-forward;
@@ -276,6 +276,15 @@
       @keyframes carousel-fast-forward {
         from { filter: drop-shadow(0px 0px 0px ${carouselArrowsColor}) }
         to { filter: drop-shadow(24px 0px 0px ${carouselArrowsColor}) }
+      }
+      .lightbox-arrow-hold-transitioning {
+        animation-iteration-count: infinite;
+        animation-duration: ${fastForwardSpeed / 1000}s;
+        animation-name: lightbox-fast-forward;
+      }
+      @keyframes lightbox-fast-forward {
+        from { filter: drop-shadow(0px 0px 0px white) }
+        to { filter: drop-shadow(48px 0px 0px white) }
       }
       .disable-arrow {
         opacity: 0;
@@ -285,14 +294,20 @@
         opacity: 0 !important;
         z-index: -1 !important;
       }
-      .carousel-fast-forward-transitioning {
-        opacity: 0.1 !important;
+      .fast-forward-transitioning {
         z-index: -1 !important;
       }
-      .carousel-fast-forward-transitioning a {
+      .fast-forward-transitioning a {
+        opacity: 0.25 !important;
+      }
+      .fast-forward-transitioning iframe {
+        opacity: 0.2 !important;
+      }
+      .fast-forward-transitioning a,
+      .fast-forward-transitioning iframe {
         transition: 0.05s !important;
       }
-      .carousel-fast-forward-transitioning a svg {
+      .fast-forward-transitioning a svg {
         opacity: 0 !important;
       }
       .fast-forward-overlay {
@@ -323,6 +338,20 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+      }
+      [data-lightboxid="${widgetId}"] .lightbox-video-frame .fast-forward-overlay {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      [data-lightboxid="${widgetId}"] .lightbox-video-frame .fast-forward-overlay h1 {
+        color: white;
+        font-size: 6vw;
+        text-align: center;
+        font-weight: 700;
       }
       [data-lightboxid="${widgetId}"] .lightbox-close-button {
         color: white;
@@ -355,7 +384,7 @@
         z-index: 3;
         transition: 0.25s;
       }
-      [data-lightboxid="${widgetId}"] .lightbox-video-container {
+      [data-lightboxid="${widgetId}"] .lightbox-video-frame {
         width: 78vw!important;
         height: 43.9vw!important;
         max-height: 90vh!important;
@@ -413,6 +442,7 @@
       {
         fill: ${carouselArrowsColor};
         color: ${carouselArrowsColor};
+        font-weight: 700;
       }
       ${widgetId} .carousel-layout a {
         position: absolute;
@@ -427,15 +457,15 @@
         width: ${carouselWidth}rem;
         margin: 0 3%;
       }
-      @media(max-width: ${mediaQueryBreakpoint}px) {
+      @media(max-width: ${mediaQueryMobileBreakpoint}px) {
         ${widgetId} .grid-layout {
           grid-template-columns: 1fr;
+          grid-auto-rows: 0.65%;
         }
       }
-      @media(min-width: ${mediaQueryBreakpoint + 1}px) {
+      @media(min-width: ${mediaQueryMobileBreakpoint + 1}px) {
         ${widgetId} .grid-layout {
           grid-template-columns: repeat(auto-fill, minmax(${minimumWidthOfEachVideoItem}px, 1fr));
-          grid-auto-rows: 1fr;
         }
       }
       @media(max-width: ${carouselWidth * 20}px) {
@@ -451,6 +481,11 @@
         }
         ${widgetId} .carousel-layout .carousel-video-frame p {
           font-size: 5vw;
+        }
+      }
+      @media(min-width: 1920px) {
+        [data-lightboxid="${widgetId}"] .lightbox-video-frame .fast-forward-overlay h1 {
+          font-size: 90px;
         }
       }
     `
@@ -487,13 +522,18 @@
           <path data-hideonidle="true" d="M415 720 l-220 -220 223 -222 222 -223 72 73 73 72 -148 148 -147 147 145 145 c80 80 145 149 145 155 0 0 -140 145 -140 145 0 0 -104 -99 -225 -220z"/>
           </g>
         </svg>
-        <div class="lightbox-video-container">
-          <iframe data-frameposition="-1" class="frame-transition-left" width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-          </iframe>
-          <iframe data-frameposition="0" width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-          </iframe>
-          <iframe data-frameposition="1" class="frame-transition-right" width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-          </iframe>
+        <div class="lightbox-video-frame">
+          <div class="lightbox-frames" data-lightboxframes="true">
+            <iframe data-frameposition="-1" class="frame-transition-left" width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+            </iframe>
+            <iframe data-frameposition="0" width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+            </iframe>
+            <iframe data-frameposition="1" class="frame-transition-right" width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+            </iframe>
+          </div>
+          <div class="fast-forward-overlay element-invisible" data-fastforwardoverlay="true">
+            <h1></h1>
+          </div>
         </div>
         <svg version="1.0" xmlns="http://www.w3.org/2000/svg" class="arrow-right" data-hideonidle="true" data-lightboxarrowdirection="right" data-lightboxarrow="true"
           width="100.000000pt" height="100.000000pt" viewBox="0 0 100.000000 100.000000"
@@ -661,12 +701,12 @@
       function toggleFastForward(enabled, item) {
         if (enabled) {
           carouselFastForwardOverlay.classList.remove('element-invisible');
-          carouselFramesContainer.classList.add('carousel-fast-forward-transitioning');
+          carouselFramesContainer.classList.add('fast-forward-transitioning');
           carouselFastForwardText.innerHTML = setThumbnailText(item);
         } else {
           carouselFastForwardText.innerHTML = '';
           carouselFastForwardOverlay.classList.add('element-invisible');
-          carouselFramesContainer.classList.remove('carousel-fast-forward-transitioning');
+          carouselFramesContainer.classList.remove('fast-forward-transitioning');
         }
       }
 
@@ -709,9 +749,9 @@
           lastTimeAdvanced = new Date().getTime();
           advanceCarouselLeft()
         } else {
-          clearInterval(mouseDownInterval);
           mouseDown = false;
         }
+        clearInterval(mouseDownInterval);
       });
 
       // Right Arrow Click Event Listener
@@ -721,9 +761,9 @@
           lastTimeAdvanced = new Date().getTime();
           advanceCarouselRight()
         } else {
-          clearInterval(mouseDownInterval);
           mouseDown = false;
         }
+        clearInterval(mouseDownInterval);
       });
 
       // Mouse Hold Speed Through Carousel Frames Event Handling.  Variables For Checking For Mouse Down And Running Repeat Interval
@@ -735,32 +775,32 @@
 
       carouselArrowLeft.addEventListener('mousedown', () => { 
         mouseDown = true;
-          setTimeout(() => {
-            if (mouseDown) {
-              mouseDownInterval = setInterval(() => {
-                if (mouseDown) {
-                  advanceCarouselLeft(null, true), fastForwardSpeed;
-                }
-              }, fastForwardSpeed);
-              carouselArrowLeft.classList.add('carousel-arrow-hold');
-            }
-          }, 500)
+        setTimeout(() => {
+          if (mouseDown) {
+            mouseDownInterval = setInterval(() => {
+              if (mouseDown) {
+                advanceCarouselLeft(null, true), fastForwardSpeed;
+              }
+            }, fastForwardSpeed);
+            carouselArrowLeft.classList.add('carousel-arrow-hold-transitioning');
+          }
+        }, 500)
       })
 
       // Right Arrow Mouse Down Event Handler
 
       carouselArrowRight.addEventListener('mousedown', () => { 
         mouseDown = true;
-          setTimeout(() => {
-            if (mouseDown) {
-              mouseDownInterval = setInterval(() => {
-                if (mouseDown) {
-                  advanceCarouselRight(null, true), fastForwardSpeed;
-                }
-              }, fastForwardSpeed);
-              carouselArrowRight.classList.add('carousel-arrow-hold');
-            }
-          }, 500)
+        setTimeout(() => {
+          if (mouseDown) {
+            mouseDownInterval = setInterval(() => {
+              if (mouseDown) {
+                advanceCarouselRight(null, true), fastForwardSpeed;
+              }
+            }, fastForwardSpeed);
+            carouselArrowRight.classList.add('carousel-arrow-hold-transitioning');
+          }
+        }, 500)
       })
 
       // Arrow Mouse Up Event Handling
@@ -768,11 +808,10 @@
       window.addEventListener('mouseup', () => {
         mouseDown = false;
         clearInterval(mouseDownInterval);
-        mouseDownInterval = '';
-        carouselArrowLeft.classList.remove('carousel-arrow-hold');
-        carouselArrowRight.classList.remove('carousel-arrow-hold');
+        carouselArrowLeft.classList.remove('carousel-arrow-hold-transitioning');
+        carouselArrowRight.classList.remove('carousel-arrow-hold-transitioning');
         toggleFastForward();
-        setTimeout(() => clearInterval(mouseDownInterval), 50);
+        setTimeout(() => mouseDown = false, 100);
       })
 
       // Automatic Advance Right Interval Handler.  Checks That User Hasn't Advanced The Carousel Via Clicking The Arrows During The carouselDelay Time Period
@@ -904,7 +943,10 @@
       const startingLightboxActive = lightbox.querySelector('[data-frameposition="0"]');
       const lightboxStartingLeft = lightbox.querySelector('[data-frameposition="-1"]');
       const lightboxStartingRight = lightbox.querySelector('[data-frameposition="1"]');
-      const lightframes = lightbox.querySelectorAll('iframe');
+      const lightboxFramesContainer = lightbox.querySelector('[data-lightboxframes="true"]');
+      const lightboxFrames = lightbox.querySelectorAll('iframe');
+      const lightboxFastForwardOverlay = lightbox.querySelector('[data-fastforwardoverlay="true"]');
+      const lightboxFastForwardText = lightboxFastForwardOverlay.querySelector('h1');
       const lightboxArrowLeft = lightbox.querySelector('[data-lightboxarrowdirection="left"]');
       const lightboxArrowRight = lightbox.querySelector('[data-lightboxarrowdirection="right"]');
       const lightboxCloseButton = lightbox.querySelector('[data-lightboxclosebutton="true"]');
@@ -952,6 +994,7 @@
       // Video Index And Base Url For Youtube Embed Iframe
 
       let currentVideoIndex = playListSorted.findIndex(video => video.snippet.resourceId.videoId === itemClicked.dataset.videoid);
+
       // Check For Starting Position To See If Arrows Should Be Shown Based Upon Starting Video Index Position And Set Corresponding Iframe Urls
 
       if (!playListSorted[currentVideoIndex + 1]) {
@@ -976,6 +1019,10 @@
         lightboxClear();
       }      
 
+      // Records When Last Time Carousel Was Advanced To Avoid User Click/Auto Interval Conflict
+
+      let lastTimeAdvanced = new Date().getTime();
+
       // Event Listener On Exit Button Click To Exit LightBox
 
       lightboxCloseButton.addEventListener('click', lightboxClear);
@@ -993,11 +1040,28 @@
         }, 250)
       }
 
-      // Event Listeners For Left And Right Lightbox Arrows
+      // Mouse Hold Speed Through Carousel Frames Event Handling.  Variables For Checking For Mouse Down And Running Repeat Interval
 
-      // Left Arrow Click Event Listener
+      let mouseDownInterval;
+      let mouseDown = false;
 
-      lightboxArrowLeft.addEventListener('click', () => {
+      // Fast Forward Handling
+
+      function toggleFastForward(enabled, item) {
+        if (enabled) {
+          lightboxFastForwardOverlay.classList.remove('element-invisible');
+          lightboxFramesContainer.classList.add('fast-forward-transitioning');
+          lightboxFastForwardText.innerHTML = setThumbnailText(item);
+        } else {
+          lightboxFastForwardText.innerHTML = '';
+          lightboxFastForwardOverlay.classList.add('element-invisible');
+          lightboxFramesContainer.classList.remove('fast-forward-transitioning');
+        }
+      }
+
+      // Left Arrow Click/Mousedown And Auto Transitioning
+
+      function advanceLightboxLeft(fastForward) {
         setLightboxArrowClicked();
         currentVideoIndex -= 1;
 
@@ -1009,12 +1073,16 @@
           lightboxArrowRight.classList.remove('disable-arrow')
         } else lightboxArrowRight.classList.add('disable-arrow')
 
-        lightframes.forEach(frame => frameTransitionHandler(frame, 'left', 'lightbox', currentVideoIndex));
-      });
+        if (fastForward && mouseDown && playListSorted[currentVideoIndex]) {
+          toggleFastForward(true, playListSorted[currentVideoIndex]);
+        } else toggleFastForward();
 
-      // Right Arrow Click Event Listener
+        lightboxFrames.forEach(frame => frameTransitionHandler(frame, 'left', 'lightbox', currentVideoIndex));
+      }
 
-      lightboxArrowRight.addEventListener('click', () => {
+      // Right Arrow Click/Mousedown And Auto Transitioning
+
+      function advanceLightboxRight(fastForward) {
         setLightboxArrowClicked();
         currentVideoIndex += 1;
 
@@ -1026,8 +1094,80 @@
           lightboxArrowLeft.classList.remove('disable-arrow');
         } else lightboxArrowLeft.classList.add('disable-arrow');
 
-        lightframes.forEach(frame => frameTransitionHandler(frame, 'right', 'lightbox', currentVideoIndex));
+        if (fastForward && mouseDown && playListSorted[currentVideoIndex]) {
+          toggleFastForward(true, playListSorted[currentVideoIndex]);
+        } else toggleFastForward();
+
+        lightboxFrames.forEach(frame => frameTransitionHandler(frame, 'right', 'lightbox', currentVideoIndex));
+      }
+
+      // Left Arrow Click Event Handler
+
+      lightboxArrowLeft.addEventListener('click', () => {
+        if (!mouseDown) {
+          lastTimeAdvanced = new Date().getTime();
+          advanceLightboxLeft()
+        } else {
+          clearInterval(mouseDownInterval);
+          mouseDown = false;
+        }
       });
+
+      // Right Arrow Click Event Handler
+
+      lightboxArrowRight.addEventListener('click', () => {
+        if (!mouseDown) {
+          lastTimeAdvanced = new Date().getTime();
+          advanceLightboxRight()
+        } else {
+          clearInterval(mouseDownInterval);
+          mouseDown = false;
+        }
+      });
+
+      // Left Arrow Mouse Down Event Handler
+
+      lightboxArrowLeft.addEventListener('mousedown', () => {
+        mouseDown = true;
+        setTimeout(() => {
+          if (mouseDown && playListSorted[currentVideoIndex - 1]) {
+            mouseDownInterval = setInterval(() => {
+              if (mouseDown) {
+                advanceLightboxLeft(true), fastForwardSpeed;
+              }
+            }, fastForwardSpeed);
+            lightboxArrowLeft.classList.add('lightbox-arrow-hold-transitioning');
+          }
+        }, 500)
+      });
+
+      // Right Arrow Mouse Down Event Handler
+
+      lightboxArrowRight.addEventListener('mousedown', () => {
+        mouseDown = true;
+        setTimeout(() => {
+          if (mouseDown && playListSorted[currentVideoIndex + 1]) {
+            mouseDownInterval = setInterval(() => {
+              if (mouseDown) {
+                advanceLightboxRight(true), fastForwardSpeed;
+              }
+            }, fastForwardSpeed);
+            lightboxArrowRight.classList.add('lightbox-arrow-hold-transitioning');
+          }
+        }, 500)
+      });
+
+      // Arrow Mouse Up Event Handling
+
+      window.addEventListener('mouseup', () => {
+        mouseDown = false;
+        clearInterval(mouseDownInterval);
+        mouseDownInterval = '';
+        lightboxArrowLeft.classList.remove('lightbox-arrow-hold-transitioning');
+        lightboxArrowRight.classList.remove('lightbox-arrow-hold-transitioning');
+        toggleFastForward();
+        setTimeout(() => mouseDown = false, 100);
+      })
     }
 
   // Data Retrieval From LocalStorage / API Method
