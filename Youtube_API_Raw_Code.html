@@ -12,7 +12,7 @@
       // Programming Variable Declarations
       
       const apiKey = 'AIzaSyCI7Y5K9XF-l1G0mb7qGNp3vd7-1vm2PrU'; // API Key For Youtube API Through Google Cloud
-      const playlistId = 'PLE69e89d5PM1U_JyAV5U-dguNaMQ4yGJm'; // Youtube Playlist Id
+      const playlistId = 'PLE69e89d5PM0CiOwUKc2hQhBF2prMVR0I'; // Youtube Playlist Id
       const resultLimitPerRequest = 50; // Youtube API Has A Limit Of 50 Results Per Request.
       const limitVideos = false; // Limit Videos Displayed.  Default Value Is: true
       const maxResults = 6; // If limitVideos Is Set To: true, Limit Number Of Videos Displayed.  Default Value Is: 6
@@ -284,7 +284,7 @@
       }
       @keyframes lightbox-fast-forward {
         from { filter: drop-shadow(0px 0px 0px white) }
-        to { filter: drop-shadow(48px 0px 0px white) }
+        to { filter: drop-shadow(32px 0px 0px white) }
       }
       .disable-arrow {
         opacity: 0;
@@ -352,6 +352,7 @@
         font-size: 6vw;
         text-align: center;
         font-weight: 700;
+        z-index: 100;
       }
       [data-lightboxid="${widgetId}"] .lightbox-close-button {
         color: white;
@@ -811,7 +812,6 @@
         carouselArrowLeft.classList.remove('carousel-arrow-hold-transitioning');
         carouselArrowRight.classList.remove('carousel-arrow-hold-transitioning');
         toggleFastForward();
-        setTimeout(() => mouseDown = false, 100);
       })
 
       // Automatic Advance Right Interval Handler.  Checks That User Hasn't Advanced The Carousel Via Clicking The Arrows During The carouselDelay Time Period
@@ -959,6 +959,10 @@
       let lastMouseOverTime = new Date().getTime();
       const idleDelayTime = 5000;
 
+      // Checks If Lightbox Arrow Was Clicked
+
+      let lightboxArrowClicked = false;
+
       // Monitors Mouse Movements And Clicks In Lightbox
 
       function lightboxMouseMoveHandler(e, elementsToHideWhenIdle) {
@@ -971,9 +975,9 @@
             }
           })
         }
-        if (e && e.type && !mouseOverElement && e.type === 'click' && !lightboxArrowClicked) {
-          lightboxClear();
-        }
+        // if (e && e.type && !mouseOverElement && e.type === 'click' && !lightboxArrowClicked &&) {
+        //   lightboxClear();
+        // }
         if (elementsToHideWhenIdle && elementsToHideWhenIdle[0] !== null && !mouseOverElement) {
           elementsToHideWhenIdle.forEach(element => element.classList.remove('element-invisible'));
           setTimeout(() => {
@@ -1027,16 +1031,12 @@
 
       lightboxCloseButton.addEventListener('click', lightboxClear);
 
-      // Checks If Lightbox Arrow Was Clicked
-
-      let lightboxArrowClicked = false;
-
       // Set lightboxArrowClicked To True For 500 Milliseconds Then Changed Back To False
 
-      function setLightboxArrowClicked() {
+      function setLightboxArrowToggled(fastForwarded) {
         lightboxArrowClicked = true;
         setTimeout(() => {
-          lightboxArrowClicked = false;
+            lightboxArrowClicked = false;
         }, 250)
       }
 
@@ -1062,20 +1062,27 @@
       // Left Arrow Click/Mousedown And Auto Transitioning
 
       function advanceLightboxLeft(fastForward) {
-        setLightboxArrowClicked();
         currentVideoIndex -= 1;
 
         if (playListSorted[currentVideoIndex - 1]) {
           lightboxArrowLeft.classList.remove('disable-arrow');
-        } else lightboxArrowLeft.classList.add('disable-arrow');
+        } else { 
+          clearFastForwarding();
+          lightboxArrowLeft.classList.add('disable-arrow');
+        }
 
         if (playListSorted[currentVideoIndex + 1]) {
           lightboxArrowRight.classList.remove('disable-arrow')
         } else lightboxArrowRight.classList.add('disable-arrow')
 
         if (fastForward && mouseDown && playListSorted[currentVideoIndex]) {
+          lightboxArrowFastForwarded = true;
           toggleFastForward(true, playListSorted[currentVideoIndex]);
-        } else toggleFastForward();
+        } else {
+          toggleFastForward();
+        }
+        
+        setLightboxArrowToggled();
 
         lightboxFrames.forEach(frame => frameTransitionHandler(frame, 'left', 'lightbox', currentVideoIndex));
       }
@@ -1083,20 +1090,27 @@
       // Right Arrow Click/Mousedown And Auto Transitioning
 
       function advanceLightboxRight(fastForward) {
-        setLightboxArrowClicked();
         currentVideoIndex += 1;
 
         if (playListSorted[currentVideoIndex + 1]) {
           lightboxArrowRight.classList.remove('disable-arrow');
-        } else lightboxArrowRight.classList.add('disable-arrow');
+        } else { 
+          clearFastForwarding();
+          lightboxArrowRight.classList.add('disable-arrow');
+        }
 
         if (playListSorted[currentVideoIndex - 1]) {
           lightboxArrowLeft.classList.remove('disable-arrow');
         } else lightboxArrowLeft.classList.add('disable-arrow');
 
         if (fastForward && mouseDown && playListSorted[currentVideoIndex]) {
+          lightboxArrowFastForwarded = true;
           toggleFastForward(true, playListSorted[currentVideoIndex]);
-        } else toggleFastForward();
+        } else { 
+          toggleFastForward();
+        }
+        
+        setLightboxArrowToggled();
 
         lightboxFrames.forEach(frame => frameTransitionHandler(frame, 'right', 'lightbox', currentVideoIndex));
       }
@@ -1159,7 +1173,7 @@
 
       // Arrow Mouse Up Event Handling
 
-      window.addEventListener('mouseup', () => {
+      function clearFastForwarding() {
         mouseDown = false;
         clearInterval(mouseDownInterval);
         mouseDownInterval = '';
@@ -1167,7 +1181,9 @@
         lightboxArrowRight.classList.remove('lightbox-arrow-hold-transitioning');
         toggleFastForward();
         setTimeout(() => mouseDown = false, 100);
-      })
+      }
+
+      window.addEventListener('mouseup', clearFastForwarding);
     }
 
   // Data Retrieval From LocalStorage / API Method
