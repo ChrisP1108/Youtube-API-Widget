@@ -27,12 +27,11 @@
       const showNonNumberedEpisodesOnly = false; // Shows Videos That Do Not Have An Episode Number Only. Default Value Is: false 
       const hideNonNumberedVideos = false; // Hides Non-Numbered Videos In Playlist.  Default Value Is: false   
       const timeStorageInterval = 60 * 60000; // Sets Time Interval That Another API Call Request Can Be Made Instead Of Loading From Local Storage In Minutes That Is Multiplied By 60000 To Convert Minutes To Milliseconds.  Default Value is 60
-      const instructionMessage = 'Click Here To Watch'; // Instruction Message Text.  Default Value is: 'Click Here To Watch'
+      const instructionMessage = window.innerWidth > 1200 ? 'Click Here To Watch' : 'Tap Here To Watch'; // Instruction Message Text.  Default Value is: 'Click Here To Watch'
       const showPlayButtons = true; // Sets If Play Button Icons Should Be Shown Over Video Thumbnails.  Default Value Is: true
       const showVideoInfo = false; // Sets If Text Information About Video Should Be Displayed Below Video Thumbnail.  Default Value Is: false
       const showDescriptionText = false; // If showVideoInfo Is Set To True, Sets If Video Description Text Should Be Displayed.  Default Value Is: false
       const lightboxDisplayBreakpoint = 1400; // Sets Breakpoint Between LightBox Being Enabled And Opening In Another Tab When Video Thumbnail Is Clicked.  Default Value Is: 1400
-      const playlistLayout = 'carousel'; // Determines The Layout Of Videos On Page.
       const showAllInLightbox = false; // Determines If Lightbox Will Allow User To See All Videos On PlayList If True. If False, User Can Only View Videos Shown On Page  
       let playListSorted = []; // Captures All Videos After Filtering And Sorting Before They're Reduced To Output Amount For Showing All Videos When Navigating Through Lightbox
       let pageOutputList = []; // The Actual List Of Video That Will Be Shown On The Page (Grid Or Carousel Layout)
@@ -57,7 +56,7 @@
       const textOverThumbnailColor = '#ffffff'; // Sets Color Of Text Over Video Thumbnail On Mouse Hover.  Default Value Is: '#ffffff'
       const textContainerMargin = '24px'; // Sets Padding Of Text Container That Cover Over Video Thumbnail For Text On Mouse Hover.  Default Value Is: '24px'
       const spaceBetweenTitleAndClickToPlayText = '40px'; // Sets Vertical Spacing Between Episode Number Or Video Title Text And Instruction Text On Mouse Hover Over Thumbnail.  Default Value Is: '40px'
-      const playButtonSizing = '35%'; // Sets Sizing Of Play Button Icon Over Video Thumbnail Relative To The HEight Of The Video Thumbnail In Percentage.  Default Value Is: '35%'
+      const playButtonSizing = '30%'; // Sets Sizing Of Play Button Icon Over Video Thumbnail Relative To The HEight Of The Video Thumbnail In Percentage.  Default Value Is: '35%'
       const playButtonOpacity = 75 / 100; // Sets Opacity Of Play Button Icon Over Video Thumbnail.  Divides Number By 100 To Convert Percentage To Decimal. Default Value Is: 75
       const closeButtonSize = '32px'; // Sets Size Of Lighbox Close Button On Top Right Corner Of Screen When Lighbox Is Active.  Default Value Is: '32px'
       const minimumWidthOfEachVideoItem = 480; // Sets Minimun Width Size Of Each Video.  Default Value Is: 480
@@ -67,6 +66,10 @@
       const carouselDelay = 8000; // Sets Delay Carousel Layout Between Transitioning In Milliseconds
       const carouselWidth = 40 // Set Width Of Carousel Layout Thumbnails In REMs
       const carouselArrowsColor = '#000000' // Sets Color Of Carousel Layout Arrows And Text Overlay During Fast Forward
+
+      // Layout Type Declaration
+
+      const playlistLayout = window.innerWidth > mediaQueryMobileBreakpoint ? 'grid' : 'carousel'; // Determines The Layout Of Videos On Page.
 
     // Error Handling Variables
 
@@ -100,7 +103,7 @@
       widgetRoot.innerHTML = 
         `
           <style class="playlist-styling"></style>
-          <div class="video-list">
+          <div class="video-layout-container">
           	${loadingSpinner}
             <div style="height: 400px; width: 100%;"></div>
 		      </div>
@@ -115,7 +118,7 @@
     // DOM Element Selector Declarations
 
       const stylesContainer = document.querySelector(`${widgetId} .playlist-styling`)
-      const playlistItems = document.querySelector(`${widgetId} .video-list`);
+      const playlistItems = document.querySelector(`${widgetId} .video-layout-container`);
       const lightbox = document.querySelector(`[data-lightboxid="${widgetId}"]`);
       const html = document.querySelector('html');
 
@@ -327,7 +330,7 @@
         opacity: 0.25 !important;
       }
       .fast-forward-transitioning [data-lightboxframe="true"] {
-        opacity: 0.2 !important;
+        opacity: 0.20 !important;
       }
       .fast-forward-transitioning a,
       .fast-forward-transitioning [data-lightboxframe="true"] {
@@ -382,7 +385,7 @@
       [data-lightboxid="${widgetId}"] .lightbox-video-frame .fast-forward-overlay h1,
       [data-lightboxid="${widgetId}"] .lightbox-video-frame [data-lightboxframe="true"] h1 {
         color: white;
-        font-size: 6vw;
+        font-size: 4.5vw;
         text-align: center;
         font-weight: 700;
         z-index: 100 !important;
@@ -1517,24 +1520,28 @@
 
           // Grid Layout Rendering
 
+          const gridListMapping = 
+            '<div class="grid-layout">' + 
+              pageOutputList.map(item => {
+                if (!item) {
+                  console.error(`Playlist VideoID: ${item.snippet.resourceId.videoId} Failed To Load`);
+                  failedItemTally++
+                } else if (!item.snippet || !item.titledEpisode) {
+                  console.warn('Failed To Load Playlist Item Due To Lack Of Sufficient Data.  Playlist Could Possibly Be Empty')
+                } else if (item.snippet.title.toLowerCase() === 'deleted video' || item.snippet.title.toLowerCase() === 'private video') {
+                  console.warn(`Video Playlist Item ${item.snippet.resourceId.videoId} Could Not Be Loaded As Its Status Is: ${item.snippet.title}`);
+                } else return renderGridItem(item);
+              }).join('')
+            + '</div>';       
+
           if (playlistLayout === 'grid') {
-            const gridListMapping = pageOutputList.map(item => {
-              if (!item) {
-                console.error(`Playlist VideoID: ${item.snippet.resourceId.videoId} Failed To Load`);
-                failedItemTally++
-              } else if (!item.snippet || !item.titledEpisode) {
-                console.warn('Failed To Load Playlist Item Due To Lack Of Sufficient Data.  Playlist Could Possibly Be Empty')
-              } else if (item.snippet.title.toLowerCase() === 'deleted video' || item.snippet.title.toLowerCase() === 'private video') {
-                console.warn(`Video Playlist Item ${item.snippet.resourceId.videoId} Could Not Be Loaded As Its Status Is: ${item.snippet.title}`);
-              } else return renderGridItem(item);
-            }).join('');       
-            playlistItems.outerHTML = '<div class="grid-layout">' + gridListMapping + '<div>';
+            playlistItems.innerHTML = gridListMapping;
           }
 
           // Carousel Layout Rendering
 
           if (playlistLayout === 'carousel') {
-            playlistItems.outerHTML = carouselHTML;
+            playlistItems.innerHTML = carouselHTML;
             carouselEventHandling();
           }
 
@@ -1555,6 +1562,29 @@
 
           window.addEventListener('keyup', escapeKeyListener);
           // lightbox.addEventListener('click', (e) => lightboxActivateHandler(lightbox, e));
+
+          // Monitor For Window Resizing.  Adjust Layout As Needed
+
+          let isGrid = playlistLayout === 'grid';
+          let isCarousel = playlistLayout === 'carousel';
+
+          window.addEventListener('resize', () => {
+            if (window.innerWidth >= mediaQueryMobileBreakpoint) {
+              if (!isGrid) {
+                playlistItems.innerHTML = gridListMapping;
+              }
+              isGrid = true;
+              isCarousel = false;
+            } 
+            if (window.innerWidth < mediaQueryMobileBreakpoint){
+              if (!isCarousel) {
+                playlistItems.innerHTML = carouselHTML;
+                carouselEventHandling();
+              }
+              isCarousel = true;
+              isGrid = false;
+            }
+          });
 
       } else {
 
