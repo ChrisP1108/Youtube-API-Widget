@@ -42,7 +42,7 @@
       // CSS Variable Declarations
 
       const playButtonColor = '#ffffff'; // Sets Color Of Play Button Icon Over Video Thumbnail.  Default Value IS: '#ffffff'
-      const gapBetweenVideos = '60px'; // Sets Spacing Between Video Item Containers.  Default Value Is: '48px'
+      const gapBetweenVideos = 60; // Sets Spacing Between Video Item Containers.  Default Value Is: '48px'
       const videoContainerBorderThickness = '0px'; // Sets Video Container Border Thickness: Default Value Is: '0px'
       const videoContainerBorderColor = '#000000'; // Sets Video Container Border Color: Default Value Is: '#000000'
       const dropShadowValues = '4px 4px 12px'; // Sets Drop-Shadow Values For Video Container.  Default Value Is: 0px 0px 0px
@@ -60,7 +60,7 @@
       const playButtonOpacity = 75 / 100; // Sets Opacity Of Play Button Icon Over Video Thumbnail.  Divides Number By 100 To Convert Percentage To Decimal. Default Value Is: 75
       const closeButtonSize = '32px'; // Sets Size Of Lighbox Close Button On Top Right Corner Of Screen When Lighbox Is Active.  Default Value Is: '32px'
       const minimumWidthOfEachVideoItem = 480; // Sets Minimun Width Size Of Each Video.  Default Value Is: 480
-      const mediaQueryMobileBreakpoint = minimumWidthOfEachVideoItem * 2; // Sets Media Query Break Point Of When Video Containers Should Stack In One Column.  Calculation Based Upon minimumWidthOfEachVideo Number.  Default Value Is: minimumWidthOfEachVideoItem * 2
+      const mediaQueryMobileBreakpoint = (minimumWidthOfEachVideoItem * 2) + (gapBetweenVideos * 1.5); // Sets Media Query Break Point Of When Video Containers Should Stack In One Column.  Calculation Based Upon minimumWidthOfEachVideo Number.  Default Value Is: minimumWidthOfEachVideoItem * 2
       const frameTransition = 500; // Sets Transition Time Of LightBox Carousel Frame Transitioning In Milliseconds
       const carouselTransition = 2000; // Sets Transition Time Of Carousel Layout Frame Transitioning In Milliseconds
       const carouselDelay = 8000; // Sets Delay Carousel Layout Between Transitioning In Milliseconds
@@ -144,7 +144,7 @@
       }
       ${widgetId} .grid-layout {
         display: grid;
-        gap: ${gapBetweenVideos};
+        gap: ${gapBetweenVideos}px;
       }
       ${widgetId} .loading-spinner {
 		    filter: drop-shadow(2px 4px 6px #00000090);
@@ -358,17 +358,31 @@
         z-index: 100000;
       }
       [data-lightboxid="${widgetId}"] .lightbox-content-container {
+        position: relative;
+        height: 100%;
+        width: 100%;
+      }
+      [data-lightboxid="${widgetId}"] .lightbox-playlist-container {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+      }
+      [data-lightboxid="${widgetId}"] .lightbox-player-container {
         width: 100%;
         height: 100%;
         margin: 0 auto;
-        max-width: 1920px;
         box-sizing: border-box;
         padding: 40px 2%;
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
+        position: absolute;
+        top: 0;
       }
-      [data-lightboxid="${widgetId}"] .lightbox-content-container .lightbox-video-frame iframe {
+      [data-lightboxid="${widgetId}"] .lightbox-video-frame {
+        margin: 0 3%;
+      }
+      [data-lightboxid="${widgetId}"] .lightbox-player-container .lightbox-video-frame iframe {
         width: 100%;
         height: 100%;
         position: absolute;
@@ -410,10 +424,25 @@
         align-items: center;
         transition: 0.25s;
       }
+      [data-lightboxid="${widgetId}"] .lightbox-playlist-button {
+        position: fixed;
+        top: 26px;
+        left: 24px;
+        width: calc(${closeButtonSize} * 1.54);
+        height: calc(${closeButtonSize} * 1.54);
+        transition: 0.25s;
+        cursor: pointer;
+      }
       [data-lightboxid="${widgetId}"] .lightbox-close-button:hover {
         transform: translateX(-100%) scale(1.25);
       }
-      [data-lightboxid="${widgetId}"] svg {
+      [data-lightboxid="${widgetId}"] .lightbox-playlist-button:hover {
+        transform: scale(1.25);
+      } 
+      [data-lightboxid="${widgetId}"] .lightbox-playlist-button:active {
+        transform: scale(0.9);
+      } 
+      [data-lightboxid="${widgetId}"] .lightbox-player-container svg {
         max-width: 60px;
         min-width: 2%;
         height: 100px;
@@ -554,52 +583,61 @@
 
     const lightboxHTML = `
       <div class="lightbox-content-container">
-        <svg version="1.0" xmlns="http://www.w3.org/2000/svg" class="arrow-left" data-hideonidle="true" data-lightboxarrowdirection="left" data-lightboxarrow="true"
-          width="100.000000pt" height="100.000000pt" viewBox="0 0 100.000000 100.000000"
-          preserveAspectRatio="xMidYMid meet">
-          <g data-hideonidle="true" transform="translate(0.000000,100.000000) scale(0.100000,-0.100000)"
-          fill="#ffffff" stroke="none">
-          <path data-hideonidle="true" d="M415 720 l-220 -220 223 -222 222 -223 72 73 73 72 -148 148 -147 147 145 145 c80 80 145 149 145 155 0 0 -140 145 -140 145 0 0 -104 -99 -225 -220z"/>
-          </g>
-        </svg>
-        <div class="lightbox-video-frame">
-          <div class="lightbox-frames" data-lightboxframes="true">
-            <div data-frameposition="-1" class="frame-transition-left video-thumbnail-wrapper" data-lightboxframe="true">
-              <iframe width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-              </iframe>
-              <div class="hover-text-container">
-                <h1></h1>
-              </div>
-            </div>
-            <div data-frameposition="0" class="video-thumbnail-wrapper" data-lightboxframe="true">
-              <iframe width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-              </iframe>
-              <div class="hover-text-container">
-                <h1></h1>
-              </div>
-            </div>
-            <div data-frameposition="1" class="frame-transition-right video-thumbnail-wrapper" data-lightboxframe="true">
-              <iframe width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-              </iframe>
-              <div class="hover-text-container">
-                <h1></h1>
-              </div>
-            </div>
-          </div>
-          <div class="fast-forward-overlay element-invisible" data-fastforwardoverlay="true">
-            <h1></h1>
-          </div>
+        <div class="lightbox-playlist-container" data-lightboxplaylist="true">
         </div>
-        <svg version="1.0" xmlns="http://www.w3.org/2000/svg" class="arrow-right" data-hideonidle="true" data-lightboxarrowdirection="right" data-lightboxarrow="true"
-          width="100.000000pt" height="100.000000pt" viewBox="0 0 100.000000 100.000000"
-          preserveAspectRatio="xMidYMid meet">
-          <g data-hideonidle="true" transform="translate(0.000000,100.000000) scale(0.100000,-0.100000)"
-          fill="#ffffff" stroke="none">
-          <path data-hideonidle="true" d="M415 720 l-220 -220 223 -222 222 -223 72 73 73 72 -148 148 -147 147 145 145 c80 80 145 149 145 155 0 0 -140 145 -140 145 0 0 -104 -99 -225 -220z"/>
-          </g>
-        </svg>
+        <div class="lightbox-player-container" data-lightboxplayer="true">
+          <svg version="1.0" xmlns="http://www.w3.org/2000/svg" class="arrow-left" data-hideonidle="true" data-lightboxarrowdirection="left" data-lightboxarrow="true"
+            width="100.000000pt" height="100.000000pt" viewBox="0 0 100.000000 100.000000"
+            preserveAspectRatio="xMidYMid meet">
+            <g data-hideonidle="true" transform="translate(0.000000,100.000000) scale(0.100000,-0.100000)"
+            fill="#ffffff" stroke="none">
+            <path data-hideonidle="true" d="M415 720 l-220 -220 223 -222 222 -223 72 73 73 72 -148 148 -147 147 145 145 c80 80 145 149 145 155 0 0 -140 145 -140 145 0 0 -104 -99 -225 -220z"/>
+            </g>
+          </svg>
+          <div class="lightbox-video-frame">
+            <div class="lightbox-frames" data-lightboxframes="true">
+              <div data-frameposition="-1" class="frame-transition-left video-thumbnail-wrapper" data-lightboxframe="true">
+                <iframe width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+                </iframe>
+                <div class="hover-text-container">
+                  <h1></h1>
+                </div>
+              </div>
+              <div data-frameposition="0" class="video-thumbnail-wrapper" data-lightboxframe="true">
+                <iframe width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+                </iframe>
+                <div class="hover-text-container">
+                  <h1></h1>
+                </div>
+              </div>
+              <div data-frameposition="1" class="frame-transition-right video-thumbnail-wrapper" data-lightboxframe="true">
+                <iframe width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+                </iframe>
+                <div class="hover-text-container">
+                  <h1></h1>
+                </div>
+              </div>
+            </div>
+            <div class="fast-forward-overlay element-invisible" data-fastforwardoverlay="true">
+              <h1></h1>
+            </div>
+          </div>
+          <svg version="1.0" xmlns="http://www.w3.org/2000/svg" class="arrow-right" data-hideonidle="true" data-lightboxarrowdirection="right" data-lightboxarrow="true"
+            width="100.000000pt" height="100.000000pt" viewBox="0 0 100.000000 100.000000"
+            preserveAspectRatio="xMidYMid meet">
+            <g data-hideonidle="true" transform="translate(0.000000,100.000000) scale(0.100000,-0.100000)"
+            fill="#ffffff" stroke="none">
+            <path data-hideonidle="true" d="M415 720 l-220 -220 223 -222 222 -223 72 73 73 72 -148 148 -147 147 145 145 c80 80 145 149 145 155 0 0 -140 145 -140 145 0 0 -104 -99 -225 -220z"/>
+            </g>
+          </svg>
+        </div>
       </div>
       <div class="lightbox-close-button" data-hideonidle="true" data-lightboxclosebutton="true">X</div>
+      <svg class="lightbox-playlist-button" data-lightboxplaylistbutton="true" data-hideonidle="true" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 122.88 101.66" style="enable-background:new 0 0 122.88 101.66" xml:space="preserve">
+        <g>
+          <path xmlns="http://www.w3.org/2000/svg" class="st0" fill="#ffffff" d="M0,0h97.6v16.12H0V0L0,0z M122.88,77.46l-38-24.21v48.41L122.88,77.46L122.88,77.46z M0,61.46h73.62v16.12H0 V61.46L0,61.46z M0,30.77h97.6v16.12H0V30.77L0,30.77z"/>
+        </g>
+      </svg>
       `;
 
     // Carousel Layout HTML
@@ -1055,10 +1093,11 @@
       const lightboxArrowLeft = lightbox.querySelector('[data-lightboxarrowdirection="left"]');
       const lightboxArrowRight = lightbox.querySelector('[data-lightboxarrowdirection="right"]');
       const lightboxCloseButton = lightbox.querySelector('[data-lightboxclosebutton="true"]');
+      const lightboxPlaylistButton = lightbox.querySelector('[data-lightboxplaylistbutton="true"]')
 
       // Elements To Hide When User Idle In Lightbox After 5 Seconds
 
-      const elementsToHideWhenIdle = [lightboxArrowLeft, lightboxArrowRight, lightboxCloseButton];
+      const elementsToHideWhenIdle = lightbox.querySelectorAll('[data-hideonidle="true"]');
 
       let mouseOverElement = false;
       let lastMouseOverTime = new Date().getTime();
@@ -1553,10 +1592,16 @@
 
           // Click Event Listener Initialization After HTML Rendering Of Video Items
 
-          const items = document.querySelectorAll(`${widgetId} [data-itemclickable="true"]`);
-          items.forEach(item => {
-            item.addEventListener('click', () => lightboxActivateHandler(item));
-          });
+          let items = document.querySelectorAll(`${widgetId} [data-itemclickable="true"]`);
+
+          function listenOnItemsClick() {
+            items = document.querySelectorAll(`${widgetId} [data-itemclickable="true"]`);
+            items.forEach(item => {
+              item.addEventListener('click', () => lightboxActivateHandler(item));
+            });
+          }
+          
+          listenOnItemsClick();
 
           // Escape Key And Click Event Listener Initialization For Lightbox
 
@@ -1572,6 +1617,7 @@
             if (window.innerWidth >= mediaQueryMobileBreakpoint) {
               if (!isGrid) {
                 playlistItems.innerHTML = gridListMapping;
+                listenOnItemsClick();
               }
               isGrid = true;
               isCarousel = false;
@@ -1580,6 +1626,7 @@
               if (!isCarousel) {
                 playlistItems.innerHTML = carouselHTML;
                 carouselEventHandling();
+                listenOnItemsClick();
               }
               isCarousel = true;
               isGrid = false;
