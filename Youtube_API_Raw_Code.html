@@ -12,7 +12,7 @@
       // Programming Variable Declarations
       
       const apiKey = 'AIzaSyCI7Y5K9XF-l1G0mb7qGNp3vd7-1vm2PrU'; // API Key For Youtube API Through Google Cloud
-      const playlistId = 'PLE69e89d5PM0CiOwUKc2hQhBF2prMVR0I'; // Youtube Playlist Id
+      const playlistId = 'PLE69e89d5PM1U_JyAV5U-dguNaMQ4yGJm'; // Youtube Playlist Id
       const resultLimitPerRequest = 50; // Youtube API Has A Limit Of 50 Results Per Request.
       const limitVideos = false; // Limit Videos Displayed.  Default Value Is: true
       const maxResults = 6; // If limitVideos Is Set To: true, Limit Number Of Videos Displayed.  Default Value Is: 6
@@ -358,6 +358,8 @@
         z-index: 100000;
       }
       [data-lightboxid="${widgetId}"] .lightbox-content-container {
+        max-width: 220vh;
+        margin: 0 auto;
         position: relative;
         height: 100%;
         width: 100%;
@@ -378,6 +380,7 @@
         align-items: center;
         position: absolute;
         top: 0;
+        transition: 0.5s;
       }
       [data-lightboxid="${widgetId}"] .lightbox-video-frame {
         margin: 0 3%;
@@ -402,7 +405,7 @@
         font-size: 4.5vw;
         text-align: center;
         font-weight: 700;
-        z-index: 100 !important;
+        z-index: 100;
       }
       [data-lightboxid="${widgetId}"] .lightbox-close-button {
         color: white;
@@ -417,21 +420,27 @@
         cursor: pointer;
         border: calc(${closeButtonSize} / 6.667) white solid;
         border-radius: 50%;
-        width: calc(${closeButtonSize} * 1.54);
-        height: calc(${closeButtonSize} * 1.54);
+        width: 15vh;
+        height: 15vh;
+        max-width: calc(${closeButtonSize} * 1.54);
+        max-height: calc(${closeButtonSize} * 1.54);
         display: flex;
         justify-content: center;
         align-items: center;
         transition: 0.25s;
+        z-index: 10 !important;
       }
       [data-lightboxid="${widgetId}"] .lightbox-playlist-button {
         position: fixed;
         top: 26px;
         left: 24px;
-        width: calc(${closeButtonSize} * 1.54);
-        height: calc(${closeButtonSize} * 1.54);
+        max-width: calc(${closeButtonSize} * 1.54);
+        max-height: calc(${closeButtonSize} * 1.54);
+        width: 15vh;
+        height: 15vh;
         transition: 0.25s;
         cursor: pointer;
+        z-index: 10 !important;
       }
       [data-lightboxid="${widgetId}"] .lightbox-close-button:hover {
         transform: translateX(-100%) scale(1.25);
@@ -485,6 +494,13 @@
       }
       .carousel-zero-transition a {
         transition: 0.05s !important;
+      }
+      .lightbox-container-off {
+        opacity: 0;
+        transform: scale(0);
+        z-index: -1 !important;
+        pointer-events: none !important;
+        transition: 0.5s;
       }
       [data-lightboxid="${widgetId}"] [data-lightboxframe="true"] {
         width: 100%;
@@ -562,21 +578,6 @@
 
   // END - CSS Generation
 
-  // Set Thumbail Images For Grid Layout And Carousel Items
-
-    function setThumbnailImage(item) {
-      const thumbnails = item.snippet.thumbnails;
-      const image = thumbnails.maxres ? thumbnails.maxres : thumbnails.standard ? thumbnails.standard : thumbnails.high ? thumbnails.high : thumbnails.medium ? thumbnails.medium : thumbnails.default;
-      return image
-    }
-
-  // Set Thumbnail Episode Number Or Title Text
-
-    function setThumbnailText(item) {
-      const { snippet } = item;
-      return item.titledEpisode !== -1 ? `Episode ${item.titledEpisode}` : `${snippet.title}`
-    }
-
   // HTML Generation Methods
 
     // Lightbox HTML
@@ -631,13 +632,13 @@
             </g>
           </svg>
         </div>
+        <div class="lightbox-close-button" data-hideonidle="true" data-lightboxclosebutton="true">X</div>
+        <svg class="lightbox-playlist-button" data-lightboxplaylistbutton="true" data-hideonidle="true" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 122.88 101.66" style="enable-background:new 0 0 122.88 101.66" xml:space="preserve">
+          <g>
+            <path xmlns="http://www.w3.org/2000/svg" class="st0" fill="#ffffff" d="M0,0h97.6v16.12H0V0L0,0z M122.88,77.46l-38-24.21v48.41L122.88,77.46L122.88,77.46z M0,61.46h73.62v16.12H0 V61.46L0,61.46z M0,30.77h97.6v16.12H0V30.77L0,30.77z"/>
+          </g>
+        </svg>
       </div>
-      <div class="lightbox-close-button" data-hideonidle="true" data-lightboxclosebutton="true">X</div>
-      <svg class="lightbox-playlist-button" data-lightboxplaylistbutton="true" data-hideonidle="true" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 122.88 101.66" style="enable-background:new 0 0 122.88 101.66" xml:space="preserve">
-        <g>
-          <path xmlns="http://www.w3.org/2000/svg" class="st0" fill="#ffffff" d="M0,0h97.6v16.12H0V0L0,0z M122.88,77.46l-38-24.21v48.41L122.88,77.46L122.88,77.46z M0,61.46h73.62v16.12H0 V61.46L0,61.46z M0,30.77h97.6v16.12H0V30.77L0,30.77z"/>
-        </g>
-      </svg>
       `;
 
     // Carousel Layout HTML
@@ -735,6 +736,21 @@
           </a>
         `;
       return htmlRender
+    }
+
+  // Set Thumbail Images For Grid Layout And Carousel Items
+
+    function setThumbnailImage(item) {
+      const thumbnails = item.snippet.thumbnails;
+      const image = thumbnails.maxres ? thumbnails.maxres : thumbnails.standard ? thumbnails.standard : thumbnails.high ? thumbnails.high : thumbnails.medium ? thumbnails.medium : thumbnails.default;
+      return image
+    }
+
+  // Set Thumbnail Episode Number Or Title Text
+
+    function setThumbnailText(item) {
+      const { snippet } = item;
+      return item.titledEpisode !== -1 ? `Episode ${item.titledEpisode}` : `${snippet.title}`
     }
 
   // Event Methods
@@ -1075,7 +1091,7 @@
 
     // Lightbox Activated Event Handler
 
-    function lightboxActivateHandler(itemClicked) {
+    function lightboxActivateHandler(itemClicked, loadPlaylist) {
 
       lightboxToggled = true;
 
@@ -1093,7 +1109,9 @@
       const lightboxArrowLeft = lightbox.querySelector('[data-lightboxarrowdirection="left"]');
       const lightboxArrowRight = lightbox.querySelector('[data-lightboxarrowdirection="right"]');
       const lightboxCloseButton = lightbox.querySelector('[data-lightboxclosebutton="true"]');
-      const lightboxPlaylistButton = lightbox.querySelector('[data-lightboxplaylistbutton="true"]')
+      const lightboxPlayerContainer = lightbox.querySelector('[data-lightboxplayer="true"]');
+      const lightboxPlaylistContainer = lightbox.querySelector('[data-lightboxplaylist="true"]');
+      const lightboxPlaylistButton = lightbox.querySelector('[data-lightboxplaylistbutton="true"]');
 
       // Elements To Hide When User Idle In Lightbox After 5 Seconds
 
@@ -1102,6 +1120,10 @@
       let mouseOverElement = false;
       let lastMouseOverTime = new Date().getTime();
       const idleDelayTime = 5000;
+
+      // Checks If Playlist Button Was Clicked And If So, Loads Playlist On Load
+
+      let showPlaylist = loadPlaylist ? true : false;
 
       // Checks If Lightbox Arrow Was Clicked
 
@@ -1349,6 +1371,23 @@
       }
 
       window.addEventListener('mouseup', clearFastForwarding);
+
+      // Playlist Button Event Listener
+
+      lightboxPlaylistButton.addEventListener('click', () => {
+        showPlaylist = !showPlaylist;
+        if (showPlaylist) {
+          lightboxFrames.forEach(frame => {
+            frame.querySelector('iframe').src = '';
+            frame.querySelector('h1').innerHTML = '';
+          });
+          lightboxPlayerContainer.classList.add('lightbox-container-off');
+          lightboxPlaylistContainer.classList.remove('lightbox-container-off');
+        } else {
+          lightboxPlayerContainer.classList.remove('lightbox-container-off');
+          lightboxPlaylistContainer.classList.add('lightbox-container-off');
+        }
+      })
     }
 
   // Data Retrieval From LocalStorage / API Method
