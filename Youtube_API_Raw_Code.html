@@ -142,7 +142,8 @@
       ${widgetId} h3 {
         margin: 0!important;
       }
-      ${widgetId} .grid-layout {
+      ${widgetId} .grid-layout,
+      [data-lightboxid="${widgetId}"] .grid-layout {
         display: grid;
         gap: ${gapBetweenVideos}px;
       }
@@ -179,6 +180,13 @@
         cursor: pointer;
         ${!showInformationBelow ? `height: 100%;` : ``}
       }
+      [data-lightboxid="${widgetId}"] .lightbox-playlist-container {
+        transition: 0.5s;
+      }
+      [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper {
+        position: relative;
+        cursor: pointer;
+      }
       ${widgetId} .video-info-text-container {
         padding: ${textBelowThumbnailTopBottomMargin} ${textBelowThumbnailSideMargins};	
       }
@@ -210,11 +218,13 @@
       .frame-transitioning-show-text .hover-text-container  {
         opacity: 1 !important;
       }
-      ${widgetId} .video-thumbnail-wrapper img {
+      ${widgetId} .video-thumbnail-wrapper img,
+      [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper img
+      {
         object-fit: cover;
         width: 100%!important;
         min-width: 100%!important;
-        height: 100%!important;
+        height: auto!important;
         max-height: 100%!important;
         transition: 0.75s;
       }
@@ -267,7 +277,9 @@
       ${widgetId} .video-thumbnail-wrapper .hover-text-container p {
         margin: 0
       }
-      ${widgetId} .video-thumbnail-wrapper svg {
+      ${widgetId} .video-thumbnail-wrapper svg,
+      [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper svg
+      {
         position: absolute;
         transition: 0.5s;
         top: 50%;
@@ -466,6 +478,9 @@
         max-width: 160vh!important;
         position: relative;
       }
+      [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-episode-text {
+        color: white;
+      }
       .arrow-left {
         cursor: pointer;
       }
@@ -497,7 +512,6 @@
       }
       .lightbox-container-off {
         opacity: 0;
-        transform: scale(0);
         z-index: -1 !important;
         pointer-events: none !important;
         transition: 0.5s;
@@ -543,12 +557,14 @@
         margin: 0 3%;
       }
       @media(max-width: ${mediaQueryMobileBreakpoint}px) {
-        ${widgetId} .grid-layout {
+        ${widgetId} .grid-layout,
+        [data-lightboxid="${widgetId}"] .grid-layout {
           grid-template-columns: 1fr;
         }
       }
       @media(min-width: ${mediaQueryMobileBreakpoint + 1}px) {
-        ${widgetId} .grid-layout {
+        ${widgetId} .grid-layout,
+        [data-lightboxid="${widgetId}"] .grid-layout {
           grid-template-columns: repeat(auto-fill, minmax(${minimumWidthOfEachVideoItem}px, 1fr));
         }
       }
@@ -584,7 +600,7 @@
 
     const lightboxHTML = `
       <div class="lightbox-content-container">
-        <div class="lightbox-playlist-container" data-lightboxplaylist="true">
+        <div class="lightbox-playlist-container grid-layout" data-lightboxplaylist="true">
         </div>
         <div class="lightbox-player-container" data-lightboxplayer="true">
           <svg version="1.0" xmlns="http://www.w3.org/2000/svg" class="arrow-left" data-hideonidle="true" data-lightboxarrowdirection="left" data-lightboxarrow="true"
@@ -711,28 +727,31 @@
 
     // Grid Layout Video Item HTML
 
-    function renderGridItem(item) {
+    function renderGridItem(item, playlistItem) {
       const { snippet } = item;
       const image = setThumbnailImage(item);
       const htmlRender = 
         `
           <!-- ${snippet.title} -->
           <a class="video-item" data-itemclickable="true" data-videoid="${snippet.resourceId.videoId}">
-            <div class="video-thumbnail-wrapper">
+            <div class="${!playlistItem ? 'video-thumbnail-wrapper' : 'playlist-video-thumbnail-wrapper'}">
               <img src="${image.url}" width="${image.width}" height="${image.height}" alt="${snippet.title}">
               ${showPlayButtons ? playButtonIcon() : ''}
-              <div class="hover-text-container">
-                <h3>${setThumbnailText(item)}</h3>
-                ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
-              </div>
+              ${ !playlistItem ? 
+                `<div class="hover-text-container">
+                  <h3>${setThumbnailText(item)}</h3>
+                  ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
+                </div>` : ''
+              }
             </div>
-            ${ showVideoInfo ? 
+            ${ showVideoInfo  && !playlistItem ? 
               `<div class="video-info-text-container">
                     ${item.titledEpisode !== -1 ? `<h3>Episode ${item.titledEpisode}</h3>` : `<h3>${snippet.title}</h3>`}
                 ${snippet.description !== '' && showDescriptionText ? `<span>${snippet.description}</span>` : ''}
               </div>`
               : ''
-            } 
+            }
+            ${ playlistItem ? `<h3 class="playlist-episode-text">${setThumbnailText(item)}</h3>` : ''} 
           </a>
         `;
       return htmlRender
@@ -1113,6 +1132,10 @@
       const lightboxPlaylistContainer = lightbox.querySelector('[data-lightboxplaylist="true"]');
       const lightboxPlaylistButton = lightbox.querySelector('[data-lightboxplaylistbutton="true"]');
 
+      // Render Grid Items In Playlist Container
+
+      lightboxPlaylistContainer.innerHTML = gridItemsRendering(true);
+
       // Elements To Hide When User Idle In Lightbox After 5 Seconds
 
       const elementsToHideWhenIdle = lightbox.querySelectorAll('[data-hideonidle="true"]');
@@ -1374,8 +1397,10 @@
 
       // Playlist Button Event Listener
 
-      lightboxPlaylistButton.addEventListener('click', () => {
-        showPlaylist = !showPlaylist;
+      function toggleLightboxPlayerOrPlaylist(initialized) {
+        if (!initialized) {
+          showPlaylist = !showPlaylist;
+        }
         if (showPlaylist) {
           lightboxFrames.forEach(frame => {
             frame.querySelector('iframe').src = '';
@@ -1387,7 +1412,11 @@
           lightboxPlayerContainer.classList.remove('lightbox-container-off');
           lightboxPlaylistContainer.classList.add('lightbox-container-off');
         }
-      })
+      }
+
+      toggleLightboxPlayerOrPlaylist(true);
+
+      lightboxPlaylistButton.addEventListener('click', () => toggleLightboxPlayerOrPlaylist());
     }
 
   // Data Retrieval From LocalStorage / API Method
@@ -1522,6 +1551,21 @@
       } else return -1
     }
 
+  // Grid Layout Handling
+
+    function gridItemsRendering(playlist) {
+      return pageOutputList.map(item => {
+        if (!item) {
+          console.error(`Playlist VideoID: ${item.snippet.resourceId.videoId} Failed To Load`);
+          failedItemTally++
+        } else if (!item.snippet || !item.titledEpisode) {
+          console.warn('Failed To Load Playlist Item Due To Lack Of Sufficient Data.  Playlist Could Possibly Be Empty')
+        } else if (item.snippet.title.toLowerCase() === 'deleted video' || item.snippet.title.toLowerCase() === 'private video') {
+          console.warn(`Video Playlist Item ${item.snippet.resourceId.videoId} Could Not Be Loaded As Its Status Is: ${item.snippet.title}`);
+        } else return renderGridItem(item, playlist);
+      }).join('')
+    }
+
   // END - Data List Management Methods
 
   // CONTROLLER - Initialization For Data Retrieval, Data Management, HTML Render, And Event Listener Initializations
@@ -1600,16 +1644,7 @@
 
           const gridListMapping = 
             '<div class="grid-layout">' + 
-              pageOutputList.map(item => {
-                if (!item) {
-                  console.error(`Playlist VideoID: ${item.snippet.resourceId.videoId} Failed To Load`);
-                  failedItemTally++
-                } else if (!item.snippet || !item.titledEpisode) {
-                  console.warn('Failed To Load Playlist Item Due To Lack Of Sufficient Data.  Playlist Could Possibly Be Empty')
-                } else if (item.snippet.title.toLowerCase() === 'deleted video' || item.snippet.title.toLowerCase() === 'private video') {
-                  console.warn(`Video Playlist Item ${item.snippet.resourceId.videoId} Could Not Be Loaded As Its Status Is: ${item.snippet.title}`);
-                } else return renderGridItem(item);
-              }).join('')
+              gridItemsRendering()
             + '</div>';       
 
           if (playlistLayout === 'grid') {
