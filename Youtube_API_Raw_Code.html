@@ -1,3 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+
 <div id="uc_magellan_youtube_playlist_api_elementor18883"></div>
 
 <script>
@@ -36,8 +46,8 @@
       let pageOutputList = []; // The Actual List Of Video That Will Be Shown On The Page (Grid Or Carousel Layout)
       const lightboxFrameVideoBaseUrl = 'https://www.youtube.com/embed/'; // Video Base Url For Lightbox Video Iframes
       const fastForwardSpeed = 150; // Set The Speed That Frames Should Be Fast Forwarded Through On Carousel And Lightbox When User Holds Down Arrow.
-      let lightboxToggled = false // Used To Determine If Lightbox Is Toggled
-      const showName = 'Living Large' // Name Of Youtube TV Show.  Used For Lightbox Playlist Heading
+      let lightboxToggled = false; // Used To Determine If Lightbox Is Toggled
+      const showLogoImgUrl = 'https://livinglarge-tv.com/wp-content/uploads/2022/08/MH-DeskScreenLogo-1.png'; // Show Logo Image URL For Playlist Heading 
       
       // CSS Variable Declarations
 
@@ -66,6 +76,8 @@
       const carouselDelay = 8000; // Sets Delay Carousel Layout Between Transitioning In Milliseconds
       const carouselWidth = 40 // Set Width Of Carousel Layout Thumbnails In REMs
       const carouselArrowsColor = '#000000' // Sets Color Of Carousel Layout Arrows And Text Overlay During Fast Forward
+      const showThemeColor = '#F36C21' // Sets Theme Color For LightBox Playlist Outline
+      let showPlaylist = false // Toggles Lightbox Playlist On And Off
 
       // Layout Type Declaration
 
@@ -150,6 +162,9 @@
         display: grid;
         gap: 48px;
       }
+      [data-lightboxid="${widgetId}"] .grid-layout {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      }
       ${widgetId} .loading-spinner {
 		    filter: drop-shadow(2px 4px 6px #00000090);
         position: absolute;
@@ -176,8 +191,7 @@
   		  from { opacity: 0;}
         to { opacity: 1;}
 	    }
-      ${widgetId} .video-thumbnail-wrapper,
-      [data-lightboxid="${widgetId}"] .video-thumbnail-wrapper {
+      ${widgetId} .video-thumbnail-wrapper {
         background: black;
         position: relative;
         cursor: pointer;
@@ -223,20 +237,17 @@
       {
         object-fit: cover;
         width: 100%!important;
+        height: auto !important;
         min-width: 100%!important;
         max-height: 100%!important;
         transition: 0.75s;
       }
-      ${widgetId} .video-thumbnail-wrapper img {
-        height: auto !important;
-      }
-      [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper img {
-        height: auto !important;
-        max-height: 56.25%
-      }
       [data-lightboxid="${widgetId}"] .video-item {
         filter: grayscale(75%);
         transition: 0.5s;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
       }
       [data-lightboxid="${widgetId}"] .video-item:hover svg{
         opacity: 0.75 !important;
@@ -413,24 +424,30 @@
       }
       [data-lightboxid="${widgetId}"] .lightbox-playlist-container {
         max-width: 1920px;
-        width: calc(100% - ${closeButtonSize} * 8);
-        height: calc(100% - ${closeButtonSize} * 2);
+        width: calc(100% - ${closeButtonSize} * 6);
+        height: calc(100% - ${closeButtonSize} * 1.5);
+        max-height: 90vh;
         background: #00000090;
         overflow-y: auto;
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
         padding: 24px 40px 24px 40px;
-        border-top: 8px #ffffff50 solid;
-        border-left: 8px #ffffff50 solid;
-        border-bottom: 8px #ffffff50 solid;
-        border-right: 8px #ffffff50 solid;
+        border: 8px ${showThemeColor} solid;
       }
-      [data-lightboxid="${widgetId}"] .lightbox-playlist-container legend {
+      [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-heading {
         font-family: 'Roboto';
         color: white;
+        text-align: left;
         font-size: 3rem;
-        padding: 1.5rem;
+        padding: 0 1.5rem;
+      }
+      [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-logo {
+        top: 0;
+        height: auto;
+        padding: 0 16px 24px;
+        max-width: 300px;
+        margin-top: -16px;
       }
       [data-lightboxid="${widgetId}"] .lightbox-playlist-container::-webkit-scrollbar {
         width: 8px;
@@ -621,18 +638,41 @@
         margin: 0 3%;
       }
       @media(max-width: ${mediaQueryMobileBreakpoint}px) {
-        ${widgetId} .grid-layout,
-        [data-lightboxid="${widgetId}"] .grid-layout {
+        ${widgetId} .grid-layout {
           grid-template-columns: 1fr;
+        }
+        [data-lightboxid="${widgetId}"] .lightbox-playlist-container {
+          width: 90vw;
+          height: 90vh;
+          padding: 24px 4%;
+        }
+        [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-heading {
+          font-family: 'Roboto';
+          color: white;
+          text-align: left;
+          font-size: 2.15rem;
+          padding: 0 1rem;
+        }
+        [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-logo {
+          top: 0;
+          height: auto;
+          padding: 0 16px 24px;
+          max-width: 300px;
+          width: 75%;
+          margin-top: 0;
+        }
+        [data-lightboxid="${widgetId}"] .lightbox-close-button {
+          top: 12px;
+          left: calc(100% - 12px);
+        }
+        [data-lightboxid="${widgetId}"] .video-item:hover {
+          filter: grayscale(0%) !important;
+          transform: scale(1);
         }
       }
       @media(min-width: ${mediaQueryMobileBreakpoint + 1}px) {
         ${widgetId} .grid-layout {
           grid-template-columns: repeat(auto-fill, minmax(${minimumWidthOfEachVideoItem}px, 1fr));
-        }
-        [data-lightboxid="${widgetId}"] .grid-layout {
-          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-
         }
       }
       @media(max-width: ${carouselWidth * 20}px) {
@@ -668,7 +708,10 @@
     const lightboxHTML = `
       <div class="lightbox-content-container">
         <fieldset class="lightbox-playlist-container" data-lightboxplaylistcontainer="true">
-          <legend>${showName} TV Episodes</legend>
+          <legend>
+            ${showLogoImgUrl ? `<img class="playlist-logo" src="${showLogoImgUrl}">` : ''}
+            ${!showLogoImgUrl ? `<h1 class="playlist-heading">TV Episodes</h1>` : ''}
+          </legend>
           <div class="grid-layout" data-lightboxplaylistcontent="true"></div>
         </fieldset>
         <div class="lightbox-player-container" data-lightboxplayer="true">
@@ -1212,7 +1255,7 @@
 
       // Checks If Playlist Button Was Clicked And If So, Loads Playlist On Load
 
-      let showPlaylist = loadPlaylist ? true : false;
+      showPlaylist = loadPlaylist ? true : false;
 
       // Checks If Lightbox Arrow Was Clicked
 
@@ -1238,10 +1281,13 @@
             if (element.dataset.lightboxplaylistbutton && showPlaylist && !element.classList.toString().includes('element-invisible')) {
               element.classList.add('element-invisible');
             }
+            if (!showPlaylist && element.dataset.lightboxplaylistbutton && element.classList.toString().includes('element-invisible')) {
+              element.classList.remove('element-invisible');
+            }
           });
           setTimeout(() => {
-            if (!mouseOverElement && (new Date().getTime() - lastMouseOverTime) >= idleDelayTime) {
-              elementsToHideWhenIdle.forEach(element => element.classList.add('element-invisible'))
+            if (!mouseOverElement && (new Date().getTime() - lastMouseOverTime) >= idleDelayTime && !showPlaylist) {
+              elementsToHideWhenIdle.forEach(element => element.classList.add('element-invisible'));
             }
           }, idleDelayTime)
         }
@@ -1810,7 +1856,9 @@
                 carouselEventHandling();
                 listenOnItemsClick();
               }
-              lightboxClear();
+              if (!showPlaylist) {
+                lightboxClear();
+              }
               isCarousel = true;
               isGrid = false;
             }
@@ -1831,3 +1879,6 @@
 
 initialize_uc_magellan_youtube_playlist_api_elementor18883();
 </script>
+
+</body>
+</html>
