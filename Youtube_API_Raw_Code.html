@@ -31,7 +31,6 @@
       const showPlayButtons = true; // Sets If Play Button Icons Should Be Shown Over Video Thumbnails.  Default Value Is: true
       const showVideoInfo = false; // Sets If Text Information About Video Should Be Displayed Below Video Thumbnail.  Default Value Is: false
       const showDescriptionText = false; // If showVideoInfo Is Set To True, Sets If Video Description Text Should Be Displayed.  Default Value Is: false
-      const lightboxDisplayBreakpoint = 1400; // Sets Breakpoint Between LightBox Being Enabled And Opening In Another Tab When Video Thumbnail Is Clicked.  Default Value Is: 1400
       const showAllInLightbox = false; // Determines If Lightbox Will Allow User To See All Videos On PlayList If True. If False, User Can Only View Videos Shown On Page  
       let playListSorted = []; // Captures All Videos After Filtering And Sorting Before They're Reduced To Output Amount For Showing All Videos When Navigating Through Lightbox
       let pageOutputList = []; // The Actual List Of Video That Will Be Shown On The Page (Grid Or Carousel Layout)
@@ -59,7 +58,7 @@
       const playButtonSizing = '30%'; // Sets Sizing Of Play Button Icon Over Video Thumbnail Relative To The HEight Of The Video Thumbnail In Percentage.  Default Value Is: '35%'
       const playButtonOpacity = 75 / 100; // Sets Opacity Of Play Button Icon Over Video Thumbnail.  Divides Number By 100 To Convert Percentage To Decimal. Default Value Is: 75
       const closeButtonSize = '32px'; // Sets Size Of Lighbox Close Button On Top Right Corner Of Screen When Lighbox Is Active.  Default Value Is: '32px'
-      const minimumWidthOfEachVideoItem = 480; // Sets Minimun Width Size Of Each Video.  Default Value Is: 480
+      const minimumWidthOfEachVideoItem = 400; // Sets Minimun Width Size Of Each Video.  Default Value Is: 480
       const mediaQueryMobileBreakpoint = (minimumWidthOfEachVideoItem * 2) + (gapBetweenVideos * 1.5); // Sets Media Query Break Point Of When Video Containers Should Stack In One Column.  Calculation Based Upon minimumWidthOfEachVideo Number.  Default Value Is: minimumWidthOfEachVideoItem * 2
       const frameTransition = 500; // Sets Transition Time Of LightBox Carousel Frame Transitioning In Milliseconds
       const carouselTransition = 2000; // Sets Transition Time Of Carousel Layout Frame Transitioning In Milliseconds
@@ -142,10 +141,13 @@
       ${widgetId} h3 {
         margin: 0!important;
       }
-      ${widgetId} .grid-layout,
-      [data-lightboxid="${widgetId}"] .grid-layout {
+      ${widgetId} .grid-layout {
         display: grid;
         gap: ${gapBetweenVideos}px;
+      }
+      [data-lightboxid="${widgetId}"] .grid-layout {
+        display: grid;
+        gap: 48px;
       }
       ${widgetId} .loading-spinner {
 		    filter: drop-shadow(2px 4px 6px #00000090);
@@ -179,9 +181,6 @@
         position: relative;
         cursor: pointer;
         ${!showInformationBelow ? `height: 100%;` : ``}
-      }
-      [data-lightboxid="${widgetId}"] .lightbox-playlist-container {
-        transition: 0.5s;
       }
       [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper {
         position: relative;
@@ -224,9 +223,22 @@
         object-fit: cover;
         width: 100%!important;
         min-width: 100%!important;
-        height: auto!important;
         max-height: 100%!important;
         transition: 0.75s;
+      }
+      ${widgetId} .video-thumbnail-wrapper img {
+        height: auto !important;
+      }
+      [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper img {
+        height: 68%!important;
+      }
+      [data-lightboxid="${widgetId}"] .video-item {
+        filter: grayscale(75%);
+        transition: 0.5s;
+      }
+      [data-lightboxid="${widgetId}"] .video-item:hover {
+        filter: grayscale(0%) !important;
+        transform: scale(1.25);
       }
       [data-lightboxid="${widgetId}"] .video-thumbnail-wrapper iframe,
       [data-lightboxid="${widgetId}"] .video-thumbnail-wrapper h1 {
@@ -286,9 +298,16 @@
         left: 50%;
         transform: translate(-50%, -50%);
         z-index: 2;
+      }
+      ${widgetId} .video-thumbnail-wrapper svg {
         width: ${playButtonSizing};
         height: ${playButtonSizing};
         opacity: ${playButtonOpacity};
+      }
+      [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper svg {
+        width: 66%;
+        height: 66%;
+        opacity: 0.75;
       }
       .show-lightbox {
         display: block!important;
@@ -334,6 +353,7 @@
       .element-invisible {
         opacity: 0 !important;
         z-index: -1 !important;
+        pointer-events: none;
       }
       .fast-forward-transitioning {
         z-index: -1 !important;
@@ -376,23 +396,47 @@
         height: 100%;
         width: 100%;
       }
-      [data-lightboxid="${widgetId}"] .lightbox-playlist-container {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-      }
+      [data-lightboxid="${widgetId}"] .lightbox-playlist-container,
       [data-lightboxid="${widgetId}"] .lightbox-player-container {
         width: 100%;
         height: 100%;
         margin: 0 auto;
         box-sizing: border-box;
+        position: absolute;
+        top: 0;
+        transition: 0.5s;
+      }
+      [data-lightboxid="${widgetId}"] .lightbox-playlist-container {
+        width: calc(100% - ${closeButtonSize} * 8);
+        height: calc(100% - ${closeButtonSize} * 2);
+        background: #00000090;
+        overflow-y: auto;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        padding: 48px;
+        border-top: 8px #ffffff50 solid;
+        border-left: 8px #ffffff50 solid;
+        border-bottom: 8px #ffffff50 solid;
+      }
+      [data-lightboxid="${widgetId}"] .lightbox-playlist-container::-webkit-scrollbar {
+        width: 8px;
+        box-sizing: border-box;
+        background: #ffffff50;
+        border-radius: 0px;
+      }
+      [data-lightboxid="${widgetId}"] .lightbox-playlist-container::-webkit-scrollbar-thumb {
+        background: transparent;
+        border-right: 8px solid white;
+        height: 25%;
+        max-height: 100%;
+        border-radius: 8px;
+      }
+      [data-lightboxid="${widgetId}"] .lightbox-player-container {
         padding: 40px 2%;
         display: flex;
         justify-content: center;
         align-items: center;
-        position: absolute;
-        top: 0;
-        transition: 0.5s;
       }
       [data-lightboxid="${widgetId}"] .lightbox-video-frame {
         margin: 0 3%;
@@ -410,6 +454,9 @@
         align-items: center;
         justify-content: center;
         z-index: 100;
+      }
+      [data-lightboxid="${widgetId}"] [data-itemclickable="true"] {
+        cursor: pointer;
       }
       [data-lightboxid="${widgetId}"] .lightbox-video-frame .fast-forward-overlay h1,
       [data-lightboxid="${widgetId}"] .lightbox-video-frame [data-lightboxframe="true"] h1 {
@@ -479,7 +526,11 @@
         position: relative;
       }
       [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-episode-text {
+        font-family: 'Roboto';
         color: white;
+        margin: 1rem 0 0;
+        text-align: center;
+        font-size: 1.75rem;
       }
       .arrow-left {
         cursor: pointer;
@@ -512,9 +563,9 @@
       }
       .lightbox-container-off {
         opacity: 0;
-        z-index: -1 !important;
         pointer-events: none !important;
         transition: 0.5s;
+        overflow: hidden !important;
       }
       [data-lightboxid="${widgetId}"] [data-lightboxframe="true"] {
         width: 100%;
@@ -563,9 +614,11 @@
         }
       }
       @media(min-width: ${mediaQueryMobileBreakpoint + 1}px) {
-        ${widgetId} .grid-layout,
-        [data-lightboxid="${widgetId}"] .grid-layout {
+        ${widgetId} .grid-layout {
           grid-template-columns: repeat(auto-fill, minmax(${minimumWidthOfEachVideoItem}px, 1fr));
+        }
+        [data-lightboxid="${widgetId}"] .grid-layout {
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         }
       }
       @media(max-width: ${carouselWidth * 20}px) {
@@ -1118,9 +1171,9 @@
 
       lightbox.innerHTML = '';
       lightbox.innerHTML = lightboxHTML;
-      const startingLightboxActive = lightbox.querySelector('[data-frameposition="0"]');
-      const lightboxStartingLeft = lightbox.querySelector('[data-frameposition="-1"]');
-      const lightboxStartingRight = lightbox.querySelector('[data-frameposition="1"]');
+      let startingLightboxActive = lightbox.querySelector('[data-frameposition="0"]');
+      let lightboxStartingLeft = lightbox.querySelector('[data-frameposition="-1"]');
+      let lightboxStartingRight = lightbox.querySelector('[data-frameposition="1"]');
       const lightboxFramesContainer = lightbox.querySelector('[data-lightboxframes="true"]');
       const lightboxFrames = lightbox.querySelectorAll('[data-lightboxframe="true"]');
       const lightboxFastForwardOverlay = lightbox.querySelector('[data-fastforwardoverlay="true"]');
@@ -1131,10 +1184,6 @@
       const lightboxPlayerContainer = lightbox.querySelector('[data-lightboxplayer="true"]');
       const lightboxPlaylistContainer = lightbox.querySelector('[data-lightboxplaylist="true"]');
       const lightboxPlaylistButton = lightbox.querySelector('[data-lightboxplaylistbutton="true"]');
-
-      // Render Grid Items In Playlist Container
-
-      lightboxPlaylistContainer.innerHTML = gridItemsRendering(true);
 
       // Elements To Hide When User Idle In Lightbox After 5 Seconds
 
@@ -1165,7 +1214,12 @@
           })
         }
         if (elementsToHideWhenIdle && elementsToHideWhenIdle[0] !== null && !mouseOverElement) {
-          elementsToHideWhenIdle.forEach(element => element.classList.remove('element-invisible'));
+          elementsToHideWhenIdle.forEach(element => { 
+            element.classList.remove('element-invisible');
+            if (element.dataset.lightboxplaylistbutton && showPlaylist) {
+              element.classList.add('element-invisible');
+            }
+          });
           setTimeout(() => {
             if (!mouseOverElement && (new Date().getTime() - lastMouseOverTime) >= idleDelayTime) {
               elementsToHideWhenIdle.forEach(element => element.classList.add('element-invisible'))
@@ -1199,33 +1253,66 @@
 
       // Check For Starting Position To See If Arrows Should Be Shown Based Upon Starting Video Index Position And Set Corresponding Iframe Urls
 
-      if (!playListSorted[currentVideoIndex + 1]) {
-        lightboxArrowRight.classList.add('disable-arrow');
-      } else { 
-        lightboxStartingRight.querySelector('iframe').src = lightboxFrameVideoBaseUrl + setVideoId(1);
-        lightboxStartingRight.querySelector('h1').innerHTML = setThumbnailText(setData(1));
-      }
-      if (!playListSorted[currentVideoIndex - 1]) {
-        lightboxArrowLeft.classList.add('disable-arrow');
-      } else { 
-        lightboxStartingLeft.querySelector('iframe').src = lightboxFrameVideoBaseUrl + setVideoId(-1);
-        lightboxStartingLeft.querySelector('h1').innerHTML = setThumbnailText(setData(-1));
+      function initLightboxFrames() {
+        startingLightboxActive = lightbox.querySelector('[data-frameposition="0"]');
+        lightboxStartingLeft = lightbox.querySelector('[data-frameposition="-1"]');
+        lightboxStartingRight = lightbox.querySelector('[data-frameposition="1"]');
+        
+        lightboxFrames.forEach(frame => {
+          frame.classList.remove('frame-transitioning-left');
+          frame.classList.remove('frame-transitioning-right');
+        });
+
+        if (!playListSorted[currentVideoIndex + 1]) {
+          lightboxArrowRight.classList.add('disable-arrow');
+        } else { 
+          lightboxArrowRight.classList.remove('disable-arrow');
+          lightboxStartingRight.classList.add('frame-transitioning-right');
+          lightboxStartingRight.querySelector('iframe').src = lightboxFrameVideoBaseUrl + setVideoId(1);
+          lightboxStartingRight.querySelector('h1').innerHTML = setThumbnailText(setData(1));
+        }
+        if (!playListSorted[currentVideoIndex - 1]) {
+          lightboxArrowLeft.classList.add('disable-arrow');
+        } else { 
+          lightboxArrowLeft.classList.remove('disable-arrow');
+          lightboxStartingRight.classList.add('frame-transitioning-left');
+          lightboxStartingLeft.querySelector('iframe').src = lightboxFrameVideoBaseUrl + setVideoId(-1);
+          lightboxStartingLeft.querySelector('h1').innerHTML = setThumbnailText(setData(-1));
+        }
+
+        // Check If Video Index Has Video And Check For Browser Window Width And Set For Lightbox Or Full Screen Iframe On Mobile, Tablet
+
+        if (playListSorted[currentVideoIndex]) {
+          if (window.innerWidth > mediaQueryMobileBreakpoint) {
+            startingLightboxActive.querySelector('iframe').src = lightboxFrameVideoBaseUrl + setVideoId(0);
+            startingLightboxActive.querySelector('h1').innerHTML = setThumbnailText(setData(0));
+          } else window.open(lightboxFrameVideoBaseUrl + setVideoId(0))
+        }
+        if (window.innerWidth > mediaQueryMobileBreakpoint) {
+          lightbox.classList.add('show-lightbox');
+          html.classList.add('hide-scroll');
+        } else {
+          lightboxClear();
+        }      
       }
 
-      // Check If Video Index Has Video And Check For Browser Window Width And Set For Lightbox Or Full Screen Iframe On Mobile, Tablet
+      initLightboxFrames();
 
-      if (playListSorted[currentVideoIndex]) {
-        if (window.innerWidth > lightboxDisplayBreakpoint) {
-          startingLightboxActive.querySelector('iframe').src = lightboxFrameVideoBaseUrl + setVideoId(0);
-          startingLightboxActive.querySelector('h1').innerHTML = setThumbnailText(setData(0));
-        } else window.open(lightboxFrameVideoBaseUrl + setVideoId(0))
-      }
-      if (window.innerWidth > lightboxDisplayBreakpoint) {
-        lightbox.classList.toggle('show-lightbox');
-        html.classList.toggle('hide-scroll');
-      } else {
-        lightboxClear();
-      }      
+      // Render Grid Items In Playlist Container
+
+      lightboxPlaylistContainer.innerHTML = gridItemsRendering(true);
+
+      // Event Listeners On Playlist Items Clicked
+
+      const lightboxPlaylistItems = lightboxPlaylistContainer.querySelectorAll('[data-itemclickable="true"]');
+
+      lightboxPlaylistItems.forEach(itemClicked => 
+        itemClicked.addEventListener('click', () => {
+          currentVideoIndex = playListSorted.findIndex(video => video.snippet.resourceId.videoId === itemClicked.dataset.videoid);
+          initLightboxFrames();
+          toggleLightboxPlayerOrPlaylist();
+        })
+      );
 
       // Records When Last Time Carousel Was Advanced To Avoid User Click/Auto Interval Conflict
 
@@ -1406,9 +1493,11 @@
             frame.querySelector('iframe').src = '';
             frame.querySelector('h1').innerHTML = '';
           });
+          lightboxPlaylistButton.classList.add('element-invisible');
           lightboxPlayerContainer.classList.add('lightbox-container-off');
           lightboxPlaylistContainer.classList.remove('lightbox-container-off');
         } else {
+          lightboxPlaylistButton.classList.remove('element-invisible');
           lightboxPlayerContainer.classList.remove('lightbox-container-off');
           lightboxPlaylistContainer.classList.add('lightbox-container-off');
         }
