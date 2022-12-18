@@ -37,6 +37,7 @@
       const lightboxFrameVideoBaseUrl = 'https://www.youtube.com/embed/'; // Video Base Url For Lightbox Video Iframes
       const fastForwardSpeed = 150; // Set The Speed That Frames Should Be Fast Forwarded Through On Carousel And Lightbox When User Holds Down Arrow.
       let lightboxToggled = false // Used To Determine If Lightbox Is Toggled
+      const showName = 'Living Large' // Name Of Youtube TV Show.  Used For Lightbox Playlist Heading
       
       // CSS Variable Declarations
 
@@ -230,11 +231,15 @@
         height: auto !important;
       }
       [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper img {
-        height: 68%!important;
+        height: auto !important;
+        max-height: 56.25%
       }
       [data-lightboxid="${widgetId}"] .video-item {
         filter: grayscale(75%);
         transition: 0.5s;
+      }
+      [data-lightboxid="${widgetId}"] .video-item:hover svg{
+        opacity: 0.75 !important;
       }
       [data-lightboxid="${widgetId}"] .video-item:hover {
         filter: grayscale(0%) !important;
@@ -305,9 +310,9 @@
         opacity: ${playButtonOpacity};
       }
       [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper svg {
-        width: 66%;
-        height: 66%;
-        opacity: 0.75;
+        width: 50%;
+        height: 50%;
+        opacity: 0;
       }
       .show-lightbox {
         display: block!important;
@@ -407,6 +412,7 @@
         transition: 0.5s;
       }
       [data-lightboxid="${widgetId}"] .lightbox-playlist-container {
+        max-width: 1920px;
         width: calc(100% - ${closeButtonSize} * 8);
         height: calc(100% - ${closeButtonSize} * 2);
         background: #00000090;
@@ -414,15 +420,22 @@
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
-        padding: 48px;
+        padding: 24px 40px 24px 40px;
         border-top: 8px #ffffff50 solid;
         border-left: 8px #ffffff50 solid;
         border-bottom: 8px #ffffff50 solid;
+        border-right: 8px #ffffff50 solid;
+      }
+      [data-lightboxid="${widgetId}"] .lightbox-playlist-container legend {
+        font-family: 'Roboto';
+        color: white;
+        font-size: 3rem;
+        padding: 1.5rem;
       }
       [data-lightboxid="${widgetId}"] .lightbox-playlist-container::-webkit-scrollbar {
         width: 8px;
         box-sizing: border-box;
-        background: #ffffff50;
+        background: transparent;
         border-radius: 0px;
       }
       [data-lightboxid="${widgetId}"] .lightbox-playlist-container::-webkit-scrollbar-thumb {
@@ -433,7 +446,7 @@
         border-radius: 8px;
       }
       [data-lightboxid="${widgetId}"] .lightbox-player-container {
-        padding: 40px 2%;
+        padding: 40px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -619,6 +632,7 @@
         }
         [data-lightboxid="${widgetId}"] .grid-layout {
           grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+
         }
       }
       @media(max-width: ${carouselWidth * 20}px) {
@@ -653,8 +667,10 @@
 
     const lightboxHTML = `
       <div class="lightbox-content-container">
-        <div class="lightbox-playlist-container grid-layout" data-lightboxplaylist="true">
-        </div>
+        <fieldset class="lightbox-playlist-container" data-lightboxplaylistcontainer="true">
+          <legend>${showName} TV Episodes</legend>
+          <div class="grid-layout" data-lightboxplaylistcontent="true"></div>
+        </fieldset>
         <div class="lightbox-player-container" data-lightboxplayer="true">
           <svg version="1.0" xmlns="http://www.w3.org/2000/svg" class="arrow-left" data-hideonidle="true" data-lightboxarrowdirection="left" data-lightboxarrow="true"
             width="100.000000pt" height="100.000000pt" viewBox="0 0 100.000000 100.000000"
@@ -1182,7 +1198,8 @@
       const lightboxArrowRight = lightbox.querySelector('[data-lightboxarrowdirection="right"]');
       const lightboxCloseButton = lightbox.querySelector('[data-lightboxclosebutton="true"]');
       const lightboxPlayerContainer = lightbox.querySelector('[data-lightboxplayer="true"]');
-      const lightboxPlaylistContainer = lightbox.querySelector('[data-lightboxplaylist="true"]');
+      const lightboxPlaylistContainer = lightbox.querySelector('[data-lightboxplaylistcontainer="true"]');
+      const lightboxPlaylistContent = lightbox.querySelector('[data-lightboxplaylistcontent="true"]');
       const lightboxPlaylistButton = lightbox.querySelector('[data-lightboxplaylistbutton="true"]');
 
       // Elements To Hide When User Idle In Lightbox After 5 Seconds
@@ -1215,8 +1232,10 @@
         }
         if (elementsToHideWhenIdle && elementsToHideWhenIdle[0] !== null && !mouseOverElement) {
           elementsToHideWhenIdle.forEach(element => { 
-            element.classList.remove('element-invisible');
-            if (element.dataset.lightboxplaylistbutton && showPlaylist) {
+            if (!element.dataset.lightboxplaylistbutton) {
+              element.classList.remove('element-invisible');
+            }
+            if (element.dataset.lightboxplaylistbutton && showPlaylist && !element.classList.toString().includes('element-invisible')) {
               element.classList.add('element-invisible');
             }
           });
@@ -1300,11 +1319,11 @@
 
       // Render Grid Items In Playlist Container
 
-      lightboxPlaylistContainer.innerHTML = gridItemsRendering(true);
+      lightboxPlaylistContent.innerHTML = gridItemsRendering(true);
 
       // Event Listeners On Playlist Items Clicked
 
-      const lightboxPlaylistItems = lightboxPlaylistContainer.querySelectorAll('[data-itemclickable="true"]');
+      const lightboxPlaylistItems = lightboxPlaylistContent.querySelectorAll('[data-itemclickable="true"]');
 
       lightboxPlaylistItems.forEach(itemClicked => 
         itemClicked.addEventListener('click', () => {
@@ -1791,6 +1810,7 @@
                 carouselEventHandling();
                 listenOnItemsClick();
               }
+              lightboxClear();
               isCarousel = true;
               isGrid = false;
             }
