@@ -1,0 +1,635 @@
+<div id="uc_magellan_youtube_playlist_api_elementor18883"></div>
+
+<script>
+    function initialize_uc_magellan_youtube_playlist_api_elementor18883() { // ALL YOUTUBE PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
+  
+  // ALL HTML, CSS, JAVASCRIPT CODE FOR THE YOUTUBE PLAYLIST API IS PRESENT HERE, MINUS THE ROOT WIDGET HTML CONTAINER.  A CONTAINER MUST BE PRESENT IN THE HTML WITH THE ID OF THE WIDGET FOR THE "widgetRoot" DOM SELECTOR TO INITIATE THE WIDGET.
+
+  // Variable Declarations
+
+    // Value Declarations.  Elementors Unlimited Elements Widget Creator Inserts User Input Values Into Variables With Curly Bracket Surroundings.
+
+      // Programming Variable Declarations
+      
+      const apiKey = 'AIzaSyCI7Y5K9XF-l1G0mb7qGNp3vd7-1vm2PrU'; // API Key For Youtube API Through Google Cloud
+      const playlistId = 'PLE69e89d5PM1U_JyAV5U-dguNaMQ4yGJm'; // Youtube Playlist Id
+      const resultLimitPerRequest = 50; // Youtube API Has A Limit Of 50 Results Per Request.
+      const limitVideos = true; // Limit Videos Displayed.  Default Value Is: true
+      const maxResults = 6; // If limitVideos Is Set To: true, Limit Number Of Videos Displayed.  Default Value Is: 6
+      const filterByName = false; // Filter Video Results Based On Characters In Title.  Default Value Is: false
+      const filterNameParameters = ''.toLowerCase(); // If filterByName Is Set To: true, Filter String Parameters For filterByName.  Default Value Is: ''
+      let storedPlaylistRetrieved = false; // Determines If Data Was Loaded From Local Storage.  Utilized In getPlaylistItems Function.  Default Staring Value Is: false
+      const sortVideosBy = 'number-descending'; // How Video Items Should Be Sorted.  Default Value Is: 'number-descending'
+      const listByRange = false; // Show Specific Range Of Videos By Episode Number.  Default Value Is: false
+      const fromEpisodeNumber = 1; // If listByRange Is Set To: true, Set Starting Episode Number To Filter From. Default Value Is: 1
+      const toEpisodeNumber = 1; // If listByRange Is Set To: true, Set Starting Episode Number To Filter From.  Default Value Is: 1
+      const showInformationBelow = false; // Show Text Information About Video Below Video Thumbnail.  Default Value Is: false
+      const showNonNumberedEpisodesOnly = false; // Shows Videos That Do Not Have An Episode Number Only. Default Value Is: false 
+      const hideNonNumberedVideos = false; // Hides Non-Numbered Videos In Playlist.  Default Value Is: false   
+      const timeStorageInterval = 60 * 60000; // Sets Time Interval That Another API Call Request Can Be Made Instead Of Loading From Local Storage In Minutes That Is Multiplied By 60000 To Convert Minutes To Milliseconds.  Default Value is 60
+      const instructionMessage = 'Click Here To Watch'; // Instruction Message Text.  Default Value is: 'Click Here To Watch'
+      const showPlayButtons = true; // Sets If Play Button Icons Should Be Shown Over Video Thumbnails.  Default Value Is: true
+      const showVideoInfo = false; // Sets If Text Information About Video Should Be Displayed Below Video Thumbnail.  Default Value Is: false
+      const showDescriptionText = false; // If showVideoInfo Is Set To True, Sets If Video Description Text Should Be Displayed.  Default Value Is: false
+      const lightboxDisplayBreakpoint = 1400; // Sets Breakpoint Between LightBox Being Enabled And Opening In Another Tab When Video Thumbnail Is Clicked.  Default Value Is: 1400
+
+      // CSS Variable Declarations
+
+      const playButtonColor = '#ffffff'; // Sets Color Of Play Button Icon Over Video Thumbnail.  Default Value IS: '#ffffff'
+      const gapBetweenVideos = '60px'; // Sets Spacing Between Video Item Containers.  Default Value Is: '48px'
+      const videoContainerBorderThickness = '0px'; // Sets Video Container Border Thickness: Default Value Is: '0px'
+      const videoContainerBorderColor = '#000000'; // Sets Video Container Border Color: Default Value Is: '#000000'
+      const dropShadowValues = '4px 4px 12px'; // Sets Drop-Shadow Values For Video Container.  Default Value Is: 0px 0px 0px
+      const dropShadowColor = '#01010147'; // Sets Drop-Shadow Color For Video Container.  Default Value Is: '#00000036'
+      const textBelowThumbnailTopBottomMargin = '24px'; // Sets Text Below Video Thumbnail Margins On Top And Bottom. Default Value Is: '24px'
+      const textBelowThumbnailSideMargins = '24px'; // Sets Text Below Video Thumbnail Margins On Sides.  Default Value Is: '24px'
+      const titleTextColorBelowThumbnail = '#000000'; // Sets Color Of Video Title Text Below Video Thumbnail.  Default Value Is: '#000000'
+      const spaceBetweenTitleAndDescriptionBelowThumbnail = '24px'; // Sets Vertical Space Gap Between Title Text And Description Text Below Video Thumbnail.  Default Value Is: '24px'
+      const descriptionTextColorBelowThumbnail = '#000000'; // Sets Color Of Description Text Below Video Thumbnail.  Default Value Is: '#000000'
+      const imageDarkeningOpacity = '20'; // Sets How Dark The Video Thumbnail Should Get Opacity On Mouse Hover.  Default Value Is: '20'
+      const textOverThumbnailColor = '#ffffff'; // Sets Color Of Text Over Video Thumbnail On Mouse Hover.  Default Value Is: '#ffffff'
+      const textContainerMargin = '24px'; // Sets Padding Of Text Container That Cover Over Video Thumbnail For Text On Mouse Hover.  Default Value Is: '24px'
+      const spaceBetweenTitleAndClickToPlayText = '40px'; // Sets Vertical Spacing Between Episode Number Or Video Title Text And Instruction Text On Mouse Hover Over Thumbnail.  Default Value Is: '40px'
+      const playButtonSizing = '35%'; // Sets Sizing Of Play Button Icon Over Video Thumbnail Relative To The HEight Of The Video Thumbnail In Percentage.  Default Value Is: '35%'
+      const playButtonOpacity = 75 / 100; // Sets Opacity Of Play Button Icon Over Video Thumbnail.  Divides Number By 100 To Convert Percentage To Decimal. Default Value Is: 75
+      const closeButtonSize = '32px'; // Sets Size Of Lighbox Close Button On Top Right Corner Of Screen When Lighbox Is Active.  Default Value Is: '32px'
+      const minimumWidthOfEachVideoItem = 480; // Sets Minimun Width Size Of Each Video.  Default Value Is: 480
+      const mediaQueryBreakpoint = minimumWidthOfEachVideoItem * 2; // Sets Media Query Break Point Of When Video Containers Should Stack In One Column.  Calculation Based Upon minimumWidthOfEachVideo Number.  Default Value Is: minimumWidthOfEachVideoItem * 2
+
+    // Error Handling Variables
+
+      const apiErrMsg = 'An Error Occured During The Youtube Playlist API Call.  The Same Youtube Playlist Was Found On Local Storage And Has Been Loaded Instead.';
+      let failedItemTally = 0; 
+
+    // Initialization Loading Spinner
+
+      const loadingSpinner = `<svg version="1.1" id="L7" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve"
+            class="loading-spinner">
+         <path fill="#fff" d="M31.6,3.5C5.9,13.6-6.6,42.7,3.5,68.4c10.1,25.7,39.2,38.3,64.9,28.1l-3.1-7.9c-21.3,8.4-45.4-2-53.8-23.3
+          c-8.4-21.3,2-45.4,23.3-53.8L31.6,3.5z">
+              <animateTransform attributeName="transform" attributeType="XML" type="rotate" dur="2s" from="0 50 50" to="360 50 50" repeatCount="indefinite"></animateTransform>
+          </path>
+         <path fill="#fff" d="M42.3,39.6c5.7-4.3,13.9-3.1,18.1,2.7c4.3,5.7,3.1,13.9-2.7,18.1l4.1,5.5c8.8-6.5,10.6-19,4.1-27.7
+          c-6.5-8.8-19-10.6-27.7-4.1L42.3,39.6z">
+              <animateTransform attributeName="transform" attributeType="XML" type="rotate" dur="1s" from="0 50 50" to="-360 50 50" repeatCount="indefinite"></animateTransform>
+          </path>
+         <path fill="#fff" d="M82,35.7C74.1,18,53.4,10.1,35.7,18S10.1,46.6,18,64.3l7.6-3.4c-6-13.5,0-29.3,13.5-35.3s29.3,0,35.3,13.5
+          L82,35.7z">
+              <animateTransform attributeName="transform" attributeType="XML" type="rotate" dur="2s" from="0 50 50" to="360 50 50" repeatCount="indefinite"></animateTransform>
+          </path>
+        </svg>
+      `;
+
+    // HTML Base Containers Initialization.  Loading Spinner Is Included On Initialization
+
+      const widgetId = '#uc_magellan_youtube_playlist_api_elementor18883';
+      const widgetRoot = document.querySelector(`${widgetId}`);
+
+      widgetRoot.innerHTML = 
+        `
+          <style class="playlist-styling"></style>
+          <div class="video-list">
+          	${loadingSpinner}
+            <div style="height: 400px; width: 100%;"></div>
+		  </div>
+      `;
+
+    // Lightbox Container Created And Appended To Body Of HTML
+
+	    const lightboxDiv = document.createElement('div');
+      lightboxDiv.dataset.lightboxid = widgetId;
+      document.body.appendChild(lightboxDiv);
+
+    // DOM Element Selector Declarations
+
+      const stylesContainer = document.querySelector(`${widgetId} .playlist-styling`)
+      const playlistItems = document.querySelector(`${widgetId} .video-list`);
+      const lightbox = document.querySelector(`[data-lightboxid="${widgetId}"]`);
+      const html = document.querySelector('html');
+
+  // END - Variable Declarations
+
+  // CSS Generation 
+
+    const playlistStyling = `
+      ${widgetId} {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      ${widgetId} h2 {
+        display: block;
+        width: 100vw;
+        text-align: center;
+        font-size: 1.5rem;
+        color: black;
+      }
+
+      ${widgetId} h3 {
+        margin: 0!important;
+      }
+
+      ${widgetId} .video-list {
+        display: grid;
+        gap: ${gapBetweenVideos};
+      }
+
+      ${widgetId} .loading-spinner {
+		filter: drop-shadow(2px 4px 6px #00000090);
+        position: absolute;
+        width: 50vw;
+        height: 50vw;
+        max-width: 240px;
+        max-height: 240px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      ${widgetId} .video-item {
+        max-width: 100%;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        border: ${videoContainerBorderThickness} ${videoContainerBorderColor} solid;
+        width: 100%;
+        height: 100%;
+        filter: drop-shadow(${dropShadowValues} ${dropShadowColor});
+        animation-name: fade-in;
+        animation-duration: 1s;
+      }
+
+      @keyframes fade-in {
+  		from { opacity: 0;}
+        to { opacity: 1;}
+	  }
+
+      ${widgetId} .video-thumbnail-wrapper {
+        background: black;
+        position: relative;
+        cursor: pointer;
+        ${!showInformationBelow ? `height: 100%;` : ``}
+      }
+
+      ${widgetId} .video-info-text-container {
+        padding: ${textBelowThumbnailTopBottomMargin} ${textBelowThumbnailSideMargins};	
+      }
+
+      ${widgetId} .video-info-text-container h3 {
+        color: ${titleTextColorBelowThumbnail};
+        margin-bottom: ${spaceBetweenTitleAndDescriptionBelowThumbnail};
+      }
+
+      ${widgetId} .video-info-text-container span {
+        color: ${descriptionTextColorBelowThumbnail};
+      }
+
+      ${widgetId} .video-thumbnail-wrapper:hover img {
+        opacity: calc(${imageDarkeningOpacity} / 100);
+      }
+
+      ${widgetId} .video-thumbnail-wrapper:hover svg {
+        opacity: 0;
+      }
+
+      ${widgetId} .video-thumbnail-wrapper:hover .hover-text-container {
+        opacity: 1;
+      }
+
+      ${widgetId} .video-thumbnail-wrapper img {
+        object-fit: cover;
+        width: 100%!important;
+        min-width: 100%!important;
+        height: 100%!important;
+        max-height: 100%!important;
+      }
+
+      .video-thumbnail-wrapper img {
+        transition: 0.5s;
+      }
+
+      ${widgetId} .video-thumbnail-wrapper .hover-text-container {
+        font-family: 'Roboto';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        color: ${textOverThumbnailColor};
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: ${textContainerMargin};
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        opacity: 0;
+        transition: 0.5s;
+        gap: ${spaceBetweenTitleAndClickToPlayText};
+      }
+
+      ${widgetId} .video-thumbnail-wrapper .hover-text-container h3 {
+          font-size: 2.5rem;
+          font-weight: 600;
+      }
+
+      ${widgetId} .video-thumbnail-wrapper .hover-text-container p {
+          font-size: 1.75rem;
+          font-weight: 400;
+      }
+
+      ${widgetId} .video-info-text-container {
+        opacity: 1;
+      }
+
+      ${widgetId} .video-thumbnail-wrapper .hover-text-container h3 {
+        margin: 0
+      }
+
+      ${widgetId} .video-thumbnail-wrapper .hover-text-container p {
+        margin: 0
+      }
+
+      ${widgetId} .video-thumbnail-wrapper svg {
+        position: absolute;
+        transition: 0.5s;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 2;
+        width: ${playButtonSizing};
+        height: ${playButtonSizing};
+        opacity: ${playButtonOpacity};
+      }
+
+      .show-lightbox {
+        display: block!important;
+      }
+
+      .hide-scroll {
+        overflow: hidden!important;
+      }
+
+      .hide-header {
+        display: none!important;
+      }
+
+      [data-lightboxid="${widgetId}"] {
+        width: 100vw;
+        height: 100vh;
+        display: none;
+        background: #000000E2;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100000;
+      }
+
+      [data-lightboxid="${widgetId}"] .lightbox-close-button {
+        color: white;
+        position: fixed;
+        top: 24px;
+        left: calc(100% - 24px);
+        transform: translateX(-100%);
+        font-family: 'Ruda', sans-serif;
+        font-weight: 700;
+        font-style: normal;
+        font-size: ${closeButtonSize};
+        cursor: pointer;
+        border: calc(${closeButtonSize} / 6.667) white solid;
+        border-radius: 50%;
+        width: calc(${closeButtonSize} * 1.54);
+        height: calc(${closeButtonSize} * 1.54);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: 0.5s;
+      }
+
+      [data-lightboxid="${widgetId}"] iframe {
+        width: 78vw!important;
+        height: 43.9vw!important;
+        max-height: 90vh!important;
+        max-width: 160vh!important;
+        border: 0px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0px 0px 48px black;
+        filter: drop-shadow(rgba(255, 255, 255, 0.44) 0px 0px 80px);
+      }
+
+      @media(max-width: ${mediaQueryBreakpoint}px) {
+        ${widgetId} .video-list {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media(min-width: ${mediaQueryBreakpoint + 1}px) {
+        ${widgetId} .video-list {
+          grid-template-columns: repeat(auto-fill, minmax(${minimumWidthOfEachVideoItem}px, 1fr));
+        }
+      }
+    `
+    stylesContainer.innerHTML = playlistStyling;
+
+  // END - CSS Generation
+
+  // HTML Generation Methods
+
+    // Lightbox HTML
+
+    const lightboxHTML = `<iframe width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><div class="lightbox-close-button">X</div>`;
+
+    // Video Item Play Button Icon HTML
+
+    function playButtonIcon() {
+      const playbackButton = `
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 1000 1000" enable-background="new 0 0 1000 1000" xml:space="preserve">
+        <metadata> Svg Vector Icons : http://www.onlinewebfonts.com/icon </metadata>
+        <g><path d="M500,10C229.4,10,10,229.4,10,500c0,270.6,219.4,490,490,490c270.6,0,490-219.4,490-490C990,229.4,770.6,10,500,10z M691.7,538.7L398.6,772.9c-20.7,16.5-37.5,7.5-37.5-20.2V249.7c0-27.7,16.8-36.7,37.5-20.1l293.1,234.3C717.6,484.5,717.6,518,691.7,538.7z" style="
+        fill: ${playButtonColor};
+        "/></g>
+      </svg>
+    `
+      return playbackButton
+    }
+
+    // Video Item Container HTML
+
+    function renderPlaylistItem(item) {
+      const { snippet } = item;
+      const thumbnails = snippet.thumbnails;
+      const image = thumbnails.maxres ? thumbnails.maxres : thumbnails.standard ? thumbnails.standard : thumbnails.high ? thumbnails.high : thumbnails.medium ? thumbnails.medium : thumbnails.default;
+      const htmlRender = 
+      `
+        <!-- ${snippet.title} -->
+        <div class="video-item" data-videoid="${snippet.resourceId.videoId}">
+          <div class="video-thumbnail-wrapper">
+            <img src="${image.url}" width="${image.width}" height="${image.height}" alt="${snippet.title}">
+            ${showPlayButtons ? playButtonIcon() : ''}
+            <div class="hover-text-container">
+              ${item.titledEpisode !== -1 ? `<h3>Episode ${item.titledEpisode}</h3>` : `<h3>${snippet.title}</h3>`}
+              ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
+            </div>
+          </div>
+          ${ showVideoInfo ? 
+            `<div class="video-info-text-container">
+                  ${item.titledEpisode !== -1 ? `<h3>Episode ${item.titledEpisode}</h3>` : `<h3>${snippet.title}</h3>`}
+              ${snippet.description !== '' && showDescriptionText ? `<span>${snippet.description}</span>` : ''}
+            </div>`
+            : ''
+          } 
+        </div>
+      `;
+      return htmlRender
+    }
+
+  // Event Methods
+
+    function lightboxClear() {
+      lightbox.classList.remove('show-lightbox');
+      html.classList.remove('hide-scroll');
+    }
+
+    function escapeKeyListener(e) {
+      if(e.key === 'Escape') {
+        lightboxClear();
+      }
+    }
+
+    function clickListener(item) {
+      lightbox.innerHTML = '';
+      lightbox.innerHTML = lightboxHTML;
+      const iframe = lightbox.querySelector('iframe');
+      if (item.parentNode.dataset.videoid) {
+        const videoUrl = `https://www.youtube.com/embed/${item.parentNode.dataset.videoid}`
+        if (window.innerWidth > lightboxDisplayBreakpoint) {
+          iframe.src = videoUrl;
+        } else window.open(videoUrl)
+      }
+      if (window.innerWidth > lightboxDisplayBreakpoint) {
+        lightbox.classList.toggle('show-lightbox');
+        html.classList.toggle('hide-scroll');
+      } else {
+        lightboxClear();
+      }
+      iframe.addEventListener('click', () => console.log('test'))
+      iframe.contentDocument.body.addEventListener('keyup', escapeKeyListener);
+    }
+
+  // Data Retrieval From LocalStorage / API Method
+
+    async function getPlaylistItems() {
+
+      // Local Storage Check And Retrieval If Found.  If Found, Checks Timing So That The Current Time Minus The Stored Time Do Not Exceed timeStorageInterval Declaration
+
+      let storedPlaylists = localStorage.getItem('youtubePlaylists');
+      let storedPlaylistId;
+      if (storedPlaylists) {
+        storedPlaylists = JSON.parse(storedPlaylists)
+        const currentTime = new Date().getTime();
+        storedPlaylistId = storedPlaylists.find(list => list.items[0].snippet.playlistId === playlistId);
+        if (storedPlaylistId) {
+          if (currentTime - storedPlaylistId.storedTime < timeStorageInterval) {
+              storedPlaylistRetrieved = true;
+              return { data: storedPlaylistId, ok: true }
+          }
+        }
+      } 
+
+      // API Fetch If Local Storage Data Not Found Or If Local Storage Data Found And Time Stored Exceeded timeStorageInterval Declaration
+
+      if (!storedPlaylistRetrieved){
+        const baseUrl = `https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=`;
+        const fullPath = `${baseUrl}${playlistId}&key=${apiKey}&maxResults=1000`;
+        try {
+          const res = await fetch(fullPath);
+          if (res.ok) {
+            let data = await res.json();
+
+            // Youtube API Has A Limit Of Results Per Request Based Upon resultLimitPerRequest Declaration.  If Total Results In Playlist Exceeds This, Multiple Requests Are Made To The Youtube API Until Total Results Retrieved Equals Total In Playlist.
+
+            if (data.pageInfo.totalResults > resultLimitPerRequest) {
+              let nextPageToken = data.nextPageToken;
+              for (let totalVideos = data.items.length; totalVideos < data.pageInfo.totalResults; totalVideos) {
+                const nextPageTokenPath = fullPath + `&pageToken=${nextPageToken}`;
+                const page = await fetch(nextPageTokenPath);
+                if (res.ok) {
+                  const pageData = await page.json();
+                  data.items = [...data.items, ...pageData.items];
+                  data.pageInfo.resultsPerPage += pageData.items.length;
+                  if (pageData.nextPageToken) {
+                    nextPageToken = pageData.nextPageToken
+                  }
+                  totalVideos += pageData.items.length
+                } else {
+                  console.error(`There Was An Error Attempting To Load Additional Pages Of Videos.  Total Videos Displayed May Be Less Than The Max Results Or Total On Playlist`);
+                  break;
+                }
+              }
+            }
+
+            // Data Retrieved From API Saved / Updated In Local Storage
+
+            data.storedTime = new Date().getTime();
+            if (storedPlaylists) {
+                let revisedStoredPlaylists;
+                if (storedPlaylistId) {
+                  revisedStoredPlaylists = storedPlaylists.map(list => {
+                      if (list.items[0].snippet.playlistId === playlistId) {
+                          return data
+                      } else return list
+                  });
+                } else revisedStoredPlaylists = [...storedPlaylists, data]
+                localStorage.removeItem('youtubePlaylists');
+                localStorage.setItem('youtubePlaylists', JSON.stringify(revisedStoredPlaylists));
+            } else {
+                localStorage.setItem('youtubePlaylists', JSON.stringify([data]));
+            }
+            return { status: res.status, ok: true, data }
+
+          // Error Handling If res.ok Is False
+
+          } else {
+            console.error(`Server responded with a ${res.status}.`);
+            if (storedPlaylistId) {
+              console.warn(apiErrMsg);
+              return { data: storedPlaylistId, ok: true }
+            } else return { status: res.status, ok: false }
+          }
+
+        // Error Handling If Connection To API Fails
+
+        } catch(err) {
+          console.error(err);
+          if (storedPlaylistId) {
+              console.warn(apiErrMsg)
+              return { data: storedPlaylistId, ok: true }
+          } else return { status: res.status, ok: false }
+        }
+      }
+    }
+
+  // Data List Management Methods
+
+    // Data List Sorting
+
+    function listSorter(a, b) {
+      switch (sortVideosBy) {
+        case 'position-descending':
+          return a.snippet.position < b.snippet.position ? -1 : 1;
+        case 'position-ascending':
+          return a.snippet.position < b.snippet.position ? 1 : -1;
+        case 'number-descending':
+          return a.titledEpisode < b.titledEpisode ? 1 : -1;
+        case 'number-ascending':
+          return a.titledEpisode < b.titledEpisode ? -1 : 1;
+        case 'date-descending':
+          return a.snippet.publishedAt < b.snippet.publishedAt ? 1 : -1;
+        case 'date-ascending':
+          return a.snippet.publishedAt < b.snippet.publishedAt ? -1 : 1;
+      }
+    }
+
+    // Episode Number Assigning
+
+    function numberReducer(input) {
+      let finalResult;
+      function hasNumber(numCheck) {
+        return numCheck.search(/[0-9]/) > -1 ? numCheck.search(/[0-9]/) : -1;
+      }
+      const hasOneDigit = hasNumber(input);
+      if (hasOneDigit > -1) {
+        input = input.slice(input.search(/[0-9]/));
+        finalResult = input[0];
+        for (let i = 1; hasNumber(input.slice(i)) > -1; i++) {
+          finalResult += input[i] 
+        }
+        return Number(finalResult)
+      } else return -1
+    }
+
+  // END - Data List Management Methods
+
+  // CONTROLLER - Initialization For Data Retrieval, Data Management, HTML Render, And Event Listener Initializations
+
+    getPlaylistItems().then(res => {
+        if (res.ok) {
+          let sortedList = [...res.data.items];
+
+          // Data Sorting 
+
+          if (filterByName) {
+              sortedList = sortedList.filter(item => item.snippet.title.toLowerCase().includes(filterNameParameters));
+          }  
+          sortedList = sortedList.map(item => ({...item, titledEpisode: numberReducer(item.snippet.title)}));
+          for (let i = 0; i < 2; i++) {
+              sortedList.sort((a, b) => listSorter(a, b));
+          }
+          sortedList = sortedList.filter((item, index) => {
+            if (sortedList[index + 1]) {
+              return sortedList[index + 1].titledEpisode !== item.titledEpisode ? true : false;
+            } else return true
+          });
+
+          // Data Filtering
+
+          if (listByRange) {
+            sortedList = sortedList.filter(item => item.titledEpisode >= fromEpisodeNumber && item.titledEpisode <= toEpisodeNumber);
+          }
+          if (showNonNumberedEpisodesOnly) {
+              sortedList = sortedList.filter(item => item.titledEpisode === - 1);
+          }
+          if (hideNonNumberedVideos) {
+              sortedList = sortedList.filter(item => item.titledEpisode !== - 1);
+          }
+          if (maxResults < sortedList.length && limitVideos) {
+              sortedList = sortedList.filter((item, index) => (index + 1) <= maxResults);
+          }
+
+          // HTML Rendering
+
+          const listOutput = sortedList.map(item => {
+            if (!item) {
+              console.error(`Playlist VideoID: ${item.snippet.resourceId.videoId} Failed To Load`);
+              failedItemTally++
+            } else if (item.snippet.title.toLowerCase() === 'deleted video' || item.snippet.title.toLowerCase() === 'private video') {
+              console.warn(`Video Playlist Item ${item.snippet.resourceId.videoId} Could Not Be Loaded As Its Status Is: ${item.snippet.title}`);
+            } else return renderPlaylistItem(item)
+          }).join('');
+          playlistItems.innerHTML = listOutput;
+
+          // Error Logging
+
+          if (failedItemTally > 0) {
+              console.error(`${failedItemTally} Playlist Items Failed To Load.`)
+          }
+
+          // Click Event Listener Initialization After HTML Rendering Of Video Items
+
+          const items = document.querySelectorAll('.video-item .video-thumbnail-wrapper');
+          items.forEach(item => {
+            item.addEventListener('click', () => clickListener(item));
+          });
+
+          // Escape Key And Click Event Listener Initialization For Lightbox
+
+          window.addEventListener('keyup', escapeKeyListener);
+          lightbox.addEventListener('click', () => clickListener(lightbox));
+
+      } else {
+
+        // Error Message If Data Failed To Load
+
+        playlistItems.innerHTML = `
+          <h2>There was an error loading the Youtube playlist. Try refreshing the browser.</h2>
+        `
+      }
+    });
+
+  // END CONTROLLER
+}
+
+initialize_uc_magellan_youtube_playlist_api_elementor18883();
+</script>
