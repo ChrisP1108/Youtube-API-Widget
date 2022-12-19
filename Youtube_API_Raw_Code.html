@@ -191,7 +191,8 @@
   		  from { opacity: 0;}
         to { opacity: 1;}
 	    }
-      ${widgetId} .video-thumbnail-wrapper {
+      ${widgetId} .video-thumbnail-wrapper,
+      [data-lightboxid="${widgetId}"] .video-thumbnail-wrapper {
         background: black;
         position: relative;
         cursor: pointer;
@@ -237,7 +238,7 @@
       {
         object-fit: cover;
         width: 100%!important;
-        height: auto !important;
+        height: inherit !important;
         min-width: 100%!important;
         max-height: 100%!important;
         transition: 0.75s;
