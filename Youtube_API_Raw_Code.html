@@ -245,6 +245,7 @@
         min-width: 100%!important;
         max-height: 100%!important;
         transition: 0.75s;
+        aspect-ratio: 1.777 / 1;
       }
       [data-lightboxid="${widgetId}"] .video-item {
         filter: grayscale(75%);
@@ -649,6 +650,11 @@
         background: ${showThemeColor};
         border-width: 0px;
         color: ${playlistButtonColor};
+        cursor: pointer;
+        transition: 0.25s;
+      }
+      ${widgetId} .playlist-button-page:hover {
+        transform: scale(1.1);
       }
       @media(max-width: ${mediaQueryMobileBreakpoint}px) {
         ${widgetId} .grid-layout {
@@ -686,9 +692,9 @@
           transform: scale(1);
         }
         ${widgetId} .playlist-button-page {
-          padding: 1em 0;
-          width: 90vw;
-          max-width: 400px;
+          padding: 1em;
+          width: 80%;
+          max-width: 353px;
         }
       }
       @media(min-width: ${mediaQueryMobileBreakpoint + 1}px) {
