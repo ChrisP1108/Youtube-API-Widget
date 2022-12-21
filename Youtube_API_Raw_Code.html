@@ -24,7 +24,7 @@
       const apiKey = 'AIzaSyCI7Y5K9XF-l1G0mb7qGNp3vd7-1vm2PrU'; // API Key For Youtube API Through Google Cloud
       const playlistId = 'PLE69e89d5PM1U_JyAV5U-dguNaMQ4yGJm'; // Youtube Playlist Id
       const resultLimitPerRequest = 50; // Youtube API Has A Limit Of 50 Results Per Request.
-      const limitVideos = false; // Limit Videos Displayed.  Default Value Is: true
+      const limitVideos = true; // Limit Videos Displayed.  Default Value Is: true
       const maxResults = 6; // If limitVideos Is Set To: true, Limit Number Of Videos Displayed.  Default Value Is: 6
       const filterByName = false; // Filter Video Results Based On Characters In Title.  Default Value Is: false
       const filterNameParameters = ''.toLowerCase(); // If filterByName Is Set To: true, Filter String Parameters For filterByName.  Default Value Is: ''
@@ -41,13 +41,16 @@
       const showPlayButtons = true; // Sets If Play Button Icons Should Be Shown Over Video Thumbnails.  Default Value Is: true
       const showVideoInfo = false; // Sets If Text Information About Video Should Be Displayed Below Video Thumbnail.  Default Value Is: false
       const showDescriptionText = false; // If showVideoInfo Is Set To True, Sets If Video Description Text Should Be Displayed.  Default Value Is: false
-      const showAllInLightbox = false; // Determines If Lightbox Will Allow User To See All Videos On PlayList If True. If False, User Can Only View Videos Shown On Page  
+      const showAllInLightbox = true; // Determines If Lightbox Will Allow User To See All Videos On PlayList If True. If False, User Can Only View Videos Shown On Page  
       let playListSorted = []; // Captures All Videos After Filtering And Sorting Before They're Reduced To Output Amount For Showing All Videos When Navigating Through Lightbox
       let pageOutputList = []; // The Actual List Of Video That Will Be Shown On The Page (Grid Or Carousel Layout)
       const lightboxFrameVideoBaseUrl = 'https://www.youtube.com/embed/'; // Video Base Url For Lightbox Video Iframes
       const fastForwardSpeed = 150; // Set The Speed That Frames Should Be Fast Forwarded Through On Carousel And Lightbox When User Holds Down Arrow.
       let lightboxToggled = false; // Used To Determine If Lightbox Is Toggled
       const showLogoImgUrl = 'https://livinglarge-tv.com/wp-content/uploads/2022/08/MH-DeskScreenLogo-1.png'; // Show Logo Image URL For Playlist Heading 
+      const playlistButton = true; // Sets If Playlist Button Will Be Show On Page
+      const playlistButtonText = window.innerWidth > 1200 ? 'Click For More Episodes' : 'Tap For More Episodes'
+      let showPlaylist = false // Toggles Lightbox Playlist On And Off
       
       // CSS Variable Declarations
 
@@ -77,7 +80,7 @@
       const carouselWidth = 40 // Set Width Of Carousel Layout Thumbnails In REMs
       const carouselArrowsColor = '#000000' // Sets Color Of Carousel Layout Arrows And Text Overlay During Fast Forward
       const showThemeColor = '#F36C21' // Sets Theme Color For LightBox Playlist Outline
-      let showPlaylist = false // Toggles Lightbox Playlist On And Off
+      const playlistButtonColor = '#FFF' // Sets Playlist Button Text Color
 
       // Layout Type Declaration
 
@@ -448,7 +451,6 @@
         height: auto;
         padding: 0 16px 24px;
         max-width: 300px;
-        margin-top: -16px;
       }
       [data-lightboxid="${widgetId}"] .lightbox-playlist-container::-webkit-scrollbar {
         width: 8px;
@@ -638,6 +640,16 @@
         width: ${carouselWidth}rem;
         margin: 0 3%;
       }
+      ${widgetId} .playlist-button-page {
+        font-family: 'Roboto';
+        display: block;
+        margin: ${gapBetweenVideos}px auto 0;
+        padding: 1em 2em;
+        font-size: 1.5rem;
+        background: ${showThemeColor};
+        border-width: 0px;
+        color: ${playlistButtonColor};
+      }
       @media(max-width: ${mediaQueryMobileBreakpoint}px) {
         ${widgetId} .grid-layout {
           grid-template-columns: 1fr;
@@ -666,9 +678,17 @@
           top: 12px;
           left: calc(100% - 12px);
         }
-        [data-lightboxid="${widgetId}"] .video-item:hover {
+        [data-lightboxid="${widgetId}"] .video-item {
           filter: grayscale(0%) !important;
           transform: scale(1);
+        }
+        [data-lightboxid="${widgetId}"] .video-item:hover {
+          transform: scale(1);
+        }
+        ${widgetId} .playlist-button-page {
+          padding: 1em 0;
+          width: 90vw;
+          max-width: 400px;
         }
       }
       @media(min-width: ${mediaQueryMobileBreakpoint + 1}px) {
@@ -1313,9 +1333,17 @@
       lightbox.addEventListener('mousemove', e => lightboxMouseMoveHandler(e, elementsToHideWhenIdle));
       lightbox.addEventListener('click', e => lightboxMouseMoveHandler(e, elementsToHideWhenIdle));
 
-      // Video Index And Base Url For Youtube Embed Iframe
+      // Video Index And Base Url For Youtube Embed Iframe.  Will Be Set To 0 If Returned Value Is -1
 
-      let currentVideoIndex = playListSorted.findIndex(video => video.snippet.resourceId.videoId === itemClicked.dataset.videoid);
+      let currentVideoIndex;
+
+      if (itemClicked) {
+        currentVideoIndex = playListSorted.findIndex(video => video.snippet.resourceId.videoId === itemClicked.dataset.videoid);
+      } 
+
+      if (!currentVideoIndex || currentVideoIndex === -1) {
+        currentVideoIndex = 0;
+      }
 
       // Check For Starting Position To See If Arrows Should Be Shown Based Upon Starting Video Index Position And Set Corresponding Iframe Urls
 
@@ -1349,12 +1377,12 @@
         // Check If Video Index Has Video And Check For Browser Window Width And Set For Lightbox Or Full Screen Iframe On Mobile, Tablet
 
         if (playListSorted[currentVideoIndex]) {
-          if (window.innerWidth > mediaQueryMobileBreakpoint) {
+          if (window.innerWidth > mediaQueryMobileBreakpoint || showPlaylist) {
             startingLightboxActive.querySelector('iframe').src = lightboxFrameVideoBaseUrl + setVideoId(0);
             startingLightboxActive.querySelector('h1').innerHTML = setThumbnailText(setData(0));
           } else window.open(lightboxFrameVideoBaseUrl + setVideoId(0))
         }
-        if (window.innerWidth > mediaQueryMobileBreakpoint) {
+        if (window.innerWidth > mediaQueryMobileBreakpoint || showPlaylist) {
           lightbox.classList.add('show-lightbox');
           html.classList.add('hide-scroll');
         } else {
@@ -1366,7 +1394,7 @@
 
       // Render Grid Items In Playlist Container
 
-      lightboxPlaylistContent.innerHTML = gridItemsRendering(true);
+      lightboxPlaylistContent.innerHTML = gridItemsRendering(playListSorted, true);
 
       // Event Listeners On Playlist Items Clicked
 
@@ -1708,8 +1736,8 @@
 
   // Grid Layout Handling
 
-    function gridItemsRendering(playlist) {
-      return pageOutputList.map(item => {
+    function gridItemsRendering(outputList, playlist) {
+      return outputList.map(item => {
         if (!item) {
           console.error(`Playlist VideoID: ${item.snippet.resourceId.videoId} Failed To Load`);
           failedItemTally++
@@ -1799,7 +1827,7 @@
 
           const gridListMapping = 
             '<div class="grid-layout">' + 
-              gridItemsRendering()
+              gridItemsRendering(pageOutputList)
             + '</div>';       
 
           if (playlistLayout === 'grid') {
@@ -1812,6 +1840,22 @@
             playlistItems.innerHTML = carouselHTML;
             carouselEventHandling();
           }
+
+          // Playlist View Button If playlistButton Is Set To True
+
+          function initializePlaylistPageButton() {
+            if (playlistButton) {
+              const buttonContainer = document.createElement('button');
+              buttonContainer.classList.add('playlist-button-page');
+              buttonContainer.dataset.playlistbuttonpage = 'true';
+              buttonContainer.innerText = playlistButtonText;
+              playlistItems.appendChild(buttonContainer);
+              document.querySelector(`${widgetId} [data-playlistbuttonpage="true"]`)
+                .addEventListener('click', () => lightboxActivateHandler(null, true))
+            }
+          }
+
+          initializePlaylistPageButton();
 
           // Error Logging
 
@@ -1846,6 +1890,7 @@
             if (window.innerWidth >= mediaQueryMobileBreakpoint) {
               if (!isGrid) {
                 playlistItems.innerHTML = gridListMapping;
+                initializePlaylistPageButton();
                 listenOnItemsClick();
               }
               isGrid = true;
@@ -1854,6 +1899,7 @@
             if (window.innerWidth < mediaQueryMobileBreakpoint){
               if (!isCarousel) {
                 playlistItems.innerHTML = carouselHTML;
+                initializePlaylistPageButton();
                 carouselEventHandling();
                 listenOnItemsClick();
               }
