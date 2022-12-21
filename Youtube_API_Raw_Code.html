@@ -1409,8 +1409,8 @@
       lightboxPlaylistItems.forEach(itemClicked => 
         itemClicked.addEventListener('click', () => {
           currentVideoIndex = playListSorted.findIndex(video => video.snippet.resourceId.videoId === itemClicked.dataset.videoid);
-          initLightboxFrames();
           toggleLightboxPlayerOrPlaylist();
+          initLightboxFrames();
         })
       );
 
