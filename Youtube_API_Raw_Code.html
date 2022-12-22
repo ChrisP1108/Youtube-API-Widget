@@ -4,11 +4,20 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Youtube Playlist API Test</title>
+  <style>
+    main {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    .info-text {
+      text-align: center;
+      font-size: 1.25rem;
+    }
+  </style>
 </head>
 <body>
-
-<div id="uc_magellan_youtube_playlist_api_elementor18883"></div>
+    <div id="uc_magellan_youtube_playlist_api_elementor18883"></div>
 
 <script>
     function initialize_uc_magellan_youtube_playlist_api_elementor18883() { // ALL YOUTUBE PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
@@ -35,7 +44,7 @@
       const toEpisodeNumber = 1; // If listByRange Is Set To: true, Set Starting Episode Number To Filter From.  Default Value Is: 1
       const showInformationBelow = false; // Show Text Information About Video Below Video Thumbnail.  Default Value Is: false
       const showNonNumberedEpisodesOnly = false; // Shows Videos That Do Not Have An Episode Number Only. Default Value Is: false 
-      const hideNonNumberedVideos = false; // Hides Non-Numbered Videos In Playlist.  Default Value Is: false   
+      const hideNonNumberedVideos = true; // Hides Non-Numbered Videos In Playlist.  Default Value Is: true   
       const timeStorageInterval = 60 * 60000; // Sets Time Interval That Another API Call Request Can Be Made Instead Of Loading From Local Storage In Minutes That Is Multiplied By 60000 To Convert Minutes To Milliseconds.  Default Value is 60
       const instructionMessage = window.innerWidth > 1200 ? 'Click Here To Watch' : 'Tap Here To Watch'; // Instruction Message Text.  Default Value is: 'Click Here To Watch'
       const showPlayButtons = true; // Sets If Play Button Icons Should Be Shown Over Video Thumbnails.  Default Value Is: true
@@ -76,7 +85,7 @@
       const mediaQueryMobileBreakpoint = (minimumWidthOfEachVideoItem * 2) + (gapBetweenVideos * 1.5); // Sets Media Query Break Point Of When Video Containers Should Stack In One Column.  Calculation Based Upon minimumWidthOfEachVideo Number.  Default Value Is: minimumWidthOfEachVideoItem * 2
       const frameTransition = 500; // Sets Transition Time Of LightBox Carousel Frame Transitioning In Milliseconds
       const carouselTransition = 2000; // Sets Transition Time Of Carousel Layout Frame Transitioning In Milliseconds
-      const carouselDelay = 8000; // Sets Delay Carousel Layout Between Transitioning In Milliseconds
+      const carouselDelay = 6000; // Sets Delay Carousel Layout Between Transitioning In Milliseconds
       const carouselWidth = 40 // Set Width Of Carousel Layout Thumbnails In REMs
       const carouselArrowsColor = '#000000' // Sets Color Of Carousel Layout Arrows And Text Overlay During Fast Forward
       const showThemeColor = '#F36C21' // Sets Theme Color For LightBox Playlist Outline
@@ -84,7 +93,7 @@
 
       // Layout Type Declaration
 
-      const playlistLayout = window.innerWidth > mediaQueryMobileBreakpoint ? 'grid' : 'carousel'; // Determines The Layout Of Videos On Page.
+      const playlistLayout = 'grid'; // Determines The Layout Of Videos On Page.  Default value is 'grid'.  Other value is 'carousel'
 
     // Error Handling Variables
 
@@ -113,6 +122,7 @@
     // HTML Base Containers Initialization.  Loading Spinner Is Included On Initialization
 
       const widgetId = '#uc_magellan_youtube_playlist_api_elementor18883';
+      const widgetNameId = 'uc_magellan_youtube_playlist_api_elementor18883';
       const widgetRoot = document.querySelector(`${widgetId}`);
 
       widgetRoot.innerHTML = 
@@ -187,10 +197,10 @@
         width: 100%;
         height: 100%;
         filter: drop-shadow(${dropShadowValues} ${dropShadowColor});
-        animation-name: fade-in;
+        animation-name: ${widgetNameId}-fade-in;
         animation-duration: 1s;
       }
-      @keyframes fade-in {
+      @keyframes ${widgetNameId}-fade-in {
   		  from { opacity: 0;}
         to { opacity: 1;}
 	    }
@@ -224,16 +234,20 @@
       ${widgetId} .video-thumbnail-wrapper:hover .hover-text-container {
         opacity: 1;
       }
-      .frame-transitioning-show-text img {
+      ${widgetId} .frame-transitioning-show-text img,
+      [data-lightboxid="${widgetId}"] .frame-transitioning-show-text img {
         opacity: calc(${imageDarkeningOpacity} / 100);
       }
-      .frame-transitioning-show-text iframe {
+      ${widgetId} .frame-transitioning-show-text iframe,
+      [data-lightboxid="${widgetId}"] .frame-transitioning-show-text iframe {
         opacity: calc(${imageDarkeningOpacity} / 100);
       }
-      .frame-transitioning-show-text svg {
+      ${widgetId} .frame-transitioning-show-text svg,
+      [data-lightboxid="${widgetId}"] .frame-transitioning-show-text svg {
         opacity: 0 !important;
       }
-      .frame-transitioning-show-text .hover-text-container  {
+      ${widgetId} .frame-transitioning-show-text .hover-text-container,
+      [data-lightboxid="${widgetId}"] .frame-transitioning-show-text .hover-text-container {
         opacity: 1 !important;
       }
       ${widgetId} .video-thumbnail-wrapper img,
@@ -349,21 +363,21 @@
         opacity: 0;
         pointer-events: none !important;
       }
-      .carousel-arrow-hold-transitioning {
+      ${widgetId} .carousel-arrow-hold-transitioning {
         animation-iteration-count: infinite;
         animation-duration: ${fastForwardSpeed / 1000}s;
-        animation-name: carousel-fast-forward;
+        animation-name: ${widgetNameId}-carousel-fast-forward;
       }
-      @keyframes carousel-fast-forward {
+      @keyframes ${widgetNameId}-carousel-fast-forward {
         from { filter: drop-shadow(0px 0px 0px ${carouselArrowsColor}) }
         to { filter: drop-shadow(24px 0px 0px ${carouselArrowsColor}) }
       }
       .lightbox-arrow-hold-transitioning {
         animation-iteration-count: infinite;
         animation-duration: ${fastForwardSpeed / 1000}s;
-        animation-name: lightbox-fast-forward;
+        animation-name: ${widgetNameId}-lightbox-fast-forward;
       }
-      @keyframes lightbox-fast-forward {
+      @keyframes ${widgetNameId}-lightbox-fast-forward {
         from { filter: drop-shadow(0px 0px 0px white) }
         to { filter: drop-shadow(32px 0px 0px white) }
       }
@@ -1887,33 +1901,9 @@
           window.addEventListener('keyup', escapeKeyListener);
           // lightbox.addEventListener('click', (e) => lightboxActivateHandler(lightbox, e));
 
-          // Monitor For Window Resizing.  Adjust Layout As Needed
-
-          let isGrid = playlistLayout === 'grid';
-          let isCarousel = playlistLayout === 'carousel';
-
           window.addEventListener('resize', () => {
-            if (window.innerWidth >= mediaQueryMobileBreakpoint) {
-              if (!isGrid) {
-                playlistItems.innerHTML = gridListMapping;
-                initializePlaylistPageButton();
-                listenOnItemsClick();
-              }
-              isGrid = true;
-              isCarousel = false;
-            } 
-            if (window.innerWidth < mediaQueryMobileBreakpoint){
-              if (!isCarousel) {
-                playlistItems.innerHTML = carouselHTML;
-                initializePlaylistPageButton();
-                carouselEventHandling();
-                listenOnItemsClick();
-              }
-              if (!showPlaylist) {
-                lightboxClear();
-              }
-              isCarousel = true;
-              isGrid = false;
+            if (!showPlaylist && window.innerWidth < mediaQueryMobileBreakpoint) {
+              lightboxClear();
             }
           });
 
@@ -1931,7 +1921,5 @@
 }
 
 initialize_uc_magellan_youtube_playlist_api_elementor18883();
-</script>
 
-</body>
-</html>
+</script>
