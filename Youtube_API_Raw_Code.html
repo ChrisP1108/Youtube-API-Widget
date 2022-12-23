@@ -5,16 +5,6 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Youtube Playlist API Test</title>
-  <style>
-    main {
-      max-width: 1600px;
-      margin: 0 auto;
-    }
-    .info-text {
-      text-align: center;
-      font-size: 1.25rem;
-    }
-  </style>
 </head>
 <body>
     <div id="uc_magellan_youtube_playlist_api_elementor18883"></div>
@@ -60,11 +50,16 @@
       const playlistButton = true; // Sets If Playlist Button Will Be Show On Page
       const playlistButtonText = window.innerWidth > 1200 ? 'Click For More Episodes' : 'Tap For More Episodes'
       let showPlaylist = false // Toggles Lightbox Playlist On And Off
+      const playlistLayout = 'grid'; // Determines The Layout Of Videos On Page.  Default value is 'grid'.  Other value is 'carousel'
+      const playlistService = 'youtube'; // Determines If Video Playlist Is Coming From.  Default Value Is 'youtube'
+      const baseUrl = playlistService === 'youtube' ? `https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=` : ``;
+      const fullPath = playlistService === 'youtube' ? `${baseUrl}${playlistId}&key=${apiKey}&maxResults=1000` : ``;
       
       // CSS Variable Declarations
 
       const playButtonColor = '#ffffff'; // Sets Color Of Play Button Icon Over Video Thumbnail.  Default Value IS: '#ffffff'
-      const gapBetweenVideos = 60; // Sets Spacing Between Video Item Containers.  Default Value Is: '48px'
+      const gapBetweenGridVideos = 48; // Sets Spacing Between Video Items In Grid Layout In Pixels.  Default Value Is: 48
+      const gapBetweenPlaylistVideos = 48; // Sets Spacing Between Video Items In Playlist Layout In Pixels.  Default Value Is: 48
       const videoContainerBorderThickness = '0px'; // Sets Video Container Border Thickness: Default Value Is: '0px'
       const videoContainerBorderColor = '#000000'; // Sets Video Container Border Color: Default Value Is: '#000000'
       const dropShadowValues = '4px 4px 12px'; // Sets Drop-Shadow Values For Video Container.  Default Value Is: 0px 0px 0px
@@ -80,9 +75,8 @@
       const spaceBetweenTitleAndClickToPlayText = '40px'; // Sets Vertical Spacing Between Episode Number Or Video Title Text And Instruction Text On Mouse Hover Over Thumbnail.  Default Value Is: '40px'
       const playButtonSizing = '30%'; // Sets Sizing Of Play Button Icon Over Video Thumbnail Relative To The HEight Of The Video Thumbnail In Percentage.  Default Value Is: '35%'
       const playButtonOpacity = 75 / 100; // Sets Opacity Of Play Button Icon Over Video Thumbnail.  Divides Number By 100 To Convert Percentage To Decimal. Default Value Is: 75
-      const closeButtonSize = '32px'; // Sets Size Of Lighbox Close Button On Top Right Corner Of Screen When Lighbox Is Active.  Default Value Is: '32px'
       const minimumWidthOfEachVideoItem = 400; // Sets Minimun Width Size Of Each Video.  Default Value Is: 480
-      const mediaQueryMobileBreakpoint = (minimumWidthOfEachVideoItem * 2) + (gapBetweenVideos * 1.5); // Sets Media Query Break Point Of When Video Containers Should Stack In One Column.  Calculation Based Upon minimumWidthOfEachVideo Number.  Default Value Is: minimumWidthOfEachVideoItem * 2
+      const mediaQueryMobileBreakpoint = (minimumWidthOfEachVideoItem * 2) + (gapBetweenGridVideos * 1.5); // Sets Media Query Break Point Of When Video Containers Should Stack In One Column.  Calculation Based Upon minimumWidthOfEachVideo Number.  Default Value Is: minimumWidthOfEachVideoItem * 2
       const frameTransition = 500; // Sets Transition Time Of LightBox Carousel Frame Transitioning In Milliseconds
       const carouselTransition = 2000; // Sets Transition Time Of Carousel Layout Frame Transitioning In Milliseconds
       const carouselDelay = 6000; // Sets Delay Carousel Layout Between Transitioning In Milliseconds
@@ -90,10 +84,9 @@
       const carouselArrowsColor = '#000000' // Sets Color Of Carousel Layout Arrows And Text Overlay During Fast Forward
       const showThemeColor = '#F36C21' // Sets Theme Color For LightBox Playlist Outline
       const playlistButtonColor = '#FFF' // Sets Playlist Button Text Color
-
-      // Layout Type Declaration
-
-      const playlistLayout = 'grid'; // Determines The Layout Of Videos On Page.  Default value is 'grid'.  Other value is 'carousel'
+      const carouselArrowSize = '48px' ; // Sets Arrows Size On Carousel Layout In Percentage
+      const thumbnailAspectRatio = '1.777 / 1' // Sets Aspect Ratio Of Video Thumbnails.  Default Value Is '1.777 / 1'
+      const lightboxPlayerIconSize = 6; // Sets Size Of Lightbox Arrows In Viewport Height.  Default Value Is 6.5
 
     // Error Handling Variables
 
@@ -169,11 +162,11 @@
       }
       ${widgetId} .grid-layout {
         display: grid;
-        gap: ${gapBetweenVideos}px;
+        gap: ${gapBetweenGridVideos}px;
       }
       [data-lightboxid="${widgetId}"] .grid-layout {
         display: grid;
-        gap: 48px;
+        gap: ${gapBetweenPlaylistVideos}px;
       }
       [data-lightboxid="${widgetId}"] .grid-layout {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -201,12 +194,12 @@
         animation-duration: 1s;
       }
       @keyframes ${widgetNameId}-fade-in {
-  		  from { opacity: 0;}
-        to { opacity: 1;}
+  		  from { opacity: 0; }
+        to { opacity: 1; }
 	    }
       ${widgetId} .video-thumbnail-wrapper,
       [data-lightboxid="${widgetId}"] .video-thumbnail-wrapper {
-        background: black;
+        background: #000000;
         position: relative;
         cursor: pointer;
         ${!showInformationBelow ? `height: 100%;` : ``}
@@ -259,7 +252,7 @@
         min-width: 100%!important;
         max-height: 100%!important;
         transition: 0.75s;
-        aspect-ratio: 1.777 / 1;
+        aspect-ratio: ${thumbnailAspectRatio};
       }
       [data-lightboxid="${widgetId}"] .video-item {
         filter: grayscale(75%);
@@ -370,7 +363,7 @@
       }
       @keyframes ${widgetNameId}-carousel-fast-forward {
         from { filter: drop-shadow(0px 0px 0px ${carouselArrowsColor}) }
-        to { filter: drop-shadow(24px 0px 0px ${carouselArrowsColor}) }
+        to { filter: drop-shadow(calc(${carouselArrowSize} / 1.75) 0px 0px ${carouselArrowsColor}) }
       }
       .lightbox-arrow-hold-transitioning {
         animation-iteration-count: infinite;
@@ -379,7 +372,7 @@
       }
       @keyframes ${widgetNameId}-lightbox-fast-forward {
         from { filter: drop-shadow(0px 0px 0px white) }
-        to { filter: drop-shadow(32px 0px 0px white) }
+        to { filter: drop-shadow(${lightboxPlayerIconSize / 1.5}vh 0px 0px white) }
       }
       .disable-arrow {
         opacity: 0;
@@ -443,9 +436,11 @@
       }
       [data-lightboxid="${widgetId}"] .lightbox-playlist-container {
         max-width: 1920px;
-        width: calc(100% - ${closeButtonSize} * 6);
-        height: calc(100% - ${closeButtonSize} * 1.5);
         max-height: 90vh;
+        width: calc(100% - ${lightboxPlayerIconSize}vh * 4.5);
+        height: calc(100% - ${lightboxPlayerIconSize}vh * 1.5);
+        min-width: 75vw;
+        min-height: 90vh;
         background: #00000090;
         overflow-y: auto;
         left: 50%;
@@ -509,7 +504,7 @@
       [data-lightboxid="${widgetId}"] .lightbox-video-frame .fast-forward-overlay h1,
       [data-lightboxid="${widgetId}"] .lightbox-video-frame [data-lightboxframe="true"] h1 {
         color: white;
-        font-size: 4.5vw;
+        font-size: 9.75vh;
         text-align: center;
         font-weight: 700;
         z-index: 100;
@@ -517,20 +512,21 @@
       [data-lightboxid="${widgetId}"] .lightbox-close-button {
         color: white;
         position: fixed;
-        top: 24px;
-        left: calc(100% - 24px);
+        top: ${lightboxPlayerIconSize / 3.5}vh;
+        left: calc(100% - ${lightboxPlayerIconSize / 2.75}vh);
         transform: translateX(-100%);
         font-family: 'Ruda', sans-serif;
         font-weight: 700;
         font-style: normal;
-        font-size: ${closeButtonSize};
+        padding: ${lightboxPlayerIconSize / 5}vh;
+        font-size: ${lightboxPlayerIconSize / 1.5}vh;
         cursor: pointer;
-        border: calc(${closeButtonSize} / 6.667) white solid;
+        border: ${lightboxPlayerIconSize / 9}vh white solid;
         border-radius: 50%;
-        width: 15vh;
-        height: 15vh;
-        max-width: calc(${closeButtonSize} * 1.54);
-        max-height: calc(${closeButtonSize} * 1.54);
+        width: 15vw;
+        height: 15vw;
+        max-width: ${lightboxPlayerIconSize / 1.5}vh;
+        max-height: ${lightboxPlayerIconSize / 1.5}vh;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -539,10 +535,10 @@
       }
       [data-lightboxid="${widgetId}"] .lightbox-playlist-button {
         position: fixed;
-        top: 26px;
-        left: 24px;
-        max-width: calc(${closeButtonSize} * 1.54);
-        max-height: calc(${closeButtonSize} * 1.54);
+        top: ${lightboxPlayerIconSize / 2.25}vh;
+        left: ${lightboxPlayerIconSize / 2.25}vh;
+        max-width: ${lightboxPlayerIconSize}vh;
+        max-height: ${lightboxPlayerIconSize}vh;
         width: 15vh;
         height: 15vh;
         transition: 0.25s;
@@ -559,9 +555,10 @@
         transform: scale(0.9);
       } 
       [data-lightboxid="${widgetId}"] .lightbox-player-container svg {
-        max-width: 60px;
-        min-width: 2%;
-        height: 100px;
+        min-width: 4vw;
+        max-height: 6.664vw;
+        width: ${lightboxPlayerIconSize * 0.65}vh;
+        height: ${lightboxPlayerIconSize * 1.082}vh;
         cursor: pointer;
         z-index: 3;
         transition: 0.25s;
@@ -647,7 +644,7 @@
         transition: ${carouselTransition / 1000}s;
       }
       ${widgetId} [data-carouselarrow="true"] {
-        width: 48px;
+        width: ${carouselArrowSize};
       }
       ${widgetId} .carousel-layout .carousel-video-frame {
         position: relative;
@@ -658,7 +655,7 @@
       ${widgetId} .playlist-button-page {
         font-family: 'Roboto';
         display: block;
-        margin: ${gapBetweenVideos}px auto 0;
+        margin: ${gapBetweenGridVideos}px auto 0;
         padding: 1em 2em;
         font-size: 1.5rem;
         background: ${showThemeColor};
@@ -1645,8 +1642,6 @@
       // API Fetch If Local Storage Data Not Found Or If Local Storage Data Found And Time Stored Exceeded timeStorageInterval Declaration
 
       if (!storedPlaylistRetrieved){
-        const baseUrl = `https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=`;
-        const fullPath = `${baseUrl}${playlistId}&key=${apiKey}&maxResults=1000`;
         try {
           const res = await fetch(fullPath);
           if (res.ok) {
