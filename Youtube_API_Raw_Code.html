@@ -43,7 +43,6 @@
       const showAllInLightbox = true; // Determines If Lightbox Will Allow User To See All Videos On PlayList If True. If False, User Can Only View Videos Shown On Page  
       let playListSorted = []; // Captures All Videos After Filtering And Sorting Before They're Reduced To Output Amount For Showing All Videos When Navigating Through Lightbox
       let pageOutputList = []; // The Actual List Of Video That Will Be Shown On The Page (Grid Or Carousel Layout)
-      const lightboxFrameVideoBaseUrl = 'https://www.youtube.com/embed/'; // Video Base Url For Lightbox Video Iframes
       const fastForwardSpeed = 150; // Set The Speed That Frames Should Be Fast Forwarded Through On Carousel And Lightbox When User Holds Down Arrow.
       let lightboxToggled = false; // Used To Determine If Lightbox Is Toggled
       const showLogoImgUrl = 'https://livinglarge-tv.com/wp-content/uploads/2022/08/MH-DeskScreenLogo-1.png'; // Show Logo Image URL For Playlist Heading 
@@ -52,6 +51,7 @@
       let showPlaylist = false // Toggles Lightbox Playlist On And Off
       const playlistLayout = 'grid'; // Determines The Layout Of Videos On Page.  Default value is 'grid'.  Other value is 'carousel'
       const playlistService = 'youtube'; // Determines If Video Playlist Is Coming From.  Default Value Is 'youtube'
+      const lightboxFrameVideoBaseUrl = playlistService === 'youtube' ? 'https://www.youtube.com/embed/' : ''; // Video Base Url For Lightbox Video Iframes
       const baseUrl = playlistService === 'youtube' ? `https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=` : ``;
       const fullPath = playlistService === 'youtube' ? `${baseUrl}${playlistId}&key=${apiKey}&maxResults=1000` : ``;
       
@@ -878,14 +878,13 @@
     // Grid Layout Video Item HTML
 
     function renderGridItem(item, playlistItem) {
-      const { snippet } = item;
-      const image = setThumbnailImage(item);
+      const { title, thumbnail, titledEpisode, publishedDate, id, description } = item;
       const htmlRender = 
         `
-          <!-- ${snippet.title} -->
-          <a class="video-item" data-itemclickable="true" data-videoid="${snippet.resourceId.videoId}">
+          <!-- ${title} (Published On - ${publishedDate}) -->
+          <a class="video-item" data-itemclickable="true" data-id="${id}">
             <div class="${!playlistItem ? 'video-thumbnail-wrapper' : 'playlist-video-thumbnail-wrapper'}">
-              <img src="${image.url}" width="${image.width}" height="${image.height}" alt="${snippet.title}">
+              <img src="${thumbnail.url}" width="${thumbnail.width}" height="${thumbnail.height}" alt="${title}">
               ${showPlayButtons ? playButtonIcon() : ''}
               ${ !playlistItem ? 
                 `<div class="hover-text-container">
@@ -896,8 +895,8 @@
             </div>
             ${ showVideoInfo  && !playlistItem ? 
               `<div class="video-info-text-container">
-                    ${item.titledEpisode !== -1 ? `<h3>Episode ${item.titledEpisode}</h3>` : `<h3>${snippet.title}</h3>`}
-                ${snippet.description !== '' && showDescriptionText ? `<span>${snippet.description}</span>` : ''}
+                <h3>${setThumbnailText(item)}</h3>
+                ${description !== '' && showDescriptionText ? `<span>${description}</span>` : ''}
               </div>`
               : ''
             }
@@ -907,29 +906,22 @@
       return htmlRender
     }
 
-  // Set Thumbail Images For Grid Layout And Carousel Items
-
-    function setThumbnailImage(item) {
-      const thumbnails = item.snippet.thumbnails;
-      const image = thumbnails.maxres ? thumbnails.maxres : thumbnails.standard ? thumbnails.standard : thumbnails.high ? thumbnails.high : thumbnails.medium ? thumbnails.medium : thumbnails.default;
-      return image
-    }
-
   // Set Thumbnail Episode Number Or Title Text
 
     function setThumbnailText(item) {
-      const { snippet } = item;
-      return item.titledEpisode !== -1 ? `Episode ${item.titledEpisode}` : `${snippet.title}`
+      const { titledEpisode, title } = item;
+      return titledEpisode !== -1 ? `Episode ${titledEpisode}` : `${title}`
     }
 
   // Event Methods
 
     function setCarouselThumbnail(element, item) {
-      element.querySelector('img').src = setThumbnailImage(item).url;
-      element.querySelector('img').width = setThumbnailImage(item).width;
-      element.querySelector('img').height = setThumbnailImage(item).height;
+      const { thumbnail } = item;
+      element.querySelector('img').src = thumbnail.url;
+      element.querySelector('img').width = thumbnail.width;
+      element.querySelector('img').height = thumbnail.height;
       element.querySelector('h3').innerHTML = setThumbnailText(item);
-      element.dataset.videoid = item.snippet.resourceId.videoId;
+      element.dataset.videoid = item.id;
     }
 
   // Carousel Layout Video Event Handling
@@ -1133,9 +1125,9 @@
 
       const iframe = frame.querySelector('iframe');
       const iframeText = frame.querySelector('h1');
-      const currentIframeUrl = currentFrameData ? lightboxFrameVideoBaseUrl + currentFrameData.snippet.resourceId.videoId : null;
-      const nextIframeUrl = nextFrameData ? lightboxFrameVideoBaseUrl + nextFrameData.snippet.resourceId.videoId : null;
-      const previousIframeUrl = previousFrameData ? lightboxFrameVideoBaseUrl + previousFrameData.snippet.resourceId.videoId : null;
+      const currentIframeUrl = currentFrameData ? lightboxFrameVideoBaseUrl + currentFrameData.id : null;
+      const nextIframeUrl = nextFrameData ? lightboxFrameVideoBaseUrl + nextFrameData.id : null;
+      const previousIframeUrl = previousFrameData ? lightboxFrameVideoBaseUrl + previousFrameData.id : null;
       
       const transitionSpeed = type === 'lightbox' ? frameTransition : transitionType === 'carouselAutomated' ? carouselTransition
         : type === 'carousel' && transitionType !== 'carouselAutomated' ? frameTransition : frameTransition
@@ -1340,7 +1332,7 @@
       // Sets Video Id
 
       function setVideoId(index) {
-        return playListSorted[currentVideoIndex + index].snippet.resourceId.videoId
+        return playListSorted[currentVideoIndex + index].id
       }
 
       // Calls Upon lightboxMouseMoveHandler Function
@@ -1355,7 +1347,7 @@
       let currentVideoIndex;
 
       if (itemClicked) {
-        currentVideoIndex = playListSorted.findIndex(video => video.snippet.resourceId.videoId === itemClicked.dataset.videoid);
+        currentVideoIndex = playListSorted.findIndex(video => video.id === itemClicked.dataset.id);
       } 
 
       if (!currentVideoIndex || currentVideoIndex === -1) {
@@ -1411,7 +1403,7 @@
 
       // Render Grid Items In Playlist Container
 
-      lightboxPlaylistContent.innerHTML = gridItemsRendering(playListSorted, true);
+      lightboxPlaylistContent.innerHTML = gridItemsProcessing(playListSorted, true);
 
       // Event Listeners On Playlist Items Clicked
 
@@ -1419,7 +1411,7 @@
 
       lightboxPlaylistItems.forEach(itemClicked => 
         itemClicked.addEventListener('click', () => {
-          currentVideoIndex = playListSorted.findIndex(video => video.snippet.resourceId.videoId === itemClicked.dataset.videoid);
+          currentVideoIndex = playListSorted.findIndex(video => video.id === itemClicked.dataset.id);
           toggleLightboxPlayerOrPlaylist();
           initLightboxFrames();
         })
@@ -1625,12 +1617,14 @@
 
       // Local Storage Check And Retrieval If Found.  If Found, Checks Timing So That The Current Time Minus The Stored Time Do Not Exceed timeStorageInterval Declaration
 
-      let storedPlaylists = localStorage.getItem('youtubePlaylists');
+      let storedPlaylists = localStorage.getItem(playlistService === 'youtube' ? 'youtubePlaylists' : '');
       let storedPlaylistId;
       if (storedPlaylists) {
         storedPlaylists = JSON.parse(storedPlaylists)
         const currentTime = new Date().getTime();
-        storedPlaylistId = storedPlaylists.find(list => list.items[0].snippet.playlistId === playlistId);
+        if (playlistService === 'youtube') {
+          storedPlaylistId = storedPlaylists.find(list => list.items[0].snippet.playlistId === playlistId);
+        }
         if (storedPlaylistId) {
           if (currentTime - storedPlaylistId.storedTime < timeStorageInterval) {
               storedPlaylistRetrieved = true;
@@ -1649,22 +1643,24 @@
 
             // Youtube API Has A Limit Of Results Per Request Based Upon resultLimitPerRequest Declaration.  If Total Results In Playlist Exceeds This, Multiple Requests Are Made To The Youtube API Until Total Results Retrieved Equals Total In Playlist.
 
-            if (data.pageInfo.totalResults > resultLimitPerRequest) {
-              let nextPageToken = data.nextPageToken;
-              for (let totalVideos = data.items.length; totalVideos < data.pageInfo.totalResults; totalVideos) {
-                const nextPageTokenPath = fullPath + `&pageToken=${nextPageToken}`;
-                const page = await fetch(nextPageTokenPath);
-                if (res.ok) {
-                  const pageData = await page.json();
-                  data.items = [...data.items, ...pageData.items];
-                  data.pageInfo.resultsPerPage += pageData.items.length;
-                  if (pageData.nextPageToken) {
-                    nextPageToken = pageData.nextPageToken
+            if (playlistService === 'youtube') {
+              if (data.pageInfo.totalResults > resultLimitPerRequest) {
+                let nextPageToken = data.nextPageToken;
+                for (let totalVideos = data.items.length; totalVideos < data.pageInfo.totalResults; totalVideos) {
+                  const nextPageTokenPath = fullPath + `&pageToken=${nextPageToken}`;
+                  const page = await fetch(nextPageTokenPath);
+                  if (res.ok) {
+                    const pageData = await page.json();
+                    data.items = [...data.items, ...pageData.items];
+                    data.pageInfo.resultsPerPage += pageData.items.length;
+                    if (pageData.nextPageToken) {
+                      nextPageToken = pageData.nextPageToken
+                    }
+                    totalVideos += pageData.items.length
+                  } else {
+                    console.error(`There Was An Error Attempting To Load Additional Pages Of Videos.  Total Videos Displayed May Be Less Than The Max Results Or Total On Playlist`);
+                    break;
                   }
-                  totalVideos += pageData.items.length
-                } else {
-                  console.error(`There Was An Error Attempting To Load Additional Pages Of Videos.  Total Videos Displayed May Be Less Than The Max Results Or Total On Playlist`);
-                  break;
                 }
               }
             }
@@ -1672,21 +1668,24 @@
             // Data Retrieved From API Saved / Updated In Local Storage
 
             data.storedTime = new Date().getTime();
-            if (storedPlaylists) {
-                let revisedStoredPlaylists;
-                if (storedPlaylistId) {
-                  revisedStoredPlaylists = storedPlaylists.map(list => {
-                      if (list.items[0].snippet.playlistId === playlistId) {
-                          return data
-                      } else return list
-                  });
-                } else revisedStoredPlaylists = [...storedPlaylists, data]
-                localStorage.removeItem('youtubePlaylists');
-                localStorage.setItem('youtubePlaylists', JSON.stringify(revisedStoredPlaylists));
-            } else {
-                localStorage.setItem('youtubePlaylists', JSON.stringify([data]));
+
+            if (playlistService === 'youtube') {
+              if (storedPlaylists) {
+                  let revisedStoredPlaylists;
+                  if (storedPlaylistId) {
+                    revisedStoredPlaylists = storedPlaylists.map(list => {
+                        if (list.items[0].snippet.playlistId === playlistId) {
+                            return data
+                        } else return list
+                    });
+                  } else revisedStoredPlaylists = [...storedPlaylists, data]
+                  localStorage.removeItem('youtubePlaylists');
+                  localStorage.setItem('youtubePlaylists', JSON.stringify(revisedStoredPlaylists));
+              } else {
+                  localStorage.setItem('youtubePlaylists', JSON.stringify([data]));
+              }
+              return { status: res.status, ok: true, data }
             }
-            return { status: res.status, ok: true, data }
 
           // Error Handling If res.ok Is False
 
@@ -1716,18 +1715,14 @@
 
     function listSorter(a, b) {
       switch (sortVideosBy) {
-        case 'position-descending':
-          return a.snippet.position < b.snippet.position ? -1 : 1;
-        case 'position-ascending':
-          return a.snippet.position < b.snippet.position ? 1 : -1;
         case 'number-descending':
           return a.titledEpisode < b.titledEpisode ? 1 : -1;
         case 'number-ascending':
           return a.titledEpisode < b.titledEpisode ? -1 : 1;
         case 'date-descending':
-          return a.snippet.publishedAt < b.snippet.publishedAt ? 1 : -1;
+          return a.publishedDate < b.publishedDate ? 1 : -1;
         case 'date-ascending':
-          return a.snippet.publishedAt < b.snippet.publishedAt ? -1 : 1;
+          return a.publishedDate < b.publishedDate ? -1 : 1;
       }
     }
 
@@ -1751,15 +1746,15 @@
 
   // Grid Layout Handling
 
-    function gridItemsRendering(outputList, playlist) {
+    function gridItemsProcessing(outputList, playlist) {
       return outputList.map(item => {
-        if (!item) {
-          console.error(`Playlist VideoID: ${item.snippet.resourceId.videoId} Failed To Load`);
+        if (!item.id) {
+          console.error(`Playlist Item Failed To Load Due To Insufficient Data`);
           failedItemTally++
-        } else if (!item.snippet || !item.titledEpisode) {
+        } else if (!item.title || !item.titledEpisode) {
           console.warn('Failed To Load Playlist Item Due To Lack Of Sufficient Data.  Playlist Could Possibly Be Empty')
-        } else if (item.snippet.title.toLowerCase() === 'deleted video' || item.snippet.title.toLowerCase() === 'private video') {
-          console.warn(`Video Playlist Item ${item.snippet.resourceId.videoId} Could Not Be Loaded As Its Status Is: ${item.snippet.title}`);
+        } else if (item.title.toLowerCase() === 'deleted video' || item.title.toLowerCase() === 'private video') {
+          console.warn(`Video Playlist Item ${item.id} Could Not Be Loaded As Its Status Is: ${item.title}`);
         } else return renderGridItem(item, playlist);
       }).join('')
     }
@@ -1770,11 +1765,46 @@
 
     getPlaylistItems().then(res => {
         if (res.ok) {
-          pageOutputList = [...res.data.items];
+          pageOutputList = playlistService === 'youtube' ? [...res.data.items] : [];
 
-          // Filter By Name
+          // Map Out Title, Episode Number, Video Id, And Thumbnail Image
 
-          if (!pageOutputList[0].snippet) {
+          pageOutputList = pageOutputList.map(item => {
+            const itemOutput = { };
+            if (item) {
+              if (playlistService === 'youtube') {
+                if (item.snippet) {
+                  const { snippet } = item;
+                  if (snippet.title) {
+                    itemOutput.titledEpisode = numberReducer(snippet.title)
+                    itemOutput.title = snippet.title;
+                  } else { 
+                    itemOutput.titledEpisode = null;
+                    itemOutput.title = null;
+                  }
+                  if (snippet.resourceId && snippet.resourceId.videoId) {
+                    itemOutput.id = snippet.resourceId.videoId
+                  } else itemOutput.id = null;
+                  if (snippet.thumbnails) {
+                    const thumbnails = snippet.thumbnails;
+                    itemOutput.thumbnail = thumbnails.maxres ? thumbnails.maxres : thumbnails.standard ? thumbnails.standard : thumbnails.high ? thumbnails.high : thumbnails.medium ? thumbnails.medium : thumbnails.default;
+                  } else itemOutput.thumbnail = null;
+                  if (snippet.publishedAt) {
+                    itemOutput.publishedDate = snippet.publishedAt
+                  } else itemOutput.publishedDate = null;
+                  if (snippet.description) {
+                    itemOutput.description = snippet.description;
+                  } itemOutput.description = null;
+                } else return null
+                itemOutput.titledEpisode = numberReducer(item.snippet.title)
+              }
+            } else itemOutput.id = null
+            return itemOutput
+          });
+
+          // Checks If Playlist Is Empty
+
+          if (!pageOutputList[0].id) {
             console.warn('Failed To Load Playlist Due To Lack Of Sufficient Data.  Playlist May Be Empty');
             playlistItems.innerHTML = `
               <h2>The Playlist Is Currently Empty.</h2>
@@ -1782,12 +1812,14 @@
             return
           }
 
+          // Filter By Name
+
           if (filterByName) {
-              pageOutputList = pageOutputList.filter(item => item.snippet.title.toLowerCase().includes(filterNameParameters));
+              pageOutputList = pageOutputList.filter(item => item.title.toLowerCase().includes(filterNameParameters));
           }  
+
           // Sorting 
 
-          pageOutputList = pageOutputList.map(item => ({...item, titledEpisode: numberReducer(item.snippet.title)}));
           for (let i = 0; i < 2; i++) {
               pageOutputList.sort((a, b) => listSorter(a, b));
           }
@@ -1842,7 +1874,7 @@
 
           const gridListMapping = 
             '<div class="grid-layout">' + 
-              gridItemsRendering(pageOutputList)
+              gridItemsProcessing(pageOutputList)
             + '</div>';       
 
           if (playlistLayout === 'grid') {
