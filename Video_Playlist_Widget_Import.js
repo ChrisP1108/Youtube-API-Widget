@@ -162,6 +162,10 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
   // CSS Generation 
 
     const playlistStyling = `
+      ${widgetIdSelector} > *,
+      [data-lightboxid="${widgetIdSelector}"] > * {
+        box-sizing: border-box;
+      }
       ${widgetIdSelector} {
         margin: 0;
         padding: 0;
