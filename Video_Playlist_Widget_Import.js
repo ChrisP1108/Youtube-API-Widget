@@ -2,6 +2,16 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
   
     // ALL HTML, CSS, JAVASCRIPT CODE FOR THE VIDEO PLAYLIST WIDGET API IS PRESENT HERE, MINUS THE ROOT WIDGET HTML CONTAINER.  A CONTAINER MUST BE PRESENT IN THE HTML WITH THE ID OF THE WIDGET FOR THE "widgetRoot" DOM SELECTOR TO INITIATE THE WIDGET.
   
+    // DOM ROOT DIV CREATION FOR CODE INSERTION
+
+    const widgetId = inputData.id;
+    const widgetIdSelector = `#${widgetId}`;
+
+    const importTag = document.querySelector(`[data-playlist-id="${widgetId}"]`);
+    const createdDiv = document.createElement('div');
+    createdDiv.id = `${widgetId}`;
+    importTag.outerHTML = createdDiv.outerHTML;
+    
     // Variable Declarations
   
       // Value Declarations.  Elementors Unlimited Elements Widget Creator Inserts User Input Values Into Variables With Curly Bracket Surroundings.
@@ -118,11 +128,9 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
           </svg>
         `;
   
-      // HTML Base Containers Initialization.  Loading Spinner Is Included On Initialization
+      // HTML Base Container Initialization.  Loading Spinner Is Included On Initialization
   
-        const widgetId = `#${inputData.id}`;
-        const widgetNameId = inputData.id;
-        const widgetRoot = document.querySelector(`${widgetId}`);
+        const widgetRoot = document.querySelector(`${widgetIdSelector}`);
   
         widgetRoot.innerHTML = 
           `
@@ -136,14 +144,14 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
       // Lightbox Container Created And Appended To Body Of HTML
   
           const lightboxDiv = document.createElement('div');
-        lightboxDiv.dataset.lightboxid = widgetId;
+        lightboxDiv.dataset.lightboxid = widgetIdSelector;
         document.body.appendChild(lightboxDiv);
   
       // DOM Element Selector Declarations
   
-        const stylesContainer = document.querySelector(`${widgetId} .playlist-styling`)
-        const playlistItems = document.querySelector(`${widgetId} .video-layout-container`);
-        const lightbox = document.querySelector(`[data-lightboxid="${widgetId}"]`);
+        const stylesContainer = document.querySelector(`${widgetIdSelector} .playlist-styling`)
+        const playlistItems = document.querySelector(`${widgetIdSelector} .video-layout-container`);
+        const lightbox = document.querySelector(`[data-lightboxid="${widgetIdSelector}"]`);
         const html = document.querySelector('html');
   
     // END - Variable Declarations
@@ -151,33 +159,33 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
     // CSS Generation 
   
       const playlistStyling = `
-        ${widgetId} {
+        ${widgetIdSelector} {
           margin: 0;
           padding: 0;
           box-sizing: border-box;
         }
-        ${widgetId} h2 {
+        ${widgetIdSelector} h2 {
           display: block;
           width: 100vw;
           text-align: center;
           font-size: 1.5rem;
           color: black;
         }
-        ${widgetId} h3 {
+        ${widgetIdSelector} h3 {
           margin: 0!important;
         }
-        ${widgetId} .grid-layout {
+        ${widgetIdSelector} .grid-layout {
           display: grid;
           gap: ${gapBetweenGridVideos}px;
         }
-        [data-lightboxid="${widgetId}"] .grid-layout {
+        [data-lightboxid="${widgetIdSelector}"] .grid-layout {
           display: grid;
           gap: ${gapBetweenPlaylistVideos}px;
         }
-        [data-lightboxid="${widgetId}"] .grid-layout {
+        [data-lightboxid="${widgetIdSelector}"] .grid-layout {
           grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         }
-        ${widgetId} .loading-spinner {
+        ${widgetIdSelector} .loading-spinner {
               filter: drop-shadow(2px 4px 6px #00000090);
           position: absolute;
           width: 50vw;
@@ -188,7 +196,7 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
           left: 50%;
           transform: translate(-50%, -50%);
         }
-        ${widgetId} .video-item {
+        ${widgetIdSelector} .video-item {
           max-width: 100%;
           text-align: center;
           overflow: hidden;
@@ -196,61 +204,61 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
           width: 100%;
           height: 100%;
           filter: drop-shadow(${dropShadowValues} ${dropShadowColor});
-          animation-name: ${widgetNameId}-fade-in;
+          animation-name: ${widgetId}-fade-in;
           animation-duration: 1s;
         }
-        @keyframes ${widgetNameId}-fade-in {
+        @keyframes ${widgetId}-fade-in {
               from { opacity: 0; }
           to { opacity: 1; }
           }
-        ${widgetId} .video-thumbnail-wrapper,
-        [data-lightboxid="${widgetId}"] .video-thumbnail-wrapper {
+        ${widgetIdSelector} .video-thumbnail-wrapper,
+        [data-lightboxid="${widgetIdSelector}"] .video-thumbnail-wrapper {
           background: #000000;
           position: relative;
           cursor: pointer;
           ${!showInformationBelow ? `height: 100%;` : ``}
         }
-        [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper {
           position: relative;
           cursor: pointer;
         }
-        ${widgetId} .video-info-text-container {
+        ${widgetIdSelector} .video-info-text-container {
           padding: ${textBelowThumbnailTopBottomMargin} ${textBelowThumbnailSideMargins};	
         }
-        ${widgetId} .video-info-text-container h3 {
+        ${widgetIdSelector} .video-info-text-container h3 {
           color: ${titleTextColorBelowThumbnail};
           margin-bottom: ${spaceBetweenTitleAndDescriptionBelowThumbnail};
         }
-        ${widgetId} .video-info-text-container span {
+        ${widgetIdSelector} .video-info-text-container span {
           color: ${descriptionTextColorBelowThumbnail};
         }
-        ${widgetId} .video-thumbnail-wrapper:hover img {
+        ${widgetIdSelector} .video-thumbnail-wrapper:hover img {
           opacity: calc(${imageDarkeningOpacity} / 100);
         }
-        ${widgetId} .video-thumbnail-wrapper:hover svg {
+        ${widgetIdSelector} .video-thumbnail-wrapper:hover svg {
           opacity: 0;
         }
-        ${widgetId} .video-thumbnail-wrapper:hover .hover-text-container {
+        ${widgetIdSelector} .video-thumbnail-wrapper:hover .hover-text-container {
           opacity: 1;
         }
-        ${widgetId} .frame-transitioning-show-text img,
-        [data-lightboxid="${widgetId}"] .frame-transitioning-show-text img {
+        ${widgetIdSelector} .frame-transitioning-show-text img,
+        [data-lightboxid="${widgetIdSelector}"] .frame-transitioning-show-text img {
           opacity: calc(${imageDarkeningOpacity} / 100);
         }
-        ${widgetId} .frame-transitioning-show-text iframe,
-        [data-lightboxid="${widgetId}"] .frame-transitioning-show-text iframe {
+        ${widgetIdSelector} .frame-transitioning-show-text iframe,
+        [data-lightboxid="${widgetIdSelector}"] .frame-transitioning-show-text iframe {
           opacity: calc(${imageDarkeningOpacity} / 100);
         }
-        ${widgetId} .frame-transitioning-show-text svg,
-        [data-lightboxid="${widgetId}"] .frame-transitioning-show-text svg {
+        ${widgetIdSelector} .frame-transitioning-show-text svg,
+        [data-lightboxid="${widgetIdSelector}"] .frame-transitioning-show-text svg {
           opacity: 0 !important;
         }
-        ${widgetId} .frame-transitioning-show-text .hover-text-container,
-        [data-lightboxid="${widgetId}"] .frame-transitioning-show-text .hover-text-container {
+        ${widgetIdSelector} .frame-transitioning-show-text .hover-text-container,
+        [data-lightboxid="${widgetIdSelector}"] .frame-transitioning-show-text .hover-text-container {
           opacity: 1 !important;
         }
-        ${widgetId} .video-thumbnail-wrapper img,
-        [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper img
+        ${widgetIdSelector} .video-thumbnail-wrapper img,
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper img
         {
           object-fit: cover;
           width: 100%!important;
@@ -260,26 +268,26 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
           transition: 0.75s;
           aspect-ratio: ${thumbnailAspectRatio};
         }
-        [data-lightboxid="${widgetId}"] .video-item {
+        [data-lightboxid="${widgetIdSelector}"] .video-item {
           filter: grayscale(75%);
           transition: 0.5s;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
         }
-        [data-lightboxid="${widgetId}"] .video-item:hover svg{
+        [data-lightboxid="${widgetIdSelector}"] .video-item:hover svg{
           opacity: 0.75 !important;
         }
-        [data-lightboxid="${widgetId}"] .video-item:hover {
+        [data-lightboxid="${widgetIdSelector}"] .video-item:hover {
           filter: grayscale(0%) !important;
           transform: scale(1.25);
         }
-        [data-lightboxid="${widgetId}"] .video-thumbnail-wrapper iframe,
-        [data-lightboxid="${widgetId}"] .video-thumbnail-wrapper h1 {
+        [data-lightboxid="${widgetIdSelector}"] .video-thumbnail-wrapper iframe,
+        [data-lightboxid="${widgetIdSelector}"] .video-thumbnail-wrapper h1 {
           transition: 0.75s;
         }
-        ${widgetId} .video-thumbnail-wrapper .hover-text-container,
-        [data-lightboxid="${widgetId}"] .hover-text-container {
+        ${widgetIdSelector} .video-thumbnail-wrapper .hover-text-container,
+        [data-lightboxid="${widgetIdSelector}"] .hover-text-container {
           position: absolute;
           width: 100%;
           height: 100%;
@@ -295,36 +303,36 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
           transition: 0.5s;
           gap: ${spaceBetweenTitleAndClickToPlayText};
         }
-        ${widgetId} .video-thumbnail-wrapper .hover-text-container,
-        ${widgetId} .carousel-layout [data-fastforwardoverlay="true"],
-        [data-lightboxid="${widgetId}"] .hover-text-container, 
-        [data-lightboxid="${widgetId}"] .lightbox-video-frame [data-fastforwardoverlay="true"] {
+        ${widgetIdSelector} .video-thumbnail-wrapper .hover-text-container,
+        ${widgetIdSelector} .carousel-layout [data-fastforwardoverlay="true"],
+        [data-lightboxid="${widgetIdSelector}"] .hover-text-container, 
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-video-frame [data-fastforwardoverlay="true"] {
           font-family: 'Roboto';
         }
-        [data-lightboxid="${widgetId}"] .hover-text-container {
+        [data-lightboxid="${widgetIdSelector}"] .hover-text-container {
           z-index: 0;
           pointer-events: none;
         }
-        ${widgetId} .video-thumbnail-wrapper .hover-text-container h3,
-        ${widgetId} .carousel-video-frame [data-fastforwardoverlay="true"] h3 {
+        ${widgetIdSelector} .video-thumbnail-wrapper .hover-text-container h3,
+        ${widgetIdSelector} .carousel-video-frame [data-fastforwardoverlay="true"] h3 {
           font-size: 2.5rem;
           font-weight: 600;
         }
-        ${widgetId} .video-thumbnail-wrapper .hover-text-container p {
+        ${widgetIdSelector} .video-thumbnail-wrapper .hover-text-container p {
           font-size: 1.75rem;
           font-weight: 400;
         }
-        ${widgetId} .video-info-text-container {
+        ${widgetIdSelector} .video-info-text-container {
           opacity: 1;
         }
-        ${widgetId} .video-thumbnail-wrapper .hover-text-container h3 {
+        ${widgetIdSelector} .video-thumbnail-wrapper .hover-text-container h3 {
           margin: 0
         }
-        ${widgetId} .video-thumbnail-wrapper .hover-text-container p {
+        ${widgetIdSelector} .video-thumbnail-wrapper .hover-text-container p {
           margin: 0
         }
-        ${widgetId} .video-thumbnail-wrapper svg,
-        [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper svg
+        ${widgetIdSelector} .video-thumbnail-wrapper svg,
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper svg
         {
           position: absolute;
           transition: 0.5s;
@@ -333,12 +341,12 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
           transform: translate(-50%, -50%);
           z-index: 2;
         }
-        ${widgetId} .video-thumbnail-wrapper svg {
+        ${widgetIdSelector} .video-thumbnail-wrapper svg {
           width: ${playButtonSizing};
           height: ${playButtonSizing};
           opacity: ${playButtonOpacity};
         }
-        [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper svg {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper svg {
           width: 50%;
           height: 50%;
           opacity: 0;
@@ -362,21 +370,21 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
           opacity: 0;
           pointer-events: none !important;
         }
-        ${widgetId} .carousel-arrow-hold-transitioning {
+        ${widgetIdSelector} .carousel-arrow-hold-transitioning {
           animation-iteration-count: infinite;
           animation-duration: ${fastForwardSpeed / 1000}s;
-          animation-name: ${widgetNameId}-carousel-fast-forward;
+          animation-name: ${widgetId}-carousel-fast-forward;
         }
-        @keyframes ${widgetNameId}-carousel-fast-forward {
+        @keyframes ${widgetId}-carousel-fast-forward {
           from { filter: drop-shadow(0px 0px 0px ${carouselArrowsColor}) }
           to { filter: drop-shadow(calc(${carouselArrowSize} / 1.75) 0px 0px ${carouselArrowsColor}) }
         }
         .lightbox-arrow-hold-transitioning {
           animation-iteration-count: infinite;
           animation-duration: ${fastForwardSpeed / 1000}s;
-          animation-name: ${widgetNameId}-lightbox-fast-forward;
+          animation-name: ${widgetId}-lightbox-fast-forward;
         }
-        @keyframes ${widgetNameId}-lightbox-fast-forward {
+        @keyframes ${widgetId}-lightbox-fast-forward {
           from { filter: drop-shadow(0px 0px 0px white) }
           to { filter: drop-shadow(${lightboxPlayerIconSize / 1.5}vh 0px 0px white) }
         }
@@ -413,7 +421,7 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
           justify-content: center;
           position: absolute;
         }
-        [data-lightboxid="${widgetId}"] {
+        [data-lightboxid="${widgetIdSelector}"] {
           width: 100%;
           height: 100vh;
           display: none;
@@ -423,15 +431,15 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
           left: 0;
           z-index: 100000;
         }
-        [data-lightboxid="${widgetId}"] .lightbox-content-container {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-content-container {
           max-width: 220vh;
           margin: 0 auto;
           position: relative;
           height: 100%;
           width: 100%;
         }
-        [data-lightboxid="${widgetId}"] .lightbox-playlist-container,
-        [data-lightboxid="${widgetId}"] .lightbox-player-container {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container,
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-player-container {
           width: 100%;
           height: 100%;
           margin: 0 auto;
@@ -440,7 +448,7 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
           top: 0;
           transition: 0.5s;
         }
-        [data-lightboxid="${widgetId}"] .lightbox-playlist-container {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container {
           max-width: 1920px;
           max-height: 90vh;
           width: calc(100% - ${lightboxPlayerIconSize}vh * 4.5);
@@ -455,47 +463,47 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
           padding: 24px 40px 24px 40px;
           border: 8px ${showThemeColor} solid;
         }
-        [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-heading {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container .playlist-heading {
           font-family: 'Roboto';
           color: white;
           text-align: left;
           font-size: 3rem;
           padding: 0 1.5rem;
         }
-        [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-logo {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container .playlist-logo {
           top: 0;
           height: auto;
           padding: 0 16px 24px;
           max-width: 300px;
         }
-        [data-lightboxid="${widgetId}"] .lightbox-playlist-container::-webkit-scrollbar {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container::-webkit-scrollbar {
           width: 8px;
           box-sizing: border-box;
           background: transparent;
           border-radius: 0px;
         }
-        [data-lightboxid="${widgetId}"] .lightbox-playlist-container::-webkit-scrollbar-thumb {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container::-webkit-scrollbar-thumb {
           background: transparent;
           border-right: 8px solid white;
           height: 25%;
           max-height: 100%;
           border-radius: 8px;
         }
-        [data-lightboxid="${widgetId}"] .lightbox-player-container {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-player-container {
           padding: 40px;
           display: flex;
           justify-content: center;
           align-items: center;
         }
-        [data-lightboxid="${widgetId}"] .lightbox-video-frame {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-video-frame {
           margin: 0 3%;
         }
-        [data-lightboxid="${widgetId}"] .lightbox-player-container .lightbox-video-frame iframe {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-player-container .lightbox-video-frame iframe {
           width: 100%;
           height: 100%;
           position: absolute;
         }
-        [data-lightboxid="${widgetId}"] .lightbox-video-frame .fast-forward-overlay {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-video-frame .fast-forward-overlay {
           position: absolute;
           width: 100%;
           height: 100%;
@@ -504,18 +512,18 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
           justify-content: center;
           z-index: 100;
         }
-        [data-lightboxid="${widgetId}"] [data-itemclickable="true"] {
+        [data-lightboxid="${widgetIdSelector}"] [data-itemclickable="true"] {
           cursor: pointer;
         }
-        [data-lightboxid="${widgetId}"] .lightbox-video-frame .fast-forward-overlay h1,
-        [data-lightboxid="${widgetId}"] .lightbox-video-frame [data-lightboxframe="true"] h1 {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-video-frame .fast-forward-overlay h1,
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-video-frame [data-lightboxframe="true"] h1 {
           color: white;
           font-size: 9.75vh;
           text-align: center;
           font-weight: 700;
           z-index: 100;
         }
-        [data-lightboxid="${widgetId}"] .lightbox-close-button {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-close-button {
           color: white;
           position: fixed;
           top: ${lightboxPlayerIconSize / 3.5}vh;
@@ -529,8 +537,8 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
           cursor: pointer;
           border: ${lightboxPlayerIconSize / 9}vh white solid;
           border-radius: 50%;
-          width: 15vw;
-          height: 15vw;
+          width: 12vw;
+          height: 12vw;
           max-width: ${lightboxPlayerIconSize / 1.5}vh;
           max-height: ${lightboxPlayerIconSize / 1.5}vh;
           display: flex;
@@ -539,7 +547,7 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
           transition: 0.25s;
           z-index: 10 !important;
         }
-        [data-lightboxid="${widgetId}"] .lightbox-playlist-button {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-button {
           position: fixed;
           top: ${lightboxPlayerIconSize / 2.25}vh;
           left: ${lightboxPlayerIconSize / 2.25}vh;
@@ -551,16 +559,16 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
           cursor: pointer;
           z-index: 10 !important;
         }
-        [data-lightboxid="${widgetId}"] .lightbox-close-button:hover {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-close-button:hover {
           transform: translateX(-100%) scale(1.25);
         }
-        [data-lightboxid="${widgetId}"] .lightbox-playlist-button:hover {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-button:hover {
           transform: scale(1.25);
         } 
-        [data-lightboxid="${widgetId}"] .lightbox-playlist-button:active {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-button:active {
           transform: scale(0.9);
         } 
-        [data-lightboxid="${widgetId}"] .lightbox-player-container svg {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-player-container svg {
           min-width: 4vw;
           max-height: 6.664vw;
           width: ${lightboxPlayerIconSize * 0.65}vh;
@@ -569,14 +577,14 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
           z-index: 3;
           transition: 0.25s;
         }
-        [data-lightboxid="${widgetId}"] .lightbox-video-frame {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-video-frame {
           width: 78vw!important;
           height: 43.9vw!important;
           max-height: 90vh!important;
           max-width: 160vh!important;
           position: relative;
         }
-        [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-episode-text {
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container .playlist-episode-text {
           font-family: 'Roboto';
           color: white;
           margin: 1rem 0 0;
@@ -606,7 +614,7 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
           transform: translate(10%) rotate(180deg);
           transition: 0.1s;
         }
-        ${widgetId} .carousel-fast-transition {
+        ${widgetIdSelector} .carousel-fast-transition {
           transition: ${frameTransition / 1000}s !important;
         }
         .carousel-zero-transition a {
@@ -618,7 +626,7 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
           transition: 0.5s;
           overflow: hidden !important;
         }
-        [data-lightboxid="${widgetId}"] [data-lightboxframe="true"] {
+        [data-lightboxid="${widgetIdSelector}"] [data-lightboxframe="true"] {
           width: 100%;
           height: 100%;
           border: 0px;
@@ -631,34 +639,34 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
           transition: ${frameTransition / 1000}s !important;
           z-index: 10;
         }
-        ${widgetId} .carousel-layout {
+        ${widgetIdSelector} .carousel-layout {
           width: 100%;
           display: flex;
           justify-content: center;
           align-items: center;
           position: relative;
         }
-        ${widgetId} .carousel-layout [data-carouselarrow="true"] g,
-        ${widgetId} .carousel-layout [data-fastforwardoverlay="true"] h1
+        ${widgetIdSelector} .carousel-layout [data-carouselarrow="true"] g,
+        ${widgetIdSelector} .carousel-layout [data-fastforwardoverlay="true"] h1
         {
           fill: ${carouselArrowsColor};
           color: ${carouselArrowsColor};
           font-weight: 700;
         }
-        ${widgetId} .carousel-layout a {
+        ${widgetIdSelector} .carousel-layout a {
           position: absolute;
           transition: ${carouselTransition / 1000}s;
         }
-        ${widgetId} [data-carouselarrow="true"] {
+        ${widgetIdSelector} [data-carouselarrow="true"] {
           width: ${carouselArrowSize};
         }
-        ${widgetId} .carousel-layout .carousel-video-frame {
+        ${widgetIdSelector} .carousel-layout .carousel-video-frame {
           position: relative;
           height: ${carouselWidth / 1.777}rem;
           width: ${carouselWidth}rem;
           margin: 0 3%;
         }
-        ${widgetId} .playlist-button-page {
+        ${widgetIdSelector} .playlist-button-page {
           font-family: 'Roboto';
           display: block;
           margin: ${gapBetweenGridVideos}px auto 0;
@@ -670,26 +678,26 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
           cursor: pointer;
           transition: 0.25s;
         }
-        ${widgetId} .playlist-button-page:hover {
+        ${widgetIdSelector} .playlist-button-page:hover {
           transform: scale(1.1);
         }
         @media(max-width: ${mediaQueryMobileBreakpoint}px) {
-          ${widgetId} .grid-layout {
+          ${widgetIdSelector} .grid-layout {
             grid-template-columns: 1fr;
           }
-          [data-lightboxid="${widgetId}"] .lightbox-playlist-container {
+          [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container {
             width: 90vw;
             height: 90vh;
             padding: 24px 4%;
           }
-          [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-heading {
+          [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container .playlist-heading {
             font-family: 'Roboto';
             color: white;
             text-align: left;
             font-size: 2.15rem;
             padding: 0 1rem;
           }
-          [data-lightboxid="${widgetId}"] .lightbox-playlist-container .playlist-logo {
+          [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container .playlist-logo {
             top: 0;
             height: auto;
             padding: 0 16px 24px;
@@ -697,45 +705,45 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
             width: 75%;
             margin-top: 0;
           }
-          [data-lightboxid="${widgetId}"] .lightbox-close-button {
+          [data-lightboxid="${widgetIdSelector}"] .lightbox-close-button {
             top: 12px;
             left: calc(100% - 12px);
           }
-          [data-lightboxid="${widgetId}"] .video-item {
+          [data-lightboxid="${widgetIdSelector}"] .video-item {
             filter: grayscale(0%) !important;
             transform: scale(1);
           }
-          [data-lightboxid="${widgetId}"] .video-item:hover {
+          [data-lightboxid="${widgetIdSelector}"] .video-item:hover {
             transform: scale(1);
           }
-          ${widgetId} .playlist-button-page {
+          ${widgetIdSelector} .playlist-button-page {
             padding: 1em;
             
           }
         }
         @media(min-width: ${mediaQueryMobileBreakpoint + 1}px) {
-          ${widgetId} .grid-layout {
+          ${widgetIdSelector} .grid-layout {
             grid-template-columns: repeat(auto-fill, minmax(${minimumWidthOfEachGridVideoItem}px, 1fr));
           }
         }
         @media(max-width: ${carouselWidth * 20}px) {
-          ${widgetId} .carousel-layout .carousel-video-frame {
+          ${widgetIdSelector} .carousel-layout .carousel-video-frame {
             width: 72vw;
             height: calc(72vw / 1.777);
           }
-          ${widgetId} .carousel-layout .carousel-video-frame .hover-text-container {
+          ${widgetIdSelector} .carousel-layout .carousel-video-frame .hover-text-container {
             gap: 7vw;
           }
-          ${widgetId} .carousel-layout .carousel-video-frame h3 {
+          ${widgetIdSelector} .carousel-layout .carousel-video-frame h3 {
             font-size: 8vw;
           }
-          ${widgetId} .carousel-layout .carousel-video-frame p {
+          ${widgetIdSelector} .carousel-layout .carousel-video-frame p {
             font-size: 5vw;
           }
         }
         @media(min-width: 1920px) {
-          [data-lightboxid="${widgetId}"] .fast-forward-overlay h1,
-          [data-lightboxid="${widgetId}"] [data-lightboxframe="true"] h1 {
+          [data-lightboxid="${widgetIdSelector}"] .fast-forward-overlay h1,
+          [data-lightboxid="${widgetIdSelector}"] [data-lightboxframe="true"] h1 {
             font-size: 80px !important;
           }
         }
@@ -935,7 +943,7 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
   
         // Select DOM Elements
   
-        const carouselContainer = document.querySelector(`${widgetId} .carousel-layout`);
+        const carouselContainer = document.querySelector(`${widgetIdSelector} .carousel-layout`);
         const carouselFramesContainer = carouselContainer.querySelector('[data-carouselvideoitems="true"]');
         const carouselFastForwardOverlay = carouselContainer.querySelector('[data-fastforwardoverlay="true"]');
         const carouselFastForwardText = carouselFastForwardOverlay.querySelector('h3');
@@ -1902,7 +1910,7 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
                 buttonContainer.dataset.playlistbuttonpage = 'true';
                 buttonContainer.innerText = playlistButtonText;
                 playlistItems.appendChild(buttonContainer);
-                document.querySelector(`${widgetId} [data-playlistbuttonpage="true"]`)
+                document.querySelector(`${widgetIdSelector} [data-playlistbuttonpage="true"]`)
                   .addEventListener('click', () => lightboxActivateHandler(null, true))
               }
             }
@@ -1917,10 +1925,10 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
   
             // Click Event Listener Initialization After HTML Rendering Of Video Items
   
-            let items = document.querySelectorAll(`${widgetId} [data-itemclickable="true"]`);
+            let items = document.querySelectorAll(`${widgetIdSelector} [data-itemclickable="true"]`);
   
             function listenOnItemsClick() {
-              items = document.querySelectorAll(`${widgetId} [data-itemclickable="true"]`);
+              items = document.querySelectorAll(`${widgetIdSelector} [data-itemclickable="true"]`);
               items.forEach(item => {
                 item.addEventListener('click', () => lightboxActivateHandler(item));
               });
