@@ -57,7 +57,7 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
       // Input CSS Variable Declarations
 
       const fontFamily = inputData.fontFamily ? inputData.fontFamily : 'Roboto'; // Sets Font Family Style For All Text In Widget.  Default Value Is: 'Roboto'
-      const thumbnailFontHeadingSize = inputData.thumbnailFontHeadingSize ? inputData.thumbnailFontHeadingSize : '2rem'; // Sets Font Size Of Video Thumbnail Episode Heading Text.  Default Value is: 2rem
+      const thumbnailFontHeadingSize = inputData.thumbnailFontHeadingSize ? inputData.thumbnailFontHeadingSize : '2.25rem'; // Sets Font Size Of Video Thumbnail Episode Heading Text.  Default Value is: 2rem
       const fontBodySize = inputData.fontBodySize ? inputData.fontBodySize : '1.5rem'; // Sets Font Size Of Video Thumbnail Instruction Text.  Default Value is: 1.5rem
       const playButtonColor = inputData.playButtonColor ? inputData.playButtonColor : '#ffffff'; // Sets Color Of Play Button Icon Over Video Thumbnail.  Default Value IS: '#ffffff'
       const gapBetweenGridVideos = inputData.gapBetweenGridVideos ? inputData.gapBetweenGridVideos : 48; // Sets Spacing Between Video Items In Grid Layout In Pixels.  Default Value Is: 48
