@@ -12,7 +12,7 @@
             const importData = ` initializeVideoPlaylist({
                 id: 'tester2',
                 apiKey: '',
-                playlistId: 'PLE69e89d5PM1U_JyAV5U-dguNaMQ4yGJm',
+                playlistId: 'PLE69e89d5PM0F2DRm5NlZ5X2nMhYMFZRX',
                 resultLimitPerRequest: 50,
                 limitVideos: true,
                 maxResults: 6,
@@ -31,7 +31,7 @@
                 showDescriptionText: false,
                 showAllInLightbox: true,
                 fastForwardSpeed: 150,
-                showLogoImgUrl: 'https://livinglarge-tv.com/wp-content/uploads/2022/08/MH-DeskScreenLogo-1.png',
+                showLogoImgUrl: 'https://retirerighttelevision.com/wp-content/uploads/2022/10/logo-768x723.png',
                 playlistButton: true,
                 playlistLayout: 'grid',
                 playlistService: 'youtube',
@@ -59,19 +59,15 @@
                 carouselDelay: 6000,
                 carouselWidth: 40,
                 carouselArrowsColor: '#000000',
-                showThemeColor: '#F36C21',
+                showThemeColor: '#BFA574',
                 playlistButtonColor: '#FFF',
                 playlistButtonPadding: '1em 2em',
                 carouselArrowSize: '48px',
                 thumbnailAspectRatio: '1.777 / 1',
-                lightboxPlayerIconSize: 5.5
+                lightboxPlayerIconSize: 4.75
             });`;
             const res = await fetch('https://raw.githubusercontent.com/ChrisP1108/Youtube-API-Widget/main/Video_Playlist_Widget_Import.js');
             const data = await res.text();
-            const importTag = document.querySelector('[data-playlist-id="tester2"]');
-            const createdDiv = document.createElement('div');
-            createdDiv.id = 'tester2';
-            document.querySelector('[data-playlist-id="tester2"]').outerHTML = createdDiv.outerHTML;
             eval(data + importData);
         }
         fetchVideoPlaylistWidget();
