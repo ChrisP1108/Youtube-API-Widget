@@ -474,7 +474,7 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
           top: 0;
           height: auto;
           padding: 0 16px 24px;
-          max-width: 300px;
+          max-width: 25vh;
         }
         [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container::-webkit-scrollbar {
           width: 8px;
