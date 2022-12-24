@@ -75,7 +75,7 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
         const playlistButtonPadding = inputData.playlistButtonPadding ? inputData.playlistButtonPadding : '1em 2em' // Sets Playlist Button Padding.  Default Value is: '1em 2em'
         const carouselArrowSize = inputData.carouselArrowSize ? inputData.carouselArrowSize : '48px' ; // Sets Arrows Size On Carousel Layout In Percentage
         const thumbnailAspectRatio = inputData.thumbnailAspectRatio ? inputData.thumbnailAspectRatio : '1.777 / 1' // Sets Aspect Ratio Of Video Thumbnails.  Default Value Is '1.777 / 1'
-        const lightboxPlayerIconSize = inputData.lightboxPlayerIconSize ? inputData.lightboxPlayerIconSize : 6; // Sets Size Of Lightbox Arrows In Viewport Height.  Default Value Is 6.5
+        const lightboxPlayerIconSize = inputData.lightboxPlayerIconSize ? inputData.lightboxPlayerIconSize : 4.75; // Sets Size Of Lightbox Arrows In Viewport Height.  Default Value Is 4.75
 
         // Programming Variables Declarations
 
