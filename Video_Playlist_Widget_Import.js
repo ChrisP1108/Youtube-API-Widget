@@ -2,9 +2,9 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
   
   // ALL HTML, CSS, JAVASCRIPT CODE FOR THE VIDEO PLAYLIST WIDGET API IS PRESENT HERE, MINUS THE ROOT WIDGET HTML CONTAINER.  A CONTAINER MUST BE PRESENT IN THE HTML WITH THE ID OF THE WIDGET FOR THE "widgetRoot" DOM SELECTOR TO INITIATE THE WIDGET.
 
-  // DOM ROOT DIV CREATION FOR CODE INSERTION.  inputData ARGUMENT MUST CONTAIN AD id KEY AND MUST HAVE ITS CORRESPONDING PARENT SCRIPT TAG WITH A data-playlist-id ATTRIBUTE SET TO IT ALSO
+  // DOM ROOT DIV CREATION FOR CODE INSERTION.  inputData ARGUMENT MUST CONTAIN AN id KEY AND MUST HAVE ITS CORRESPONDING PARENT SCRIPT TAG WITH A data-playlist-id ATTRIBUTE SET TO IT ALSO
   
-  const widgetId = elementRoot.dataset.playlistId;
+  const widgetId = `video-playlist-${Math.ceil(Math.random() * 100000)}`;
   const widgetIdSelector = `#${widgetId}`;
 
   const createdDiv = document.createElement('div');
