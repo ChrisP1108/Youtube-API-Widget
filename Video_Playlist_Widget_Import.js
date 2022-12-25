@@ -1,16 +1,15 @@
-function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
+function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
   // ALL HTML, CSS, JAVASCRIPT CODE FOR THE VIDEO PLAYLIST WIDGET API IS PRESENT HERE, MINUS THE ROOT WIDGET HTML CONTAINER.  A CONTAINER MUST BE PRESENT IN THE HTML WITH THE ID OF THE WIDGET FOR THE "widgetRoot" DOM SELECTOR TO INITIATE THE WIDGET.
 
   // DOM ROOT DIV CREATION FOR CODE INSERTION.  inputData ARGUMENT MUST CONTAIN AD id KEY AND MUST HAVE ITS CORRESPONDING PARENT SCRIPT TAG WITH A data-playlist-id ATTRIBUTE SET TO IT ALSO
-
-  const widgetId = inputData.id;
+  
+  const widgetId = elementRoot.dataset.playlistId;
   const widgetIdSelector = `#${widgetId}`;
 
-  const importTag = document.querySelector(`[data-playlist-id="${widgetId}"]`);
   const createdDiv = document.createElement('div');
   createdDiv.id = widgetId;
-  importTag.outerHTML = createdDiv.outerHTML;
+  elementRoot.outerHTML = createdDiv.outerHTML;
   
   // Variable Declarations
 
@@ -29,66 +28,66 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
 
       // Input Data Variables Declarations
     
-      const resultLimitPerRequest = inputData.resultLimitPerRequest ? inputData.resultLimitPerRequest : 50; // Youtube API Has A Limit Of 50 Results Per Request.
-      const limitVideos = inputData.limitVideos ? inputData.limitVideos : true; // Limit Videos Displayed.  Default Value Is: true
-      const maxResults = inputData.maxResults ? inputData.maxResults : 6; // If limitVideos Is Set To: true, Limit Number Of Videos Displayed.  Default Value Is: 6
-      const filterByName = inputData.filterByName ? inputData.filterByName : false; // Filter Video Results Based On Characters In Title.  Default Value Is: false
-      const filterNameParameters = inputData.filterNameParameters ? inputData.filterNameParameters.toLowerCase() : ''; // If filterByName Is Set To: true, Filter String Parameters For filterByName.  Default Value Is: ''
-      const sortVideosBy = inputData.sortVideosBy ? inputData.sortVideosBy : 'number-descending'; // How Video Items Should Be Sorted.  Default Value Is: 'number-descending'
-      const listByRange = inputData.listByRange ? inputData.listByRange : false; // Show Specific Range Of Videos By Episode Number.  Default Value Is: false
-      const fromEpisodeNumber = inputData.fromEpisodeNumber ? inputData.fromEpisodeNumber : 1; // If listByRange Is Set To: true, Set Starting Episode Number To Filter From. Default Value Is: 1
-      const toEpisodeNumber = inputData.toEpisodeNumber ? inputData.toEpisodeNumber : 1; // If listByRange Is Set To: true, Set Starting Episode Number To Filter From.  Default Value Is: 1
-      const showInformationBelow = inputData.showInformationBelow ? inputData.showInformationBelow : false; // Show Text Information About Video Below Video Thumbnail.  Default Value Is: false
-      const showNonNumberedEpisodesOnly = inputData.showNonNumberedEpisodesOnly ? inputData.showNonNumberedEpisodesOnly : false; // Shows Videos That Do Not Have An Episode Number Only. Default Value Is: false 
-      const hideNonNumberedVideos = inputData.hideNonNumberedVideos ? inputData.hideNonNumberedVideos : true; // Hides Non-Numbered Videos In Playlist.  Default Value Is: true   
-      const timeStorageInterval = inputData.timeStorageInterval ? inputData.timeStorageInterval * 60000 : 3600000; // Sets Time Interval That Another API Call Request Can Be Made Instead Of Loading From Local Storage In Minutes That Is Multiplied By 60000 To Convert Minutes To Milliseconds.  Default Value is 60
-      const showPlayButtons = inputData.showPlayButtons ? inputData.showPlayButtons : true; // Sets If Play Button Icons Should Be Shown Over Video Thumbnails.  Default Value Is: true
-      const showVideoInfo = inputData.showVideoInfo ? inputData.showVideoInfo : false; // Sets If Text Information About Video Should Be Displayed Below Video Thumbnail.  Default Value Is: false
-      const showDescriptionText = inputData.showDescriptionText ? inputData.showDescriptionText : false; // If showVideoInfo Is Set To True, Sets If Video Description Text Should Be Displayed.  Default Value Is: false
-      const showAllInLightbox = inputData.showAllInLightbox ? inputData.showAllInLightbox : true; // Determines If Lightbox Will Allow User To See All Videos On PlayList If True. If False, User Can Only View Videos Shown On Page  
-      const fastForwardSpeed = inputData.fastForwardSpeed ? inputData.fastForwardSpeed : 150; // Set The Speed That Frames Should Be Fast Forwarded Through On Carousel And Lightbox When User Holds Down Arrow.
-      const showLogoImgUrl = inputData.showLogoImgUrl ? inputData.showLogoImgUrl : ''; // Show Logo Image URL For Playlist Heading.  If Nothing, Then TV Episodes Text Will Be Shown 
-      const playlistButton = inputData.playlistButton ? inputData.playlistButton : true; // Sets If Playlist Button Will Be Shown On Page.  Default Value Is: true
-      const playlistLayout = inputData.playlistLayout === 'grid' ? 'grid' : inputData.playlistLayout === 'carousel' ? 'carousel' : 'grid'; // Determines The Layout Of Videos On Page.  Default value is 'grid'.  Other value is 'carousel'
-      const playlistService = inputData.playlistService === 'youtube' ? 'youtube' : inputData.playlistService === 'vimeo' ? 'vimeo' : 'youtube'; // Determines If Video Playlist Is Coming From.  Default Value Is 'youtube'
-      const apiKey = inputData.apiKey ? inputData.apiKey : backupAPIKeys(); // API Key.  Loads Backup Keys If No Key Is Passed In
-      const playlistId = inputData.playlistId; // Playlist Id
+      const resultLimitPerRequest = typeof inputData.resultLimitPerRequest === 'number' ? inputData.resultLimitPerRequest : 50; // Youtube API Has A Limit Of 50 Results Per Request.
+      const limitVideos = typeof inputData.limitVideos === 'boolean' ? inputData.limitVideos : true; // Limit Videos Displayed.  Default Value Is: true
+      const maxResults = typeof inputData.maxResults === 'number' ? inputData.maxResults : 6; // If limitVideos Is Set To: true, Limit Number Of Videos Displayed.  Default Value Is: 6
+      const filterByName = typeof inputData.filterByName === 'boolean' ? inputData.filterByName : false; // Filter Video Results Based On Characters In Title.  Default Value Is: false
+      const filterNameParameters = typeof inputData.filterNameParameters === 'string' ? inputData.filterNameParameters.toLowerCase() : ''; // If filterByName Is Set To: true, Filter String Parameters For filterByName.  Default Value Is: ''
+      const sortVideosBy = typeof inputData.sortVideosBy === 'string' ? inputData.sortVideosBy : 'number-descending'; // How Video Items Should Be Sorted.  Default Value Is: 'number-descending'
+      const listByRange = typeof inputData.listByRange === 'boolean' ? inputData.listByRange : false; // Show Specific Range Of Videos By Episode Number.  Default Value Is: false
+      const fromEpisodeNumber = typeof inputData.fromEpisodeNumber === 'number' ? inputData.fromEpisodeNumber : 1; // If listByRange Is Set To: true, Set Starting Episode Number To Filter From. Default Value Is: 1
+      const toEpisodeNumber = typeof inputData.toEpisodeNumber === 'number' ? inputData.toEpisodeNumber : 1; // If listByRange Is Set To: true, Set Starting Episode Number To Filter From.  Default Value Is: 1
+      const showInformationBelow = typeof inputData.showInformationBelow === 'boolean' ? inputData.showInformationBelow : false; // Show Text Information About Video Below Video Thumbnail.  Default Value Is: false
+      const showNonNumberedEpisodesOnly = typeof inputData.showNonNumberedEpisodesOnly === 'boolean' ? inputData.showNonNumberedEpisodesOnly : false; // Shows Videos That Do Not Have An Episode Number Only. Default Value Is: false 
+      const hideNonNumberedVideos = typeof inputData.hideNonNumberedVideos === 'boolean' ? inputData.hideNonNumberedVideos : true; // Hides Non-Numbered Videos In Playlist.  Default Value Is: true   
+      const timeStorageInterval = typeof inputData.timeStorageInterval === 'number' ? inputData.timeStorageInterval * 60000 : 3600000; // Sets Time Interval That Another API Call Request Can Be Made Instead Of Loading From Local Storage In Minutes That Is Multiplied By 60000 To Convert Minutes To Milliseconds.  Default Value is 60
+      const showPlayButtons = typeof inputData.showPlayButtons === 'boolean' ? inputData.showPlayButtons : true; // Sets If Play Button Icons Should Be Shown Over Video Thumbnails.  Default Value Is: true
+      const showVideoInfo = typeof inputData.showVideoInfo === 'boolean' ? inputData.showVideoInfo : false; // Sets If Text Information About Video Should Be Displayed Below Video Thumbnail.  Default Value Is: false
+      const showDescriptionText = typeof inputData.showDescriptionText === 'boolean' ? inputData.showDescriptionText : false; // If showVideoInfo Is Set To True, Sets If Video Description Text Should Be Displayed.  Default Value Is: false
+      const showAllInLightbox = typeof inputData.showAllInLightbox === 'boolean' ? inputData.showAllInLightbox : true; // Determines If Lightbox Will Allow User To See All Videos On PlayList If True. If False, User Can Only View Videos Shown On Page  
+      const fastForwardSpeed = typeof inputData.fastForwardSpeed === 'number' ? inputData.fastForwardSpeed : 150; // Set The Speed That Frames Should Be Fast Forwarded Through On Carousel And Lightbox When User Holds Down Arrow.
+      const showLogoImgUrl = typeof inputData.showLogoImgUrl === 'string' ? inputData.showLogoImgUrl : ''; // Show Logo Image URL For Playlist Heading.  If Nothing, Then TV Episodes Text Will Be Shown 
+      const playlistButton = typeof inputData.playlistButton === 'boolean' ? inputData.playlistButton : true; // Sets If Playlist Button Will Be Shown On Page.  Default Value Is: true
+      const playlistLayout = typeof inputData.playlistLayout === 'grid' ? 'grid' : inputData.playlistLayout === 'carousel' ? 'carousel' : 'grid'; // Determines The Layout Of Videos On Page.  Default value is 'grid'.  Other value is 'carousel'
+      const playlistService = typeof inputData.playlistService === 'youtube' ? 'youtube' : inputData.playlistService === 'vimeo' ? 'vimeo' : 'youtube'; // Determines If Video Playlist Is Coming From.  Default Value Is 'youtube'
+      const apiKey = typeof inputData.apiKey === 'string' ? inputData.apiKey : backupAPIKeys(); // API Key.  Loads Backup Keys If No Key Is Passed In
+      const playlistId = inputData.playlistId; // Playlist Id.  REQUIRED FOR WIDGET TO WORK.
 
       // Input CSS Variable Declarations
 
-      const fontFamily = inputData.fontFamily ? inputData.fontFamily : 'Roboto'; // Sets Font Family Style For All Text In Widget.  Default Value Is: 'Roboto'
-      const thumbnailFontHeadingSize = inputData.thumbnailFontHeadingSize ? inputData.thumbnailFontHeadingSize : '2.25rem'; // Sets Font Size Of Video Thumbnail Episode Heading Text.  Default Value is: 2rem
-      const fontBodySize = inputData.fontBodySize ? inputData.fontBodySize : '1.5rem'; // Sets Font Size Of Video Thumbnail Instruction Text.  Default Value is: 1.5rem
-      const playButtonColor = inputData.playButtonColor ? inputData.playButtonColor : '#ffffff'; // Sets Color Of Play Button Icon Over Video Thumbnail.  Default Value IS: '#ffffff'
-      const gapBetweenGridVideos = inputData.gapBetweenGridVideos ? inputData.gapBetweenGridVideos : 48; // Sets Spacing Between Video Items In Grid Layout In Pixels.  Default Value Is: 48
-      const gapBetweenPlaylistVideos = inputData.gapBetweenPlaylistVideos ? inputData.gapBetweenPlaylistVideos : 48; // Sets Spacing Between Video Items In Playlist Layout In Pixels.  Default Value Is: 48
-      const videoContainerBorderThickness = inputData.videoContainerBorderThickness ? inputData.videoContainerBorderThickness : '0px'; // Sets Video Container Border Thickness: Default Value Is: '0px'
-      const videoContainerBorderColor = inputData.videoContainerBorderColor ? inputData.videoContainerBorderColor : '#000000'; // Sets Video Container Border Color: Default Value Is: '#000000'
-      const dropShadowValues = inputData.dropShadowValues ? inputData.dropShadowValues: '4px 4px 12px'; // Sets Drop-Shadow Values For Video Container.  Default Value Is: 0px 0px 0px
-      const dropShadowColor = inputData.dropShadowColor ? inputData.dropShadowValues : '#01010147'; // Sets Drop-Shadow Color For Video Container.  Default Value Is: '#00000036'
-      const textBelowThumbnailTopBottomMargin = inputData.textBelowThumbnailTopBottomMargin ? inputData.textBelowThumbnailTopBottomMargin : '24px'; // Sets Text Below Video Thumbnail Margins On Top And Bottom. Default Value Is: '24px'
-      const textBelowThumbnailSideMargins = inputData.textBelowThumbnailSideMargins ? inputData.textBelowThumbnailSideMargins : '24px'; // Sets Text Below Video Thumbnail Margins On Sides.  Default Value Is: '24px'
-      const titleTextColorBelowThumbnail = inputData.titleTextColorBelowThumbnail ? inputData.titleTextColorBelowThumbnail : '#000000'; // Sets Color Of Video Title Text Below Video Thumbnail.  Default Value Is: '#000000'
-      const spaceBetweenTitleAndDescriptionBelowThumbnail = inputData.spaceBetweenTitleAndDescriptionBelowThumbnail ? inputData.spaceBetweenTitleAndDescriptionBelowThumbnail : '24px'; // Sets Vertical Space Gap Between Title Text And Description Text Below Video Thumbnail.  Default Value Is: '24px'
-      const descriptionTextColorBelowThumbnail = inputData.descriptionTextColorBelowThumbnail ? inputData.descriptionTextColorBelowThumbnail : '#000000'; // Sets Color Of Description Text Below Video Thumbnail.  Default Value Is: '#000000'
-      const imageDarkeningOpacity = inputData.imageDarkeningOpacity ? inputData.imageDarkeningOpacity : '20'; // Sets How Dark The Video Thumbnail Should Get Opacity On Mouse Hover.  Default Value Is: '20'
-      const textOverThumbnailColor = inputData.textOverThumbnailColor ? inputData.textOverThumbnailColor : '#ffffff'; // Sets Color Of Text Over Video Thumbnail On Mouse Hover.  Default Value Is: '#ffffff'
-      const textContainerMargin = inputData.textContainerMargin ? inputData.textContainerMargin : '24px'; // Sets Padding Of Text Container That Cover Over Video Thumbnail For Text On Mouse Hover.  Default Value Is: '24px'
-      const spaceBetweenTitleAndClickToPlayText = inputData.spaceBetweenTitleAndClickToPlayText ? inputData.spaceBetweenTitleAndClickToPlayText : '40px'; // Sets Vertical Spacing Between Episode Number Or Video Title Text And Instruction Text On Mouse Hover Over Thumbnail.  Default Value Is: '40px'
-      const playButtonSizing = inputData.playButtonSizing ? inputData.playButtonSizing : '30%'; // Sets Sizing Of Play Button Icon Over Video Thumbnail Relative To The HEight Of The Video Thumbnail In Percentage.  Default Value Is: '35%'
-      const playButtonOpacity = inputData.playButtonOpacity ? inputData.playButtonOpacity / 100 : .75; // Sets Opacity Of Play Button Icon Over Video Thumbnail.  Divides Number By 100 To Convert Percentage To Decimal. Default Value Is: 75
-      const minimumWidthOfEachGridVideoItem = inputData.minimumWidthOfEachGridVideoItem ? inputData.minimumWidthOfEachGridVideoItem : 400; // Sets Minimun Width Size Of Each Video.  Default Value Is: 480
-      const frameTransition = inputData.frameTransition ? inputData.frameTransition : 500; // Sets Transition Time Of LightBox Carousel Frame Transitioning In Milliseconds
-      const carouselTransition = inputData.carouselTransition ? inputData.carouselTransition : 2000; // Sets Transition Time Of Carousel Layout Frame Transitioning In Milliseconds
-      const carouselDelay = inputData.carouselDelay ? inputData.carouselDelay : 6000; // Sets Delay Carousel Layout Between Transitioning In Milliseconds
-      const carouselWidth = inputData.carouselWidth ? inputData.carouselWidth : 40 // Set Width Of Carousel Layout Thumbnails In REMs
-      const carouselArrowsColor = inputData.carouselArrowsColor ? inputData.carouselArrowsColor : '#949494' // Sets Color Of Carousel Layout Arrows And Text Overlay During Fast Forward
-      const showThemeColor = inputData.showThemeColor ? inputData.showThemeColor : '#949494' // Sets Theme Color For LightBox Playlist Outline
-      const playlistButtonColor = inputData.playlistButtonColor ? inputData.playlistButtonColor : '#FFF' // Sets Playlist Button Text Color
-      const playlistButtonPadding = inputData.playlistButtonPadding ? inputData.playlistButtonPadding : '1em 2em' // Sets Playlist Button Padding.  Default Value is: '1em 2em'
-      const carouselArrowSize = inputData.carouselArrowSize ? inputData.carouselArrowSize : '48px' ; // Sets Arrows Size On Carousel Layout In Percentage
-      const thumbnailAspectRatio = inputData.thumbnailAspectRatio ? inputData.thumbnailAspectRatio : '1.777 / 1' // Sets Aspect Ratio Of Video Thumbnails.  Default Value Is '1.777 / 1'
-      const lightboxPlayerIconSize = inputData.lightboxPlayerIconSize ? inputData.lightboxPlayerIconSize : 4.75; // Sets Size Of Lightbox Arrows In Viewport Height.  Default Value Is 4.75
+      const fontFamily = typeof inputData.fontFamily === 'string' ? inputData.fontFamily : 'Roboto'; // Sets Font Family Style For All Text In Widget.  Default Value Is: 'Roboto'
+      const thumbnailFontHeadingSize = typeof inputData.thumbnailFontHeadingSize === 'string' ? inputData.thumbnailFontHeadingSize : '2.25rem'; // Sets Font Size Of Video Thumbnail Episode Heading Text.  Default Value is: 2rem
+      const fontBodySize = typeof inputData.fontBodySize === 'string' ? inputData.fontBodySize : '1.5rem'; // Sets Font Size Of Video Thumbnail Instruction Text.  Default Value is: 1.5rem
+      const playButtonColor = typeof inputData.playButtonColor === 'string' ? inputData.playButtonColor : '#ffffff'; // Sets Color Of Play Button Icon Over Video Thumbnail.  Default Value IS: '#ffffff'
+      const gapBetweenGridVideos = typeof inputData.gapBetweenGridVideos === 'number' ? inputData.gapBetweenGridVideos : 48; // Sets Spacing Between Video Items In Grid Layout In Pixels.  Default Value Is: 48
+      const gapBetweenPlaylistVideos = typeof inputData.gapBetweenPlaylistVideos === 'number' ? inputData.gapBetweenPlaylistVideos : 48; // Sets Spacing Between Video Items In Playlist Layout In Pixels.  Default Value Is: 48
+      const videoContainerBorderThickness = typeof inputData.videoContainerBorderThickness === 'string' ? inputData.videoContainerBorderThickness : '0px'; // Sets Video Container Border Thickness: Default Value Is: '0px'
+      const videoContainerBorderColor = typeof inputData.videoContainerBorderColor === 'string' ? inputData.videoContainerBorderColor : '#000000'; // Sets Video Container Border Color: Default Value Is: '#000000'
+      const dropShadowValues = typeof inputData.dropShadowValues === 'string' ? inputData.dropShadowValues: '4px 4px 12px'; // Sets Drop-Shadow Values For Video Container.  Default Value Is: 0px 0px 0px
+      const dropShadowColor = typeof inputData.dropShadowColor === 'string' ? inputData.dropShadowValues : '#01010147'; // Sets Drop-Shadow Color For Video Container.  Default Value Is: '#00000036'
+      const textBelowThumbnailTopBottomMargin = typeof inputData.textBelowThumbnailTopBottomMargin === 'string' ? inputData.textBelowThumbnailTopBottomMargin : '24px'; // Sets Text Below Video Thumbnail Margins On Top And Bottom. Default Value Is: '24px'
+      const textBelowThumbnailSideMargins = typeof inputData.textBelowThumbnailSideMargins === 'string' ? inputData.textBelowThumbnailSideMargins : '24px'; // Sets Text Below Video Thumbnail Margins On Sides.  Default Value Is: '24px'
+      const titleTextColorBelowThumbnail = typeof inputData.titleTextColorBelowThumbnail === 'string' ? inputData.titleTextColorBelowThumbnail : '#000000'; // Sets Color Of Video Title Text Below Video Thumbnail.  Default Value Is: '#000000'
+      const spaceBetweenTitleAndDescriptionBelowThumbnail = typeof inputData.spaceBetweenTitleAndDescriptionBelowThumbnail === 'string' ? inputData.spaceBetweenTitleAndDescriptionBelowThumbnail : '24px'; // Sets Vertical Space Gap Between Title Text And Description Text Below Video Thumbnail.  Default Value Is: '24px'
+      const descriptionTextColorBelowThumbnail = typeof inputData.descriptionTextColorBelowThumbnail === 'string' ? inputData.descriptionTextColorBelowThumbnail : '#000000'; // Sets Color Of Description Text Below Video Thumbnail.  Default Value Is: '#000000'
+      const imageDarkeningOpacity = typeof inputData.imageDarkeningOpacity === 'string' ? inputData.imageDarkeningOpacity : '20'; // Sets How Dark The Video Thumbnail Should Get Opacity On Mouse Hover.  Default Value Is: '20'
+      const textOverThumbnailColor = typeof inputData.textOverThumbnailColor === 'string' ? inputData.textOverThumbnailColor : '#ffffff'; // Sets Color Of Text Over Video Thumbnail On Mouse Hover.  Default Value Is: '#ffffff'
+      const textContainerMargin = typeof inputData.textContainerMargin === 'string' ? inputData.textContainerMargin : '24px'; // Sets Padding Of Text Container That Cover Over Video Thumbnail For Text On Mouse Hover.  Default Value Is: '24px'
+      const spaceBetweenTitleAndClickToPlayText = typeof inputData.spaceBetweenTitleAndClickToPlayText === 'string' ? inputData.spaceBetweenTitleAndClickToPlayText : '40px'; // Sets Vertical Spacing Between Episode Number Or Video Title Text And Instruction Text On Mouse Hover Over Thumbnail.  Default Value Is: '40px'
+      const playButtonSizing = typeof inputData.playButtonSizing === 'string' ? inputData.playButtonSizing : '30%'; // Sets Sizing Of Play Button Icon Over Video Thumbnail Relative To The HEight Of The Video Thumbnail In Percentage.  Default Value Is: '35%'
+      const playButtonOpacity = typeof inputData.playButtonOpacity === 'number' ? inputData.playButtonOpacity / 100 : .75; // Sets Opacity Of Play Button Icon Over Video Thumbnail.  Divides Number By 100 To Convert Percentage To Decimal. Default Value Is: 75
+      const minimumWidthOfEachGridVideoItem = typeof inputData.minimumWidthOfEachGridVideoItem === 'number' ? inputData.minimumWidthOfEachGridVideoItem : 400; // Sets Minimun Width Size Of Each Video.  Default Value Is: 480
+      const frameTransition = typeof inputData.frameTransition === 'number' ? inputData.frameTransition : 500; // Sets Transition Time Of LightBox Carousel Frame Transitioning In Milliseconds
+      const carouselTransition = typeof inputData.carouselTransition === 'number' ? inputData.carouselTransition : 2000; // Sets Transition Time Of Carousel Layout Frame Transitioning In Milliseconds
+      const carouselDelay = typeof inputData.carouselDelay === 'number' ? inputData.carouselDelay : 6000; // Sets Delay Carousel Layout Between Transitioning In Milliseconds
+      const carouselWidth = typeof inputData.carouselWidth === 'number' ? inputData.carouselWidth : 40 // Set Width Of Carousel Layout Thumbnails In REMs
+      const carouselArrowsColor = typeof inputData.carouselArrowsColor === 'string' ? inputData.carouselArrowsColor : '#949494' // Sets Color Of Carousel Layout Arrows And Text Overlay During Fast Forward
+      const showThemeColor = typeof inputData.showThemeColor === 'string' ? inputData.showThemeColor : '#949494' // Sets Theme Color For LightBox Playlist Outline
+      const playlistButtonColor = typeof inputData.playlistButtonColor === 'string' ? inputData.playlistButtonColor : '#FFF' // Sets Playlist Button Text Color
+      const playlistButtonPadding = typeof inputData.playlistButtonPadding === 'string' ? inputData.playlistButtonPadding : '1em 2em' // Sets Playlist Button Padding.  Default Value is: '1em 2em'
+      const carouselArrowSize = typeof inputData.carouselArrowSize === 'string' ? inputData.carouselArrowSize : '48px' ; // Sets Arrows Size On Carousel Layout In Percentage
+      const thumbnailAspectRatio = typeof inputData.thumbnailAspectRatio === 'string' ? inputData.thumbnailAspectRatio : '1.777 / 1' // Sets Aspect Ratio Of Video Thumbnails.  Default Value Is '1.777 / 1'
+      const lightboxPlayerIconSize = typeof inputData.lightboxPlayerIconSize === 'number' ? inputData.lightboxPlayerIconSize : 4.75; // Sets Size Of Lightbox Arrows In Viewport Height.  Default Value Is 4.75
 
       // Programming Variables Declarations
 
@@ -1734,15 +1733,17 @@ function initializeVideoPlaylist(inputData) { // ALL VIDEO PLAYLIST API WIDGET C
     // Data List Sorting
 
     function listSorter(a, b) {
+      const aTime = Date.parse(a.publishedDate);
+      const bTime = Date.parse(b.publishedDate);
       switch (sortVideosBy) {
         case 'number-descending':
           return a.titledEpisode < b.titledEpisode ? 1 : -1;
         case 'number-ascending':
           return a.titledEpisode < b.titledEpisode ? -1 : 1;
         case 'date-descending':
-          return a.publishedDate < b.publishedDate ? 1 : -1;
+          return aTime < bTime ? 1 : -1;
         case 'date-ascending':
-          return a.publishedDate < b.publishedDate ? -1 : 1;
+          return aTime < bTime ? -1 : 1;
       }
     }
 
