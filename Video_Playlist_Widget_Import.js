@@ -6,7 +6,6 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
   
   const widgetId = `video-playlist-${Math.ceil(Math.random() * 100000)}`;
   const widgetIdSelector = `#${widgetId}`;
-
   const createdDiv = document.createElement('div');
   createdDiv.id = widgetId;
   elementRoot.outerHTML = createdDiv.outerHTML;
@@ -108,7 +107,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
 
     // Error Handling Variables
 
-      const apiErrMsg = 'An Error Occured During The Youtube Playlist API Call.  The Same Youtube Playlist Was Found On Local Storage And Has Been Loaded Instead.';
+      const apiErrMsg = `An error occured during the ${playlistService} playlist API call.  The same ${playlistService} playlist was found in local storage and has been loaded instead.`;
       let failedItemTally = 0; 
 
     // Initialization Loading Spinner
@@ -175,7 +174,9 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         width: 100vw;
         text-align: center;
         font-size: 1.5rem;
-        color: black;
+        color: ${showThemeColor};
+        font-family: ${fontFamily};
+        line-height: 1.5em;
       }
       ${widgetIdSelector} h3 {
         margin: 0!important;
@@ -192,7 +193,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       }
       ${widgetIdSelector} .loading-spinner {
-            filter: drop-shadow(2px 4px 6px #00000090);
+        filter: drop-shadow(2px 4px 6px #00000090);
         position: absolute;
         width: 50vw;
         height: 50vw;
@@ -214,15 +215,16 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         animation-duration: 1s;
       }
       @keyframes ${widgetId}-fade-in {
-            from { opacity: 0; }
+        from { opacity: 0; }
         to { opacity: 1; }
-        }
+      }
       ${widgetIdSelector} .video-thumbnail-wrapper,
       [data-lightboxid="${widgetIdSelector}"] .video-thumbnail-wrapper {
         background: #000000;
         position: relative;
         cursor: pointer;
-        ${!showInformationBelow ? `height: 100%;` : ``}
+        width: 100%;
+        ${!showInformationBelow ? `height: 100% !important;` : ''}
       }
       [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper {
         position: relative;
@@ -1647,6 +1649,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         if (storedPlaylistId) {
           if (currentTime - storedPlaylistId.storedTime < timeStorageInterval) {
               storedPlaylistRetrieved = true;
+              console.log(`Video playlist loaded from localStorage since the time stamp period was less than the ${timeStorageInterval / 60000} minute specified API call period.`);
               return { data: storedPlaylistId, ok: true }
           }
         }
@@ -1703,6 +1706,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
               } else {
                   localStorage.setItem('youtubePlaylists', JSON.stringify([data]));
               }
+              console.log(`Video playlist loaded via API Call.  Playlist saved/updated in localStorage`);
               return { status: res.status, ok: true, data }
             }
 
@@ -1713,7 +1717,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
             if (storedPlaylistId) {
               console.warn(apiErrMsg);
               return { data: storedPlaylistId, ok: true }
-            } else return { status: res.status, ok: false }
+            } else return { status: res.status, ok: false, data: await res.json()}
           }
 
         // Error Handling If Connection To API Fails
@@ -1723,7 +1727,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
           if (storedPlaylistId) {
               console.warn(apiErrMsg)
               return { data: storedPlaylistId, ok: true }
-          } else return { status: res.status, ok: false }
+          } else return { status: res.status, ok: false, data: {msg: 'Failed To Fetch'} }
         }
       }
     }
@@ -1957,12 +1961,21 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
 
       } else {
 
+        let errMsg;
+
+        console.error(res.data)
+
+        if (playlistService === 'youtube') {
+          errMsg = res.data.error.message
+        }
+
         // Error Message If Data Failed To Load
 
         playlistItems.innerHTML = `
-          <h2>There was an error loading the Youtube playlist. Try refreshing the browser.</h2>
+          <h2>There was an error loading the ${playlistService} playlist. ${errMsg}</h2>
         `
       }
+      
     });
 
   // END CONTROLLER
