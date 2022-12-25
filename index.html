@@ -8,8 +8,7 @@
 </head>
 <body>
     <script data-playlist-id="tester2" type="text/javascript" src="https://partnerwithmagellan.com/wp-content/video-playlist-api-code/Video_Playlist_Widget_Import.js" async
-        onload = "initializeVideoPlaylist({
-            id: this.dataset.playlistId,
+        onload="initializeVideoPlaylist({
             apiKey: '',
             playlistId: 'PLE69e89d5PM0F2DRm5NlZ5X2nMhYMFZRX',
             resultLimitPerRequest: 50,
@@ -67,7 +66,7 @@
             carouselArrowSize: '48px',
             thumbnailAspectRatio: '1.777 / 1',
             lightboxPlayerIconSize: 4.75
-        });">
+        }, this);">
     </script>
 </body>
 </html>
