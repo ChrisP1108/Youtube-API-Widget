@@ -4,7 +4,9 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
 
   // DOM ROOT DIV CREATION FOR CODE INSERTION.  inputData ARGUMENT MUST CONTAIN AN id KEY AND MUST HAVE ITS CORRESPONDING PARENT SCRIPT TAG WITH A data-playlist-id ATTRIBUTE SET TO IT ALSO
   
-  const widgetId = `video-playlist-${Math.ceil(Math.random() * 100000)}`;
+  const existingWidgetsLength = document.querySelectorAll('[data-type="video-playlist-widget"]').length;
+  
+  const widgetId = `video-playlist-${existingWidgetsLength}`;
   const widgetIdSelector = `#${widgetId}`;
   const createdDiv = document.createElement('div');
   createdDiv.id = widgetId;
@@ -72,7 +74,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       const imageDarkeningOpacity = typeof inputData.imageDarkeningOpacity === 'string' ? inputData.imageDarkeningOpacity : '20'; // Sets How Dark The Video Thumbnail Should Get Opacity On Mouse Hover.  Default Value Is: '20'
       const textOverThumbnailColor = typeof inputData.textOverThumbnailColor === 'string' ? inputData.textOverThumbnailColor : '#ffffff'; // Sets Color Of Text Over Video Thumbnail On Mouse Hover.  Default Value Is: '#ffffff'
       const textContainerMargin = typeof inputData.textContainerMargin === 'string' ? inputData.textContainerMargin : '24px'; // Sets Padding Of Text Container That Cover Over Video Thumbnail For Text On Mouse Hover.  Default Value Is: '24px'
-      const spaceBetweenTitleAndClickToPlayText = typeof inputData.spaceBetweenTitleAndClickToPlayText === 'string' ? inputData.spaceBetweenTitleAndClickToPlayText : '40px'; // Sets Vertical Spacing Between Episode Number Or Video Title Text And Instruction Text On Mouse Hover Over Thumbnail.  Default Value Is: '40px'
+      const spaceBetweenTitleAndClickToPlayText = typeof inputData.spaceBetweenTitleAndClickToPlayText === 'string' ? inputData.spaceBetweenTitleAndClickToPlayText : '2.25rem'; // Sets Vertical Spacing Between Episode Number Or Video Title Text And Instruction Text On Mouse Hover Over Thumbnail.  Default Value Is: '40px'
       const playButtonSizing = typeof inputData.playButtonSizing === 'string' ? inputData.playButtonSizing : '30%'; // Sets Sizing Of Play Button Icon Over Video Thumbnail Relative To The HEight Of The Video Thumbnail In Percentage.  Default Value Is: '35%'
       const playButtonOpacity = typeof inputData.playButtonOpacity === 'number' ? inputData.playButtonOpacity / 100 : .75; // Sets Opacity Of Play Button Icon Over Video Thumbnail.  Divides Number By 100 To Convert Percentage To Decimal. Default Value Is: 75
       const minimumWidthOfEachGridVideoItem = typeof inputData.minimumWidthOfEachGridVideoItem === 'number' ? inputData.minimumWidthOfEachGridVideoItem : 400; // Sets Minimun Width Size Of Each Video.  Default Value Is: 480
@@ -297,6 +299,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       ${widgetIdSelector} .video-thumbnail-wrapper .hover-text-container,
       [data-lightboxid="${widgetIdSelector}"] .hover-text-container {
         position: absolute;
+        box-sizing: border-box;
         width: 100%;
         height: 100%;
         color: ${textOverThumbnailColor};
@@ -747,6 +750,18 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         }
         ${widgetIdSelector} .carousel-layout .carousel-video-frame p {
           font-size: 5vw;
+        }
+      }
+      @media(max-width: 576px) {
+        ${widgetIdSelector} .video-layout-container .video-item h3 {
+          font-size: 8.5vw;
+        }
+        ${widgetIdSelector} .video-layout-container .video-item p,
+        ${widgetIdSelector} .video-layout-container .playlist-button-page {
+          font-size: 6vw;
+        }
+        ${widgetIdSelector} .video-layout-container .hover-text-container {
+          gap: 8vw;
         }
       }
       @media(min-width: 1920px) {
