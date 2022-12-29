@@ -1,3 +1,5 @@
+// VERSION 1.0
+
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
   // ALL HTML, CSS, JAVASCRIPT CODE FOR THE VIDEO PLAYLIST WIDGET API IS PRESENT HERE, MINUS THE ROOT WIDGET HTML CONTAINER.  A CONTAINER MUST BE PRESENT IN THE HTML WITH THE ID OF THE WIDGET FOR THE "widgetRoot" DOM SELECTOR TO INITIATE THE WIDGET.
@@ -58,7 +60,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
 
       const fontFamily = typeof inputData.fontFamily === 'string' ? inputData.fontFamily : 'Roboto'; // Sets Font Family Style For All Text In Widget.  Default Value Is: 'Roboto'
       const thumbnailFontHeadingSize = typeof inputData.thumbnailFontHeadingSize === 'string' ? inputData.thumbnailFontHeadingSize : '2.25rem'; // Sets Font Size Of Video Thumbnail Episode Heading Text.  Default Value is: 2rem
-      const fontBodySize = typeof inputData.fontBodySize === 'string' ? inputData.fontBodySize : '1.5rem'; // Sets Font Size Of Video Thumbnail Instruction Text.  Default Value is: 1.5rem
+      const fontBodySize = typeof inputData.fontBodySize === 'string' ? inputData.fontBodySize : '1.375rem'; // Sets Font Size Of Video Thumbnail Instruction Text.  Default Value is: 1.5rem
       const playButtonColor = typeof inputData.playButtonColor === 'string' ? inputData.playButtonColor : '#ffffff'; // Sets Color Of Play Button Icon Over Video Thumbnail.  Default Value IS: '#ffffff'
       const gapBetweenGridVideos = typeof inputData.gapBetweenGridVideos === 'number' ? inputData.gapBetweenGridVideos : 48; // Sets Spacing Between Video Items In Grid Layout In Pixels.  Default Value Is: 48
       const gapBetweenPlaylistVideos = typeof inputData.gapBetweenPlaylistVideos === 'number' ? inputData.gapBetweenPlaylistVideos : 48; // Sets Spacing Between Video Items In Playlist Layout In Pixels.  Default Value Is: 48
