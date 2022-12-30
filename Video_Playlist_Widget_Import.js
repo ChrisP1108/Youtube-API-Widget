@@ -1,4 +1,4 @@
-// VERSION 1.0
+// VERSION 1.1
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -50,7 +50,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       const showAllInLightbox = typeof inputData.showAllInLightbox === 'boolean' ? inputData.showAllInLightbox : true; // Determines If Lightbox Will Allow User To See All Videos On PlayList If True. If False, User Can Only View Videos Shown On Page  
       const fastForwardSpeed = typeof inputData.fastForwardSpeed === 'number' ? inputData.fastForwardSpeed : 150; // Set The Speed That Frames Should Be Fast Forwarded Through On Carousel And Lightbox When User Holds Down Arrow.
       const showLogoImgUrl = typeof inputData.showLogoImgUrl === 'string' ? inputData.showLogoImgUrl : ''; // Show Logo Image URL For Playlist Heading.  If Nothing, Then TV Episodes Text Will Be Shown 
-      const playlistButton = typeof inputData.playlistButton === 'boolean' ? inputData.playlistButton : true; // Sets If Playlist Button Will Be Shown On Page.  Default Value Is: true
+      let playlistButton = typeof inputData.playlistButton === 'boolean' ? inputData.playlistButton : true; // Sets If Playlist Button Will Be Shown On Page.  Default Value Is: true
       const playlistLayout = typeof inputData.playlistLayout === 'grid' ? 'grid' : inputData.playlistLayout === 'carousel' ? 'carousel' : 'grid'; // Determines The Layout Of Videos On Page.  Default value is 'grid'.  Other value is 'carousel'
       const playlistService = typeof inputData.playlistService === 'youtube' ? 'youtube' : inputData.playlistService === 'vimeo' ? 'vimeo' : 'youtube'; // Determines If Video Playlist Is Coming From.  Default Value Is 'youtube'
       const apiKey = typeof inputData.apiKey === 'string' ? inputData.apiKey : backupAPIKeys(); // API Key.  Loads Backup Keys If No Key Is Passed In
@@ -1360,6 +1360,9 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
             }
           }, idleDelayTime)
         }
+        if (!playlistButton) {
+          lightboxPlaylistButton.classList.add('element-invisible');
+        }
       }
 
       // Sets Data
@@ -1639,7 +1642,9 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
           lightboxPlayerContainer.classList.add('lightbox-container-off');
           lightboxPlaylistContainer.classList.remove('lightbox-container-off');
         } else {
-          lightboxPlaylistButton.classList.remove('element-invisible');
+          if (playlistButton) {
+            lightboxPlaylistButton.classList.remove('element-invisible');
+          } else lightboxPlaylistButton.classList.add('element-invisible');
           lightboxPlayerContainer.classList.remove('lightbox-container-off');
           lightboxPlaylistContainer.classList.add('lightbox-container-off');
         }
@@ -1933,6 +1938,16 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
 
           // Playlist View Button If playlistButton Is Set To True
 
+          // Checks If Total Items Is Less Than Or Equal To maxResults
+
+          if (!limitVideos) {
+            playlistButton = false;
+          }
+
+          if (limitVideos && playListSorted.length <= maxResults) {
+            playlistButton = false;
+          }
+          
           function initializePlaylistPageButton() {
             if (playlistButton) {
               const buttonContainer = document.createElement('button');
