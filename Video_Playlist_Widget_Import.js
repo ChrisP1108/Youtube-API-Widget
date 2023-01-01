@@ -1,4 +1,4 @@
-// VERSION 1.1
+// VERSION 1.2
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -180,11 +180,12 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         text-align: center;
         font-size: 1.5rem;
         color: ${showThemeColor};
-        font-family: ${fontFamily};
+        font-family: ${fontFamily} !important;
         line-height: 1.5em;
       }
       ${widgetIdSelector} h3 {
         margin: 0!important;
+        font-family: ${fontFamily} !important;
       }
       ${widgetIdSelector} .grid-layout {
         display: grid;
@@ -241,6 +242,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       ${widgetIdSelector} .video-info-text-container h3 {
         color: ${titleTextColorBelowThumbnail};
         margin-bottom: ${spaceBetweenTitleAndDescriptionBelowThumbnail};
+        font-family: ${fontFamily} !important;
       }
       ${widgetIdSelector} .video-info-text-container span {
         color: ${descriptionTextColorBelowThumbnail};
@@ -298,6 +300,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       [data-lightboxid="${widgetIdSelector}"] .video-thumbnail-wrapper iframe,
       [data-lightboxid="${widgetIdSelector}"] .video-thumbnail-wrapper h1 {
         transition: 0.75s;
+        font-family: ${fontFamily} !important;
       }
       ${widgetIdSelector} .video-thumbnail-wrapper .hover-text-container,
       [data-lightboxid="${widgetIdSelector}"] .hover-text-container {
@@ -321,7 +324,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       ${widgetIdSelector} .carousel-layout [data-fastforwardoverlay="true"],
       [data-lightboxid="${widgetIdSelector}"] .hover-text-container, 
       [data-lightboxid="${widgetIdSelector}"] .lightbox-video-frame [data-fastforwardoverlay="true"] {
-        font-family: ${fontFamily};
+        font-family: ${fontFamily} !important;
       }
       [data-lightboxid="${widgetIdSelector}"] .hover-text-container {
         z-index: 0;
@@ -329,21 +332,25 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       }
       ${widgetIdSelector} .video-thumbnail-wrapper .hover-text-container h3,
       ${widgetIdSelector} .carousel-video-frame [data-fastforwardoverlay="true"] h3 {
-        font-size: ${thumbnailFontHeadingSize};
+        font-size: ${thumbnailFontHeadingSize} !important;
         font-weight: 600;
+        font-family: ${fontFamily} !important;
       }
       ${widgetIdSelector} .video-thumbnail-wrapper .hover-text-container p {
-        font-size: ${fontBodySize};
+        font-size: ${fontBodySize} !important;
         font-weight: 400;
+        font-family: ${fontFamily} !important;
       }
       ${widgetIdSelector} .video-info-text-container {
         opacity: 1;
       }
       ${widgetIdSelector} .video-thumbnail-wrapper .hover-text-container h3 {
-        margin: 0
+        margin: 0;
+        font-family: ${fontFamily} !important;
       }
       ${widgetIdSelector} .video-thumbnail-wrapper .hover-text-container p {
-        margin: 0
+        margin: 0;
+        font-family: ${fontFamily} !important;
       }
       ${widgetIdSelector} .video-thumbnail-wrapper svg,
       [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper svg
@@ -486,9 +493,10 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       }
       [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container .playlist-logo {
         top: 0;
-        height: auto;
+        height: auto !important;
         padding: 0 16px 24px;
-        max-width: 25vh;
+        min-width: 5vw !important;
+        max-width: 25vh !important;
       }
       [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container::-webkit-scrollbar {
         width: 8px;
@@ -533,6 +541,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       [data-lightboxid="${widgetIdSelector}"] .lightbox-video-frame [data-lightboxframe="true"] h1 {
         color: white;
         font-size: 9.75vh;
+        font-family: ${fontFamily} !important;
         text-align: center;
         font-weight: 700;
         z-index: 100;
@@ -599,7 +608,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         position: relative;
       }
       [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container .playlist-episode-text {
-        font-family: ${fontFamily};
+        font-family: ${fontFamily} !important;
         color: white;
         margin: 1rem 0 0;
         text-align: center;
@@ -666,6 +675,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         fill: ${carouselArrowsColor};
         color: ${carouselArrowsColor};
         font-weight: 700;
+        font-family: ${fontFamily} !important;
       }
       ${widgetIdSelector} .carousel-layout a {
         position: absolute;
