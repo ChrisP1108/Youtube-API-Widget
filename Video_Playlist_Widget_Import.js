@@ -570,6 +570,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         align-items: center;
         transition: 0.25s;
         z-index: 10 !important;
+        box-sizing: content-box;
       }
       [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-button {
         position: fixed;
