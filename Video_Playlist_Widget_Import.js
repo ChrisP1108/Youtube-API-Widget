@@ -1,4 +1,4 @@
-// VERSION 1.6
+// VERSION 1.7
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -67,7 +67,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       const videoContainerBorderThickness = typeof inputData.videoContainerBorderThickness === 'string' ? inputData.videoContainerBorderThickness : '0px'; // Sets Video Container Border Thickness: Default Value Is: '0px'
       const videoContainerBorderColor = typeof inputData.videoContainerBorderColor === 'string' ? inputData.videoContainerBorderColor : '#000000'; // Sets Video Container Border Color: Default Value Is: '#000000'
       const dropShadowValues = typeof inputData.dropShadowValues === 'string' ? inputData.dropShadowValues: '4px 4px 12px'; // Sets Drop-Shadow Values For Video Container.  Default Value Is: 0px 0px 0px
-      const dropShadowColor = typeof inputData.dropShadowColor === 'string' ? inputData.dropShadowValues : '#01010147'; // Sets Drop-Shadow Color For Video Container.  Default Value Is: '#00000036'
+      const dropShadowColor = typeof inputData.dropShadowColor === 'string' ? inputData.dropShadowColor : '#01010147'; // Sets Drop-Shadow Color For Video Container.  Default Value Is: '#00000036'
       const textBelowThumbnailTopBottomMargin = typeof inputData.textBelowThumbnailTopBottomMargin === 'string' ? inputData.textBelowThumbnailTopBottomMargin : '24px'; // Sets Text Below Video Thumbnail Margins On Top And Bottom. Default Value Is: '24px'
       const textBelowThumbnailSideMargins = typeof inputData.textBelowThumbnailSideMargins === 'string' ? inputData.textBelowThumbnailSideMargins : '24px'; // Sets Text Below Video Thumbnail Margins On Sides.  Default Value Is: '24px'
       const titleTextColorBelowThumbnail = typeof inputData.titleTextColorBelowThumbnail === 'string' ? inputData.titleTextColorBelowThumbnail : '#000000'; // Sets Color Of Video Title Text Below Video Thumbnail.  Default Value Is: '#000000'
