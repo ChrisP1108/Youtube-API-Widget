@@ -1,4 +1,4 @@
-// VERSION 1.3
+// VERSION 1.4
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -496,7 +496,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         top: 0;
         height: auto !important;
         padding: 0 16px 24px;
-        min-width: 20vw !important;
+        min-width: 18vw !important;
         max-width: 30vh !important;
       }
       [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container::-webkit-scrollbar {
@@ -783,6 +783,11 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         [data-lightboxid="${widgetIdSelector}"] .fast-forward-overlay h1,
         [data-lightboxid="${widgetIdSelector}"] [data-lightboxframe="true"] h1 {
           font-size: 80px !important;
+        }
+
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container .playlist-logo {
+          min-width: 380px !important;
+          max-width: 380px !important;
         }
       }
     `
