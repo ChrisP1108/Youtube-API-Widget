@@ -1,4 +1,4 @@
-// VERSION 1.5
+// VERSION 1.6
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -87,6 +87,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       const carouselArrowsColor = typeof inputData.carouselArrowsColor === 'string' ? inputData.carouselArrowsColor : '#949494' // Sets Color Of Carousel Layout Arrows And Text Overlay During Fast Forward
       const showThemeColor = typeof inputData.showThemeColor === 'string' ? inputData.showThemeColor : '#949494' // Sets Theme Color For LightBox Playlist Outline
       const playlistButtonColor = typeof inputData.playlistButtonColor === 'string' ? inputData.playlistButtonColor : '#FFF' // Sets Playlist Button Text Color
+      const playlistButtonBackgroundColor = typeof inputData.playlistButtonBackgroundColor === 'string' ? inputData.playlistButtonBackgroundColor : typeof inputData.showThemeColor === 'string' ? inputData.showThemeColor : '#949494';  
       const playlistButtonPadding = typeof inputData.playlistButtonPadding === 'string' ? inputData.playlistButtonPadding : '1em 2em' // Sets Playlist Button Padding.  Default Value is: '1em 2em'
       const carouselArrowSize = typeof inputData.carouselArrowSize === 'string' ? inputData.carouselArrowSize : '48px' ; // Sets Arrows Size On Carousel Layout In Percentage
       const thumbnailAspectRatio = typeof inputData.thumbnailAspectRatio === 'string' ? inputData.thumbnailAspectRatio : '1.777 / 1' // Sets Aspect Ratio Of Video Thumbnails.  Default Value Is '1.777 / 1'
@@ -499,6 +500,9 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         min-width: 18vw !important;
         max-width: 30vh !important;
       }
+      [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container legend {
+        min-width: 22vw;
+      }
       [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container::-webkit-scrollbar {
         width: 8px;
         box-sizing: border-box;
@@ -699,7 +703,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         margin: ${gapBetweenGridVideos}px auto 0;
         padding: ${playlistButtonPadding};
         font-size: ${fontBodySize};
-        background: ${showThemeColor};
+        background: ${playlistButtonBackgroundColor};
         border-width: 0px;
         color: ${playlistButtonColor};
         cursor: pointer;
@@ -729,7 +733,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
           height: auto;
           padding: 0 16px 24px;
           max-width: 300px;
-          width: 75%;
+          width: 90%;
           margin-top: 0;
         }
         [data-lightboxid="${widgetIdSelector}"] .lightbox-close-button {
@@ -789,6 +793,11 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container .playlist-logo {
           min-width: 380px !important;
           max-width: 380px !important;
+        }
+
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container legend {
+          min-width: 416px !important;
+          max-width: 416px !important;
         }
       }
     `
