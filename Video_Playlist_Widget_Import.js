@@ -1,4 +1,4 @@
-// VERSION 1.7
+// VERSION 1.8
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -1826,10 +1826,12 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         if (!item.id) {
           console.error(`Playlist Item Failed To Load Due To Insufficient Data`);
           failedItemTally++
-        } else if (!item.title || !item.titledEpisode) {
-          console.warn('Failed To Load Playlist Item Due To Lack Of Sufficient Data.  Playlist Could Possibly Be Empty')
+        } else if (!item.title) {
+          console.error(`Video Playlist Item ${item.id} Did Not Have A Title And Could Not Be Loaded.`)
         } else if (item.title.toLowerCase() === 'deleted video' || item.title.toLowerCase() === 'private video') {
-          console.warn(`Video Playlist Item ${item.id} Could Not Be Loaded As Its Status Is: ${item.title}`);
+          console.error(`Video Playlist Item ${item.id} Could Not Be Loaded As Its Status Is: ${item.title}`);
+        } else if (sortVideosBy === 'number-ascending' || sortVideosBy === 'number-descending' && item.titledEpisode.toString() === 'NaN') {
+          console.error(`Video Playlist Item ${item.id} Entitled "${item.title}" Could Not Be Loaded As Number(s) Were Detected In Its Title Name But Could Not Generate An Episode Number.  This Can Occur If The Video Title Has Two Or More Numbers In It.  It Must Have Only One Number In Its Title Name That Pertains To Its Episode Number When Sorting Videos In The "${sortVideosBy}" Mode.  If This Is The Case, Please Change It's Title Name Accordingly.`)
         } else return renderGridItem(item, playlist);
       }).join('')
     }
