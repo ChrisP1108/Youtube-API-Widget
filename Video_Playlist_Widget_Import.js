@@ -1,4 +1,4 @@
-// VERSION 1.4
+// VERSION 1.5
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -99,7 +99,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       let playListSorted = []; // Captures All Videos After Filtering And Sorting Before They're Reduced To Output Amount For Showing All Videos When Navigating Through Lightbox
       let pageOutputList = []; // The Actual List Of Video That Will Be Shown On The Page (Grid Or Carousel Layout)
       let lightboxToggled = false; // Used To Determine If Lightbox Is Toggled
-      const playlistButtonText = window.innerWidth > 1200 ? 'Click For More Episodes' : 'Tap For More Episodes' // Playlist Button Text
+      const playlistButtonText = window.innerWidth > 1200 ? 'Click Here For More Episodes' : 'Tap Here For More Episodes' // Playlist Button Text
       let showPlaylist = false; // Toggles Lightbox Playlist On And Off
       const lightboxFrameVideoBaseUrl = playlistService === 'youtube' ? 'https://www.youtube.com/embed/' : ''; // Video Base Url For Lightbox Video Iframes
       const baseUrl = playlistService === 'youtube' ? `https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=` : ``;
