@@ -1,4 +1,4 @@
-// VERSION 1.9
+// VERSION 1.10
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -290,9 +290,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       [data-lightboxid="${widgetIdSelector}"] .video-item {
         filter: grayscale(75%);
         transition: 0.5s;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+        aspect-ratio: ${thumbnailAspectRatio};
       }
       [data-lightboxid="${widgetIdSelector}"] .video-item:hover svg{
         opacity: 0.75 !important;
