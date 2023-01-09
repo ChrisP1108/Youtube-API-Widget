@@ -1,4 +1,4 @@
-// VERSION 1.10
+// VERSION 1.11
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -88,7 +88,8 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       const showThemeColor = typeof inputData.showThemeColor === 'string' ? inputData.showThemeColor : '#949494' // Sets Theme Color For LightBox Playlist Outline
       const playlistButtonColor = typeof inputData.playlistButtonColor === 'string' ? inputData.playlistButtonColor : '#FFF' // Sets Playlist Button Text Color
       const playlistButtonBackgroundColor = typeof inputData.playlistButtonBackgroundColor === 'string' ? inputData.playlistButtonBackgroundColor : typeof inputData.showThemeColor === 'string' ? inputData.showThemeColor : '#949494';  
-      const playlistButtonPadding = typeof inputData.playlistButtonPadding === 'string' ? inputData.playlistButtonPadding : '1em 2em' // Sets Playlist Button Padding.  Default Value is: '1em 2em'
+      const playlistButtonPadding = typeof inputData.playlistButtonPadding === 'string' ? inputData.playlistButtonPadding : '0.75em 1.5em' // Sets Playlist Button Padding.  Default Value is: '1em 2em'
+      const playlistButtonFontWeight = typeof inputData.playlistButtonFontWeight === 'string' ? inputData.playlistButtonFontWeight : '700' // Sets Font Weight Of Playlist Button On Page
       const carouselArrowSize = typeof inputData.carouselArrowSize === 'string' ? inputData.carouselArrowSize : '48px' ; // Sets Arrows Size On Carousel Layout In Percentage
       const thumbnailAspectRatio = typeof inputData.thumbnailAspectRatio === 'string' ? inputData.thumbnailAspectRatio : '1.777 / 1' // Sets Aspect Ratio Of Video Thumbnails.  Default Value Is '1.777 / 1'
       const lightboxPlayerIconSize = typeof inputData.lightboxPlayerIconSize === 'number' ? inputData.lightboxPlayerIconSize : 4.75; // Sets Size Of Lightbox Arrows In Viewport Height.  Default Value Is 4.75
@@ -703,6 +704,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         margin: ${gapBetweenGridVideos}px auto 0;
         padding: ${playlistButtonPadding};
         font-size: ${fontBodySize};
+        font-weight: ${playlistButtonFontWeight};
         background: ${playlistButtonBackgroundColor};
         border-width: 0px;
         color: ${playlistButtonColor};
