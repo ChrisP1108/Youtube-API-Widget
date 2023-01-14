@@ -1,4 +1,4 @@
-// VERSION 1.11
+// VERSION 1.12
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -90,9 +90,12 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       const playlistButtonBackgroundColor = typeof inputData.playlistButtonBackgroundColor === 'string' ? inputData.playlistButtonBackgroundColor : typeof inputData.showThemeColor === 'string' ? inputData.showThemeColor : '#949494';  
       const playlistButtonPadding = typeof inputData.playlistButtonPadding === 'string' ? inputData.playlistButtonPadding : '0.75em 1.5em' // Sets Playlist Button Padding.  Default Value is: '1em 2em'
       const playlistButtonFontWeight = typeof inputData.playlistButtonFontWeight === 'string' ? inputData.playlistButtonFontWeight : '700' // Sets Font Weight Of Playlist Button On Page
+      const playlistButtonBorderRadius = typeof inputData.playlistButtonBorderRadius === 'string' ? inputData.playlistButtonBorderRadius : '0em' // Sets Border-Radius Of Playlist Button 
       const carouselArrowSize = typeof inputData.carouselArrowSize === 'string' ? inputData.carouselArrowSize : '48px' ; // Sets Arrows Size On Carousel Layout In Percentage
       const thumbnailAspectRatio = typeof inputData.thumbnailAspectRatio === 'string' ? inputData.thumbnailAspectRatio : '1.777 / 1' // Sets Aspect Ratio Of Video Thumbnails.  Default Value Is '1.777 / 1'
       const lightboxPlayerIconSize = typeof inputData.lightboxPlayerIconSize === 'number' ? inputData.lightboxPlayerIconSize : 4.75; // Sets Size Of Lightbox Arrows In Viewport Height.  Default Value Is 4.75
+      const showLogoWhiteOut = typeof inputData.showLogoWhiteOut === 'boolean' ? inputData.showLogoWhiteOut : false; // Determines If Show Logo Image Should Become All White In Color
+      const playlistButtonText = typeof inputData.playlistButtonText === 'string' ? inputData.playlistButtonText : window.innerWidth > 1200 ? 'Click Here For More Episodes' : 'Tap Here For More Episodes' // Playlist Button Text 
 
       // Programming Variables Declarations
 
@@ -101,7 +104,6 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       let playListSorted = []; // Captures All Videos After Filtering And Sorting Before They're Reduced To Output Amount For Showing All Videos When Navigating Through Lightbox
       let pageOutputList = []; // The Actual List Of Video That Will Be Shown On The Page (Grid Or Carousel Layout)
       let lightboxToggled = false; // Used To Determine If Lightbox Is Toggled
-      const playlistButtonText = window.innerWidth > 1200 ? 'Click Here For More Episodes' : 'Tap Here For More Episodes' // Playlist Button Text
       let showPlaylist = false; // Toggles Lightbox Playlist On And Off
       const lightboxFrameVideoBaseUrl = playlistService === 'youtube' ? 'https://www.youtube.com/embed/' : ''; // Video Base Url For Lightbox Video Iframes
       const baseUrl = playlistService === 'youtube' ? `https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=` : ``;
@@ -500,6 +502,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         padding: 0 16px 24px;
         min-width: 18vw !important;
         max-width: 30vh !important;
+        ${showLogoWhiteOut ? 'filter: invert(1) brightness(2) saturate(0);' : ''}
       }
       [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container legend {
         min-width: 22vw;
@@ -707,6 +710,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         font-weight: ${playlistButtonFontWeight};
         background: ${playlistButtonBackgroundColor};
         border-width: 0px;
+        border-radius: ${playlistButtonBorderRadius};
         color: ${playlistButtonColor};
         cursor: pointer;
         transition: 0.25s;
