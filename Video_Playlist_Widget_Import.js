@@ -1,4 +1,4 @@
-// VERSION 1.13
+// VERSION 1.14
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -37,9 +37,9 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       const filterByName = typeof inputData.filterByName === 'boolean' ? inputData.filterByName : false; // Filter Video Results Based On Characters In Title.  Default Value Is: false
       const filterNameParameters = typeof inputData.filterNameParameters === 'string' ? inputData.filterNameParameters.toLowerCase() : ''; // If filterByName Is Set To: true, Filter String Parameters For filterByName.  Default Value Is: ''
       const sortVideosBy = typeof inputData.sortVideosBy === 'string' ? inputData.sortVideosBy : 'number-descending'; // How Video Items Should Be Sorted.  Default Value Is: 'number-descending'
-      const listByRange = typeof inputData.listByRange === 'boolean' ? inputData.listByRange : false; // Show Specific Range Of Videos By Episode Number.  Default Value Is: false
+      const listByRange = typeof inputData.listByRange === 'boolean' ? inputData.listByRange : true; // Show Specific Range Of Videos By Episode Number.  Default Value Is: false
       const fromEpisodeNumber = typeof inputData.fromEpisodeNumber === 'number' ? inputData.fromEpisodeNumber : 1; // If listByRange Is Set To: true, Set Starting Episode Number To Filter From. Default Value Is: 1
-      const toEpisodeNumber = typeof inputData.toEpisodeNumber === 'number' ? inputData.toEpisodeNumber : 1; // If listByRange Is Set To: true, Set Starting Episode Number To Filter From.  Default Value Is: 1
+      const toEpisodeNumber = typeof inputData.toEpisodeNumber === 'number' ? inputData.toEpisodeNumber : 2000; // If listByRange Is Set To: true, Set Starting Episode Number To Filter From.  Default Value Is: 1
       const showInformationBelow = typeof inputData.showInformationBelow === 'boolean' ? inputData.showInformationBelow : false; // Show Text Information About Video Below Video Thumbnail.  Default Value Is: false
       const showNonNumberedEpisodesOnly = typeof inputData.showNonNumberedEpisodesOnly === 'boolean' ? inputData.showNonNumberedEpisodesOnly : false; // Shows Videos That Do Not Have An Episode Number Only. Default Value Is: false 
       const hideNonNumberedVideos = typeof inputData.hideNonNumberedVideos === 'boolean' ? inputData.hideNonNumberedVideos : true; // Hides Non-Numbered Videos In Playlist.  Default Value Is: true   
