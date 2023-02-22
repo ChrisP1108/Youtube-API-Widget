@@ -1,4 +1,4 @@
-// VERSION 1.14
+// VERSION 1.15
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -484,10 +484,12 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container {
         max-width: 1920px;
         max-height: 90vh;
+        max-height: 90dvh;
         width: calc(100% - ${lightboxPlayerIconSize}vh * 4.5);
         height: calc(100% - ${lightboxPlayerIconSize}vh * 1.5);
         min-width: 75vw;
         min-height: 90vh;
+        min-height: 90dvh;
         background: #00000090;
         overflow-y: auto;
         left: 50%;
@@ -621,6 +623,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         width: 78vw!important;
         height: 43.9vw!important;
         max-height: 90vh!important;
+        max-height: 90dvh!important;
         max-width: 160vh!important;
         position: relative;
       }
@@ -732,6 +735,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container {
           width: 90vw;
           height: 90vh;
+          height: 90dvh;
           padding: 24px 4%;
         }
         [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container .playlist-heading {
