@@ -71,26 +71,30 @@
                     position: relative;
                     width: 100%;
                     height: 100%;
-                    aspect-ratio: 1.777 / 1;
                     display: block;
+                    box-sizing: border-box;
+                }
+                .'.$playlist_name.'-youtube-video-thumbnail-text-wrapper {
+                    width: 100%;
                     background: #000000;
                     box-sizing: border-box;
+                    position: relative;
+                    aspect-ratio: 1.777 / 1;
                 }
                 .'.$playlist_name.'-youtube-video-item img, .'.$playlist_name.'-youtube-video-item-text-overlay-enabled img, 
                 .'.$playlist_name.'-youtube-video-item svg, .'.$playlist_name.'-youtube-video-item-text-overlay-enabled svg  {
                     transition: 0.5s;
                 }
-                .'.$playlist_name.'-youtube-video-item-text-overlay-enabled:hover > img:nth-child(1) {
+                .'.$playlist_name.'-youtube-video-item-text-overlay-enabled:hover > * img:nth-child(1) {
                     opacity: 0.25;
                 }
-                .'.$playlist_name.'-youtube-video-item-text-overlay-enabled:hover svg, .'.$playlist_name.'-youtube-video-item:hover > img:nth-child(2) {
+                .'.$playlist_name.'-youtube-video-item-text-overlay-enabled:hover svg, .'.$playlist_name.'-youtube-video-item:hover > * img:nth-child(2) {
                     opacity: 0;
                 }
                 .'.$playlist_name.'-youtube-video-item-thumbnail {
                     object-fit: cover;
                     width: 100%;
                     height: 100%;
-                    aspect-ratio: 1.777 / 1;
                 }
                 .'.$playlist_name.'-youtube-item-play-button {
                     position: absolute;
@@ -102,8 +106,7 @@
                     width: 100%;
                     height: 100%;
                 }
-                .'.$playlist_name.'-youtube-text-overlay,
-                [data-lightboxid="'.$playlist_name.'"] .hover-text-container {
+                .'.$playlist_name.'-youtube-text-overlay {
                     position: absolute;
                     display: flex;
                     justify-content: center;
@@ -119,7 +122,23 @@
                     padding: clamp(16px, 5vw, 60px);
                     box-sizing: border-box;
                     font-family: inherit !important;
-                    aspect-ratio: 1.777 / 1;
+                }
+                [data-lightboxid="'.$playlist_name.'"] .hover-text-container {
+                    position: absolute;
+                    box-sizing: border-box;
+                    width: 100%;
+                    height: 100%;
+                    color: #fff;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    padding: 24px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    opacity: 0;
+                    transition: 0.5s;
+
                 }
                 .'.$playlist_name.'-youtube-text-overlay > * {
                     margin: 0;
@@ -166,7 +185,6 @@
                 [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-youtube-video-item {
                     filter: grayscale(75%);
                     transition: 0.5s;
-                    aspect-ratio: 1.777 / 1;
                 }
                 [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-youtube-video-item svg {
                     opacity: 0;
@@ -223,23 +241,23 @@
                     z-index: -1 !important;
                     pointer-events: none;
                 }
-                [data-lightboxid="'.$playlist_name.'"] .fast-forward-transitioning {
+                .fast-forward-transitioning {
                     z-index: -1 !important;
                 }
-                [data-lightboxid="'.$playlist_name.'"] .fast-forward-transitioning a {
+                .fast-forward-transitioning a {
                     opacity: 0.25 !important;
                 }
-                [data-lightboxid="'.$playlist_name.'"] .fast-forward-transitioning [data-lightboxframe="true"] {
+                .fast-forward-transitioning [data-lightboxframe="true"] {
                     opacity: 0.20 !important;
                 }
-                [data-lightboxid="'.$playlist_name.'"] .fast-forward-transitioning a,
-                [data-lightboxid="'.$playlist_name.'"] .fast-forward-transitioning [data-lightboxframe="true"] {
+                .fast-forward-transitioning a,
+                .fast-forward-transitioning [data-lightboxframe="true"] {
                     transition: 0.05s !important;
                 }
-                [data-lightboxid="'.$playlist_name.'"] .fast-forward-transitioning a svg {
+                .fast-forward-transitioning a svg {
                     opacity: 0 !important;
                 }
-                [data-lightboxid="'.$playlist_name.'"] .fast-forward-overlay {
+                .fast-forward-overlay {
                     width: 100%;
                     height: 100%;
                     display: flex;
@@ -469,16 +487,36 @@
                     align-items: center;
                     box-shadow: 0px 0px 48px black;
                     filter: drop-shadow(rgba(255, 255, 255, 0.44) 0px 0px 80px);
+                    background: #000;
                     transition: 0.5s !important;
                     z-index: 10;
                 }
+                [data-lightboxid="'.$playlist_name.'"] .frame-transitioning-show-text img,
+                [data-lightboxid="'.$playlist_name.'"] .frame-transitioning-show-text iframe {
+                    opacity: 0.2;
+                }
+                [data-lightboxid="'.$playlist_name.'"] .frame-transitioning-show-text svg {
+                    opacity: 0 !important;
+                }
+                [data-lightboxid="'.$playlist_name.'"] .frame-transitioning-show-text .hover-text-container {
+                    opacity: 1 !important;
+                }
+                [data-lightboxid="'.$playlist_name.'"] .lightbox-arrow-hold-transitioning {
+                    animation-iteration-count: infinite;
+                    animation-duration: 0.15s;
+                    animation-name: '.$playlist_name.'-lightbox-fast-forward;
+                }
+                @keyframes '.$playlist_name.'-lightbox-fast-forward {
+                    from { filter: drop-shadow(0px 0px 0px white) }
+                    to { filter: drop-shadow(3.16vh 0px 0px white) }
+                }
+
                 @media(max-width: 872px) {
                     [data-lightboxid="'.$playlist_name.'"] .lightbox-playlist-container {
                         width: 90vw;
-                        height: calc(90vh - 40px);
-                        height: calc(90dvh - 40px);
+                        height: 90dvh;
+                        height: 90dvh;
                         padding: 24px 4%;
-                        margin-top: 40px;
                     }
                     [data-lightboxid="'.$playlist_name.'"] .lightbox-playlist-container .playlist-logo {
                         top: 0;
@@ -486,7 +524,6 @@
                         padding: 0 16px 24px;
                         max-width: 300px;
                         width: 90%;
-                        margin-top: 0;
                     }
                     [data-lightboxid="'.$playlist_name.'"] .lightbox-close-button {
                         top: 12px;
@@ -643,26 +680,28 @@
                     const htmlRender = `
                         <!-- ' .$playlist_name. ' Youtube Playlist Video - ${title} (Published On - ${publishedDate}) -->
                         <a ${settings.fontFamily ? `style=${settings.fontFamily}` : ""} class="'.$playlist_name.'-youtube-video-item${settings.showTextOverlay ? `-text-overlay-enabled` : ``}" data-itemclickable="true" data-id="${id}">
-                            <img class="'.$playlist_name.'-youtube-video-item-thumbnail" src="${thumbnail.url}" width="${thumbnail.width}" height="${thumbnail.height}" alt="${title}">
-                            ${showPlayButton ? 
-                                `
-                                    <div class="'.$playlist_name.'-youtube-item-play-button" style="${playButtonStyling}">
-                                        ${showPlayButton ? 
-                                            `${playButtonIconImgUrl ? `<img src="${playButtonIconImgUrl}">` :
-                                                '.$playlist_name.'_play_button_icon_html
-                                            }` : ``
-                                        }
-                                    </div>
-                                ` 
-                            : ``}
-                            ${showTextOverlay ? 
-                                `
-                                    <div class="'.$playlist_name.'-youtube-text-overlay">
-                                        <h3>${item.titledEpisode !== -1 ? `Episode ${item.titledEpisode}` : `${item.title}`}</h3>
-                                        <p>${settings.instructionMessage}</p>
-                                    </div>
-                                ` 
-                            : ``}
+                            <div class="'.$playlist_name.'-youtube-video-thumbnail-text-wrapper">
+                                <img class="'.$playlist_name.'-youtube-video-item-thumbnail" src="${thumbnail.url}" width="${thumbnail.width}" height="${thumbnail.height}" alt="${title}">
+                                ${showPlayButton ? 
+                                    `
+                                        <div class="'.$playlist_name.'-youtube-item-play-button" style="${playButtonStyling}">
+                                            ${showPlayButton ? 
+                                                `${playButtonIconImgUrl ? `<img src="${playButtonIconImgUrl}">` :
+                                                    '.$playlist_name.'_play_button_icon_html
+                                                }` : ``
+                                            }
+                                        </div>
+                                    ` 
+                                : ``}
+                                ${showTextOverlay ? 
+                                    `
+                                        <div class="'.$playlist_name.'-youtube-text-overlay">
+                                            <h3>${item.titledEpisode !== -1 ? `Episode ${item.titledEpisode}` : `${item.title}`}</h3>
+                                            <p>${settings.instructionMessage}</p>
+                                        </div>
+                                    ` 
+                                : ``}
+                            </div>
                             ${ playlistItem ? `<h3 class="playlist-episode-text">${item.titledEpisode !== -1 ? `Episode ${item.titledEpisode}` : `${item.title}`}</h3>` : ""} 
                         </a>
                     `
@@ -1277,8 +1316,7 @@
                     const nextIframeUrl = nextFrameData ? lightboxFrameVideoBaseUrl + nextFrameData.id : null;
                     const previousIframeUrl = previousFrameData ? lightboxFrameVideoBaseUrl + previousFrameData.id : null;
                     
-                    const transitionSpeed = type === `lightbox` ? frameTransition : transitionType === `carouselAutomated` ? carouselTransition
-                        : type === `carousel` && transitionType !== `carouselAutomated` ? frameTransition : frameTransition
+                    const transitionSpeed = 500;
 
                     if (type === `carousel` && transitionType !== `carouselAutomated`) {
                         frame.classList.add(`carousel-fast-transition`);
