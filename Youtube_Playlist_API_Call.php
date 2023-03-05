@@ -80,6 +80,7 @@
                     box-sizing: border-box;
                     position: relative;
                     aspect-ratio: 1.777 / 1;
+                    font-family: inherit !important;
                 }
                 .'.$playlist_name.'-youtube-video-item img, .'.$playlist_name.'-youtube-video-item-text-overlay-enabled img, 
                 .'.$playlist_name.'-youtube-video-item svg, .'.$playlist_name.'-youtube-video-item-text-overlay-enabled svg  {
@@ -138,12 +139,13 @@
                     justify-content: center;
                     opacity: 0;
                     transition: 0.5s;
-
+                    font-family: inherit !important;
                 }
                 .'.$playlist_name.'-youtube-text-overlay > * {
                     margin: 0;
                     text-align: center;
                     color: #fff;
+                    font-family: inherit !important;
                 }
                 .'.$playlist_name.'-youtube-text-overlay h3 {
                     font-size: min(9.5vw, 40px);
@@ -514,7 +516,7 @@
                 @media(max-width: 872px) {
                     [data-lightboxid="'.$playlist_name.'"] .lightbox-playlist-container {
                         width: 90vw;
-                        height: 90dvh;
+                        height: 90vh;
                         height: 90dvh;
                         padding: 24px 4%;
                     }
@@ -535,6 +537,17 @@
                     }
                     [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-youtube-video-item:hover {
                         transform: scale(1);
+                    }
+                    [data-lightboxid="'.$playlist_name.'"] .lightbox-close-button {
+                        color: white;
+                        padding: 0.7vh;
+                        padding: 0.7dvh;
+                        font-size: 2.25vh;
+                        font-size: 2.25dvh;
+                        max-width: 2.25vh;
+                        max-width: 2.25dvh;
+                        max-height: 2.25vh;
+                        max-height: 2.25dvh;
                     }
                 }
                 @media(min-width: 1920px) {
@@ -671,15 +684,16 @@
                             playButtonStyling: "width: 50%; height: 50%; opacity: 0.3;",
                             showTextOverlay: false,
                             instructionMessage: null,
-                            fontFamily: null
+                            fontFamily: null,
+                            showplaylist: false
                         }
                     }
 
                     const { title, thumbnail, publishedDate, id, description } = item;
-                    const { showPlayButton, playButtonIconImgUrl, playButtonStyling, showTextOverlay } = settings;
+                    const { showPlayButton, playButtonIconImgUrl, playButtonStyling, showTextOverlay, instructionMessage, fontFamily, showplaylist } = settings;
                     const htmlRender = `
                         <!-- ' .$playlist_name. ' Youtube Playlist Video - ${title} (Published On - ${publishedDate}) -->
-                        <a ${settings.fontFamily ? `style=${settings.fontFamily}` : ""} class="'.$playlist_name.'-youtube-video-item${settings.showTextOverlay ? `-text-overlay-enabled` : ``}" data-itemclickable="true" data-id="${id}">
+                        <a ${settings.fontFamily ? `style=${fontFamily}` : ""} class="'.$playlist_name.'-youtube-video-item${showTextOverlay ? `-text-overlay-enabled` : ``}" data-itemclickable="true" data-id="${id}" ${showplaylist ? `data-showplaylist="true"` : ""}>
                             <div class="'.$playlist_name.'-youtube-video-thumbnail-text-wrapper">
                                 <img class="'.$playlist_name.'-youtube-video-item-thumbnail" src="${thumbnail.url}" width="${thumbnail.width}" height="${thumbnail.height}" alt="${title}">
                                 ${showPlayButton ? 
@@ -697,7 +711,7 @@
                                     `
                                         <div class="'.$playlist_name.'-youtube-text-overlay">
                                             <h3>${item.titledEpisode !== -1 ? `Episode ${item.titledEpisode}` : `${item.title}`}</h3>
-                                            <p>${settings.instructionMessage}</p>
+                                            <p>${instructionMessage}</p>
                                         </div>
                                     ` 
                                 : ``}
@@ -714,22 +728,20 @@
 
                 // Declare Lightbox Font Video
 
-                let lightboxFont = "Roboto";
+                let '.$playlist_name.'_lightbox_font = "Roboto";
 
                 // Lightbox Fast Forward Speed
 
-                const fastForwardSpeed = 150;
+                const '.$playlist_name.'_fast_forward_speed = 150;
 
                 // Declare Show Theme Color.  Sets Color Of Border On Lightbox Playlist
 
-                let showThemeColor = "#fff";
+                let '.$playlist_name.'_show_theme_color = "#fff";
 
                 window.addEventListener("load", () => {
                     const '.$playlist_name.'_videos_items_on_page = document.querySelectorAll(`[data-widget="youtube"]`);
                     if ('.$playlist_name.'_videos_items_on_page.length > 0) {
                         '.$playlist_name.'_videos_items_on_page.forEach(item => {
-
-                            console.log('.$playlist_name.'_youtube_data);
 
                             const itemData = item.dataset;
 
@@ -761,10 +773,30 @@
                             const showTextOverlay = itemData.showtextoverlay === "true" ? true : itemData.showtextoverlay === "false" ? false : true;
                             
                             const fontFamily = itemData.fontfamily ? `"font-family: ${itemData.fontfamily}"` : `"font-family: Roboto;"`
+
+                            // Declare Show Theme Color
+
+                            if (item.dataset.'.$playlist_name.'_show_theme_color ) {
+                                '.$playlist_name.'_show_theme_color  = item.dataset.'.$playlist_name.'_show_theme_color 
+                            }
+
+                            // Show Logo Image URL
+
+                            if (item.dataset.'.$playlist_name.'_show_logo_img_url) {
+                                '.$playlist_name.'_show_logo_img_url = item.dataset.'.$playlist_name.'_show_logo_img_url;
+                            }
+
+                            // Lightbox Font
+
+                            if (item.dataset.lightboxfont) {
+                                '.$playlist_name.'_lightbox_font = item.dataset.lightboxfont;
+                            }
                             
                             // Text Overlay Messages
 
                             const instructionMessage = itemData.instructionMessage ? itemData.instructionMessage : "Click Here To Watch";
+
+                            const showplaylist = itemData.showplaylist && itemData.showplaylist === "true" ? true : false;
                             
                             const settings = {
                                 showPlayButton,
@@ -773,23 +805,13 @@
                                 showTextOverlay,
                                 instructionMessage,
                                 fontFamily,
+                                showplaylist
                             };
                             if ('.$playlist_name.'_youtube_data[index]) {
                                 item.outerHTML = '.$playlist_name.'_render_video_item('.$playlist_name.'_youtube_data[index], settings);
                                 return;
                             } else item.outerHTML = `<h3>No video item found in playlist based upon search parameters provided.</h3>`
 
-                            // Set Font Of Lightbox.  Default Is Set To "Roboto"
-
-                            if (item.dataset.lightboxfont) {
-                                lightboxFont = item.dataset.lightboxfont;
-                            } 
-
-                            // Declare Show Theme Color
-
-                            if (item.dataset.showthemecolor) {
-                                showThemeColor = item.dataset.showthemecolor
-                            }
                         });
                     }
 
@@ -800,16 +822,14 @@
                     '.$playlist_name.'_lightbox_div.dataset.lightboxid = "'.$playlist_name.'";
                     document.body.appendChild('.$playlist_name.'_lightbox_div);
                     const lightbox = document.querySelector(`[data-lightboxid = "'.$playlist_name.'"]`);
-                    lightbox.style.fontFamily = lightboxFont;
 
                     // Lightbox HTML
 
                     const '.$playlist_name.'_lightbox_html = `
-                        <div class="lightbox-content-container">
-                            <fieldset style="border: 8px ${showThemeColor} solid;" class="lightbox-playlist-container" data-lightboxplaylistcontainer="true">
+                        <div class="lightbox-content-container" style="font-family: ${'.$playlist_name.'_lightbox_font};">
+                            <fieldset style="border: 8px ${'.$playlist_name.'_show_theme_color } solid;" class="lightbox-playlist-container" data-lightboxplaylistcontainer="true">
                             <legend>
-                                ${'.$playlist_name.'_show_logo_img_url ? `<img class="playlist-logo" src="${showLogoImgUrl}">` : ""}
-                                ${!'.$playlist_name.'_show_logo_img_url ? `<h1 class="playlist-heading">TV Episodes</h1>` : ""}
+                                ${'.$playlist_name.'_show_logo_img_url ? `<img class="playlist-logo" src="${'.$playlist_name.'_show_logo_img_url}">` : `<h1 class="playlist-heading">TV Episodes</h1>`}
                             </legend>
                             <div class="grid-layout" data-lightboxplaylistcontent="true"></div>
                             </fieldset>
@@ -868,11 +888,15 @@
                         </div>
                     `;
 
+                    // Initialize Show Playlist Variable
+
+                    let '.$playlist_name.'_show_Playlist = false;
+
                     // Activate Lightbox On Video Item Click
 
                     let '.$playlist_name.'_lightbox_activated = false;
 
-                    function '.$playlist_name.'_lightbox_activate_handler(itemClicked, loadPlaylist) {
+                    function '.$playlist_name.'_lightbox_activate_handler(itemClicked, showPlaylist) {
 
                         const lightbox = '.$playlist_name.'_lightbox_div;
                         lightbox.innerHTML = "";
@@ -894,11 +918,11 @@
 
                         // Playlist Button
 
-                        const playlistButton = '.$playlist_name.'_play_button_icon_html;
+                        const playlistButton = showPlaylist ? '.$playlist_name.'_play_button_icon_html : null;
 
                         // Youtube Playlist Selected
 
-                        const playListSorted = '.$playlist_name.'_youtube_data;
+                        const playListSorted = showPlaylist ? '.$playlist_name.'_youtube_data : '.$playlist_name.'_youtube_data.filter(item => item.id === itemClicked.dataset.id);
                         
                         // Elements To Hide When User Idle In Lightbox After 5 Seconds
 
@@ -907,10 +931,6 @@
                         let mouseOverElement = false;
                         let lastMouseOverTime = new Date().getTime();
                         const idleDelayTime = 5000;
-
-                        // Checks If Playlist Button Was Clicked And If So, Loads Playlist On Load
-
-                        showPlaylist = loadPlaylist ? true : false;
 
                         // Checks If Lightbox Arrow Was Clicked
 
@@ -952,15 +972,15 @@
                                 if (!element.dataset.lightboxplaylistbutton) {
                                 element.classList.remove(`element-invisible`);
                                 }
-                                if (element.dataset.lightboxplaylistbutton && showPlaylist && !element.classList.toString().includes(`element-invisible`)) {
+                                if (element.dataset.lightboxplaylistbutton && '.$playlist_name.'_show_Playlist && !element.classList.toString().includes(`element-invisible`)) {
                                 element.classList.add(`element-invisible`);
                                 }
-                                if (!showPlaylist && element.dataset.lightboxplaylistbutton && element.classList.toString().includes(`element-invisible`)) {
+                                if (!'.$playlist_name.'_show_Playlist && element.dataset.lightboxplaylistbutton && element.classList.toString().includes(`element-invisible`)) {
                                 element.classList.remove(`element-invisible`);
                                 }
                             });
                             setTimeout(() => {
-                                if (!mouseOverElement && (new Date().getTime() - lastMouseOverTime) >= idleDelayTime && !showPlaylist) {
+                                if (!mouseOverElement && (new Date().getTime() - lastMouseOverTime) >= idleDelayTime && !'.$playlist_name.'_show_Playlist) {
                                 elementsToHideWhenIdle.forEach(element => element.classList.add(`element-invisible`));
                                 }
                             }, idleDelayTime)
@@ -1033,12 +1053,12 @@
                             // Check If Video Index Has Video And Check For Browser Window Width And Set For Lightbox Or Full Screen Iframe On Mobile, Tablet
 
                             if (playListSorted[currentVideoIndex]) {
-                            if (window.innerWidth > mediaQueryMobileBreakpoint || showPlaylist) {
+                            if (window.innerWidth > mediaQueryMobileBreakpoint || '.$playlist_name.'_show_Playlist) {
                                 startingLightboxActive.querySelector(`iframe`).src = lightboxFrameVideoBaseUrl + setVideoId(0);
                                 startingLightboxActive.querySelector(`h1`).innerHTML = setThumbnailText(setData(0));
                             } else window.open(lightboxFrameVideoBaseUrl + setVideoId(0))
                             }
-                            if (window.innerWidth > mediaQueryMobileBreakpoint || showPlaylist) {
+                            if (window.innerWidth > mediaQueryMobileBreakpoint || '.$playlist_name.'_show_Playlist) {
                                 lightbox.classList.add(`show-lightbox`);
                                 html.classList.add(`hide-scroll`);
                             } else {
@@ -1211,9 +1231,9 @@
                             if (mouseDown && playListSorted[currentVideoIndex - 1]) {
                                 mouseDownInterval = setInterval(() => {
                                 if (mouseDown) {
-                                    advanceLightboxLeft(true), fastForwardSpeed;
+                                    advanceLightboxLeft(true), '.$playlist_name.'_fast_forward_speed;
                                 }
-                                }, fastForwardSpeed);
+                                }, '.$playlist_name.'_fast_forward_speed);
                                 lightboxArrowLeft.classList.add(`lightbox-arrow-hold-transitioning`);
                             }
                             }, 500)
@@ -1227,9 +1247,9 @@
                             if (mouseDown && playListSorted[currentVideoIndex + 1]) {
                                 mouseDownInterval = setInterval(() => {
                                 if (mouseDown) {
-                                    advanceLightboxRight(true), fastForwardSpeed;
+                                    advanceLightboxRight(true), '.$playlist_name.'_fast_forward_speed;
                                 }
-                                }, fastForwardSpeed);
+                                }, '.$playlist_name.'_fast_forward_speed);
                                 lightboxArrowRight.classList.add(`lightbox-arrow-hold-transitioning`);
                             }
                             }, 500)
@@ -1259,9 +1279,9 @@
 
                         function toggleLightboxPlayerOrPlaylist(initialized) {
                             if (!initialized) {
-                            showPlaylist = !showPlaylist;
+                            '.$playlist_name.'_show_Playlist = !'.$playlist_name.'_show_Playlist;
                             }
-                            if (showPlaylist) {
+                            if ('.$playlist_name.'_show_Playlist) {
                             lightboxFrames.forEach(frame => {
                                 frame.querySelector(`iframe`).src = ``;
                                 frame.querySelector(`h1`).innerHTML = ``;
@@ -1441,6 +1461,7 @@
                     function '.$playlist_name.'_lightbox_clear() {
                         lightbox.innerHTML = ``;
                         lightboxToggled = false;
+                        '.$playlist_name.'_show_Playlist = false;
                         lightbox.classList.remove(`show-lightbox`);
                         document.querySelector(`html`).classList.remove(`hide-scroll`);
                     }
@@ -1451,11 +1472,20 @@
                     
                     videoItemsRendered.forEach(item => {
                         item.addEventListener("click", () => {
-                            '.$playlist_name.'_lightbox_activate_handler(item);
+                            if (item.dataset.showplaylist && item.dataset.showplaylist === "true") {
+                                '.$playlist_name.'_lightbox_activate_handler(item, true);
+                            } else '.$playlist_name.'_lightbox_activate_handler(item, false);
                         });
                     });
-                });
 
+                    // Clear Lightbox If Window Is Resized Below 872
+
+                    window.addEventListener(`resize`, () => {
+                        if (!'.$playlist_name.'_show_Playlist && window.innerWidth < 872) {
+                            '.$playlist_name.'_lightbox_clear();
+                        }
+                    });
+                });
             </script>
             <div style="width: 88.85vw; height: 50vw;">
                 <div data-widget="youtube" 
@@ -1465,7 +1495,8 @@
                     data-showplaybutton="true"
                     data-showTextOverlay="true"
                     data-fontfamily="Poppins",
-                    data-lightboxfont="Poppins"
+                    data-lightboxfont="Poppins",
+                    data-showplaylist="true"
                     >
                 </div>
                 <div data-widget="youtube" 
@@ -1475,7 +1506,10 @@
                     data-showplaybutton="true"
                     data-showTextOverlay="true"
                     data-fontfamily="roboto"
-                    data-showthemecolor="red"
+                    data-'.$playlist_name.'_show_theme_color ="#F36C21"
+                    data-'.$playlist_name.'_show_logo_img_url="https://livinglarge-tv.com/wp-content/uploads/2022/08/MH-DeskScreenLogo-1.png"
+                    data-lightboxfont="Poppins"
+                    data-showplaylist="false"
                     >
                 </div>
             </div>
