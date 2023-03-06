@@ -122,6 +122,18 @@
 
                 $key_values = array_column($parsed_data, 'titledEpisode');
                 array_multisort($key_values, SORT_DESC, $parsed_data);
+
+                // Checks to make sure there aren't any videos with the same title.  If so, it is removed
+
+                $pre_duplicate_removal = $parsed_data;
+
+                foreach($pre_duplicate_removal as $index => $video) {
+                    if ($video['title'] === $pre_duplicate_removal[$index + 1]['title']) {
+                        unset($pre_duplicate_removal[$index + 1]);
+                    }
+                }
+
+                $parsed_data = array_values($pre_duplicate_removal);
             }
 
             // Set Cookie Storage Time Stamp And Output Parsed '.$type.' Data Into Browser Local Storage
@@ -149,7 +161,7 @@
                     cursor: pointer;
                     position: relative;
                     width: 100%;
-                    height: 100%;
+                    height: auto;
                     display: block;
                     box-sizing: border-box;
                 }
@@ -195,7 +207,7 @@
                     width: 100%;
                     height: 100%;
                     top: 0;
-                    gap: clamp(1.125rem, 15%, 3rem);
+                    gap: clamp(1.125rem, 25%, 3rem);
                     background: #00000050;
                     opacity: 0;
                     transition: 0.5s;
@@ -236,6 +248,27 @@
                 }
                 .'.$playlist_name.'-'.$type.'-text-overlay:hover {
                     opacity: 1;
+                }
+
+                .'.$playlist_name.'_multiple_grid_layout {
+                    display: grid;
+                    grid-template-rows: min-content;
+                }
+
+                .'.$playlist_name.'_no_results_msg {
+                    width: 100%;
+                    height: auto;
+                    aspect-ratio: 1.777 / 1;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0;
+                    font-size: clamp(1.125rem, 5vw, 1.75rem);
+                    text-align: center;
+                    margin: 0;
+                    padding: clamp(16px, 5vw, 60px);
+                    box-sizing: border-box;
+                    background: #fff;
                 }
 
                 /* -- END - Video Item Styling -- */
@@ -778,7 +811,7 @@
 
                             const playButtonIconImgUrl = itemData.playButtonIconImgUrl ? itemData.playButtonIconImgUrl : null;
 
-                            const playButtonStyling = itemData.playbuttonstyling ? itemData.playbuttonstyling :  "width: 40%; height: 40%; opacity: 0.3;"
+                            const playButtonStyling = itemData.playbuttonstyling ? itemData.playbuttonstyling :  "width: 35%; height: 35%; opacity: 0.3;"
 
                             const showTextOverlay = itemData.showtextoverlay === "true" ? true : itemData.showtextoverlay === "false" ? false : true;
                             
@@ -818,18 +851,44 @@
                                 lightboxshowplaylist
                             };
 
-                            // Checks If multiplegrid parameter was provided
+                            // Checks If multiplegrid parameter was provided and filters accordingly prior to rendering
 
-                            if (itemData.multiplegrid && Number(itemData.multiplegrid) !== NaN) {
-                                const renderGridData = '.$playlist_name.'_'.$type.'_data.filter((item, index) => index < Number(itemData.multiplegrid));
-                                item.outerHTML = renderGridData.map(row => '.$playlist_name.'_render_video_item(row, settings)).join("");
+                            if (itemData.multiplegrid === "true" && '.$playlist_name.'_'.$type.'_data.length > 1) {
+                                let renderGridData = [...'.$playlist_name.'_'.$type.'_data];
+
+                                // If multiplegridshowall is not set to true, then playlist will be filtered accordingly.  
+
+                                if (!itemData.multiplegridshowall || itemData.multiplegridshowall !== "true") {
+                                    if (itemData.multiplegridsearch) {
+                                        renderGridData = renderGridData.filter(item => item.title.toLowerCase().includes(itemData.multiplegridsearch.toLowerCase()));   
+                                    }
+                                    if (Number(itemData.multiplegridlimititems)) {
+                                        renderGridData = renderGridData.filter((item, index) => index < Number(itemData.multiplegridlimititems));
+                                    }
+
+                                    // Will override search and limit items if parameter is present for episode range
+
+                                    if (itemData.multiplegridepisoderange && itemData.multiplegridepisoderange !== "" && itemData.multiplegridepisoderange.includes("-")) {
+                                        const splitter = itemData.multiplegridepisoderange.split("-");
+                                        renderGridData = [...'.$playlist_name.'_'.$type.'_data];
+                                        renderGridData = renderGridData.filter(item => item.titledEpisode >= Number(splitter[0]) && item.titledEpisode <= Number(splitter[1]));
+                                    }
+                                }
+                                const gapBetweenVideos = itemData.multiplegridgap ? itemData.multiplegridgap : "48px";
+                                const minSize = itemData.multipleminsize ? itemData.multipleminsize : "400px";
+                                if (renderGridData.length > 0) {
+                                    item.outerHTML = 
+                                        `<div class="'.$playlist_name.'_multiple_grid_layout" style="gap: ${gapBetweenVideos}; grid-template-columns: repeat(auto-fill, minmax(min(100%, ${minSize}), 1fr));">
+                                            ${renderGridData.map(row => '.$playlist_name.'_render_video_item(row, settings)).join("")}
+                                        </div>`
+                                } else item.outerHTML = `<h3 style=${fontFamily} class="'.$playlist_name.'_no_results_msg">No video items found in playlist based upon search parameters provided.</h3>`
                                 return
                             } 
 
                             if ('.$playlist_name.'_'.$type.'_data[index]) {
                                 item.outerHTML = '.$playlist_name.'_render_video_item('.$playlist_name.'_'.$type.'_data[index], settings);
                                 return;
-                            } else item.outerHTML = `<h3>No video item found in playlist based upon search parameters provided.</h3>`
+                            } else item.outerHTML = `<h3 style=${fontFamily} class="'.$playlist_name.'_no_results_msg">No video item found in playlist based upon search parameters provided.</h3>`
 
                         });
                     }
@@ -1519,7 +1578,7 @@
 
             <!-- TESTING ONLY -->
 
-            <div style="width: 88.85vw; height: 50vw;">
+            <div style="width: 100%; height: 100%">
                 <div data-mediaplatform="youtube" 
                     data-playlistname="living_large_tv"
                     data-playbuttonstyling="width: 30%; height: 30%; opacity: 0.3;"
@@ -1538,15 +1597,21 @@
                     data-showTextOverlay="true"
                     data-fontfamily="sans-serif"
                     data-lightboxfont="sans-serif"
-                    data-episodenumber="128"
+                    data-episodenumber="139"
                     data-lightboxshowplaylist="false"
                     >
                 </div>
                 <div data-mediaplatform="youtube" 
                     data-playlistname="living_large_tv"
-                    data-multiplegrid="6"
+                    data-multiplegrid="true"
+                    data-multiplegridgap="48px"
+                    data-multipleminsize="400px"
+                    data-multiplegridshowall="false"
+                    data-multiplegridlimititems="6"
+                    data-multiplegridepisoderange="100-110"
+                    data-multiplegridsearch=""
                     data-orderdescending="75" 
-                    data-playbuttonstyling="width: 40%; height: 40%; opacity: 0.3;"
+                    data-playbuttonstyling="width: 35%; height: 35%; opacity: 0.3;"
                     data-showplaybutton="true"
                     data-showTextOverlay="true"
                     data-fontfamily="roboto"
