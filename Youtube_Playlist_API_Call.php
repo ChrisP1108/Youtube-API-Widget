@@ -1,5 +1,4 @@
 <?php 
-
     // Gets Youtube Data.  API Key And PlaylistID Must Be Passed In
 
     function get_youtube_playlist($playlist_name = 'unnamed', $api_key = null, $playlist_id = null) {
@@ -125,10 +124,10 @@
 
             setcookie($cookie_time_storage_name, $cookie_expiration_time, $cookie_expiration_time, '/', '', 0, false);
 
-            echo '<script>localStorage.setItem("'. $playlist_name .'_youtube_playlist", JSON.stringify('. json_encode($parsed_youtube_data) .')); console.log("'. $playlist_name .' youtube data loaded from API and stored on localStorage as `youtubePlaylists.`");</script>';
+            echo '<script>localStorage.setItem("'. $playlist_name .'_youtube_playlist", JSON.stringify('. json_encode($parsed_youtube_data) .')); console.log("'. $playlist_name .' youtube data loaded from API and saved on Local Storage as `'. $playlist_name .'_youtube_playlist.`  Remaining time till expiration of stored data is '. $cookie_storage_time_interval .' seconds.  After expiration, a new API call will be made and the data will be updated again when the browser is reloaded again.");</script>';
         } else {
             echo '<script>
-                    console.log("'. $playlist_name .' youtube data loaded from localStorage as the storage expiration time has not yet passed.  Current remaining time until expiration is '. ($_COOKIE[$cookie_time_storage_name] - time()).' seconds.  If a fresh call to the API needs to be made prior to the expiration time, clear the cookie named `'.$cookie_time_storage_name .'` and reload the page.");
+                    console.log("'. $playlist_name .' youtube data loaded from Local Storage as the storage expiration time has not yet passed.  Current remaining time until expiration is '. ($_COOKIE[$cookie_time_storage_name] - time()).' seconds.  If a fresh call to the API needs to be made prior to the expiration time, clear the cookie named `'.$cookie_time_storage_name .'` and reload the page.");
                 </script>
             ';
         }
@@ -642,9 +641,17 @@
                         max-width: 416px !important;
                     }
                 }
+
+                /* -- END - Lightbox Styling -- */
+
+                /* -- END CSS STYLING OF `'.$playlist_name.'` -- */
             </style>
 
             <script>
+
+            // Initialize '.$playlist_name.'.  Javascript wrapped in function block so variables are block scoped.
+
+            function initialize_'.$playlist_name.'_playlist() {
 
                 // Load Youtube Data From Local Storage
 
@@ -1488,7 +1495,16 @@
                         }
                     });
                 });
+            }
+
+            // Call '.$playlist_name.' Playlist Function
+
+            initialize_'.$playlist_name.'_playlist();
+
             </script>
+
+            <!-- TESTING ONLY -->
+
             <div style="width: 88.85vw; height: 50vw;">
                 <div data-widget="youtube" 
                     data-playlistname="living_large_tv"
