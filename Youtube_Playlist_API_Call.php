@@ -1,9 +1,10 @@
 <?php 
-    // Gets Youtube Data.  API Key And PlaylistID Must Be Passed In
 
-    function get_youtube_playlist($playlist_name = 'unnamed', $api_key = null, $playlist_id = null) {
+    // Gets Media Data.  API Key And PlaylistID Must Be Passed In
 
-        $cookie_time_storage_name = $playlist_name . '_playlist_storage_expiration';
+    function get_media_content($type = null, $playlist_name = 'unnamed', $api_key = null, $playlist_id = null) {
+
+        $cookie_time_storage_name = $playlist_name . '_'. $type . '_playlist_storage_expiration';
 
         // Time That Playlist In Local Storage Will Be Utilized For Before Another API Call.  Time In Seconds
         
@@ -16,118 +17,121 @@
         // Checks If Cookie Is Already Stored On Server And Is Within Time Interval.  If Not, Then New API Call Made And New Cookie Set
 
         if (!isset($_COOKIE[$cookie_time_storage_name]) || $_COOKIE[$cookie_time_storage_name] < time()) {
-            $youtube_req_url = 'https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId='. $playlist_id .'&key=' . $api_key . '&maxResults=10000';
 
-            $youtube_get_req = @file_get_contents($youtube_req_url);
+            // Declare Parsed Data
 
-            if (!$youtube_get_req) {
-                echo '<script>
-                    console.error("There was an error getting the Youtube data.  Try reloading or check the API key.");
-                </script>';
-                return;
-            }
+            $parsed_data = [];
+            
+            if ($type === 'youtube') {
+                $youtube_req_url = 'https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId='. $playlist_id .'&key=' . $api_key . '&maxResults=10000';
 
-            $youtube_data = json_decode($youtube_get_req, true);
+                $youtube_get_req = @file_get_contents($youtube_req_url);
 
-            $youtube_items = $youtube_data['items'];
+                if (!$youtube_get_req) {
+                    echo '<script>
+                        console.error("There was an error getting the Youtube data.  Try reloading or check the API key.");
+                    </script>';
+                    return;
+                }
 
-            $youtube_items_tally = count($youtube_data['items']);
+                $youtube_data = json_decode($youtube_get_req, true);
 
-            $nextPageToken = $youtube_data['nextPageToken'];
+                $youtube_items = $youtube_data['items'];
 
-            // Youtube Has A Limit Of 50 Results Per Request.  If Playlist Item Total Is Greater Than 50, Then A While Loop Runs Until Total Items Received Equals Total Results
+                $youtube_items_tally = count($youtube_data['items']);
 
-            while ($youtube_data['pageInfo']['totalResults'] > $youtube_items_tally) {
-                $youtube_loop = json_decode(file_get_contents($youtube_req_url . '&pageToken=' . $nextPageToken), true);
-                $youtube_items_tally += count($youtube_loop['items']);
-                $nextPageToken = $youtube_loop['nextPageToken'];
-                $youtube_items = array_merge($youtube_items, $youtube_loop['items']);
-            }
+                $nextPageToken = $youtube_data['nextPageToken'];
 
-            // Combine All Youtube Video Items Together From While Loop If Looped Through
+                // Youtube Has A Limit Of 50 Results Per Request.  If Playlist Item Total Is Greater Than 50, Then A While Loop Runs Until Total Items Received Equals Total Results
 
-            $youtube_data['items'] = $youtube_items;
+                while ($youtube_data['pageInfo']['totalResults'] > $youtube_items_tally) {
+                    $youtube_loop = json_decode(file_get_contents($youtube_req_url . '&pageToken=' . $nextPageToken), true);
+                    $youtube_items_tally += count($youtube_loop['items']);
+                    $nextPageToken = $youtube_loop['nextPageToken'];
+                    $youtube_items = array_merge($youtube_items, $youtube_loop['items']);
+                }
 
-            // Youtube Video Items Parsed And Formatted For Easier Handling
+                // Combine All Youtube Video Items Together From While Loop If Looped Through
 
-            $parsed_youtube_data = [];
+                $youtube_data['items'] = $youtube_items;
 
-            // Assign Episode Number Based Upon Number In Title.  If No Number Found Or Number Is Greater Than 2000, -1 Is Assigned To titledEpisode
+                // Assign Episode Number Based Upon Number In Title.  If No Number Found Or Number Is Greater Than 2000, -1 Is Assigned To titledEpisode
 
-            function episode_number_generator($title) {
-                $output = '';
-                $splitter = str_split($title);
-                foreach($splitter as $char) {
-                    if (preg_match('/[0-9]/', $char) === 1) {
-                        $output .= $char;
-                    } else {
-                        if ($output !== '') {
-                            break;
+                function episode_number_generator($title) {
+                    $output = '';
+                    $splitter = str_split($title);
+                    foreach($splitter as $char) {
+                        if (preg_match('/[0-9]/', $char) === 1) {
+                            $output .= $char;
+                        } else {
+                            if ($output !== '') {
+                                break;
+                            }
                         }
                     }
+                    $output = intval($output);
+                    if ($output !== 0 && $output < 2000) {
+                        return intval($output);
+                    } else return -1;
                 }
-                $output = intval($output);
-                if ($output !== 0 && $output < 2000) {
-                    return intval($output);
-                } else return -1;
-            }
 
-            // Loop Through Video Items And Parse Accordingly
+                // Loop Through Video Items And Parse Accordingly
 
-            foreach($youtube_data['items'] as $item) {
-                $itemOutput = [];
-                if ($item) {
-                    if ($item['snippet']) {
-                        $snippet = $item['snippet'];
-                        if ($snippet['title'] !== '') {
-                            $itemOutput['titledEpisode'] = episode_number_generator($snippet['title']);
-                            $itemOutput['title'] = $snippet['title'];
-                        } else {
-                            $itemOutput['titledEpisode'] = null;
-                            $itemOutput['title'] = null;
-                        }
-                        if ($snippet['resourceId'] && $snippet['resourceId']['videoId']) {
-                            $itemOutput['id'] = $snippet['resourceId']['videoId'];
-                        } else $itemOutput['id'] = null;
-                        if ($snippet['thumbnails']) {
-                            $thumbnails = $snippet['thumbnails'];
-                            if ($thumbnails['maxres']) {
-                                $itemOutput['thumbnail'] = $thumbnails['maxres'];
-                            } else if ($thumbnails['standard']) {
-                                $itemOutput['thumbnail'] = $thumbnails['standard'];
-                            } else if ($thumbnails['high']) {
-                                $itemOutput['thumbnail'] = $thumbnails['high'];
-                            } else if ($thumbnails['medium']) {
-                                $itemOutput['thumbnail'] = $thumbnails['medium'];
-                            } else if ($thumbnails['default']) {
-                                $itemOutput['default'] = $thumbnails['default'];
+                foreach($youtube_data['items'] as $item) {
+                    $itemOutput = [];
+                    if ($item) {
+                        if ($item['snippet']) {
+                            $snippet = $item['snippet'];
+                            if ($snippet['title'] !== '') {
+                                $itemOutput['titledEpisode'] = episode_number_generator($snippet['title']);
+                                $itemOutput['title'] = $snippet['title'];
+                            } else {
+                                $itemOutput['titledEpisode'] = null;
+                                $itemOutput['title'] = null;
                             }
-                        } else $itemOutput['thumbnail'] = null;
-                        if ($snippet['publishedAt'] !== '') {
-                            $itemOutput['publishedDate'] = $snippet['publishedAt'];
-                        } else $itemOutput['publishedDate'] = null;
-                        if ($snippet['description'] !== '') {
-                            $itemOutput['description'] = $snippet['description'];
-                        } else $itemOutput['description'] = null;
-                    } else return null;
-                } else $itemOutput['id'] = null;
+                            if ($snippet['resourceId'] && $snippet['resourceId']['videoId']) {
+                                $itemOutput['id'] = $snippet['resourceId']['videoId'];
+                            } else $itemOutput['id'] = null;
+                            if ($snippet['thumbnails']) {
+                                $thumbnails = $snippet['thumbnails'];
+                                if ($thumbnails['maxres']) {
+                                    $itemOutput['thumbnail'] = $thumbnails['maxres'];
+                                } else if ($thumbnails['standard']) {
+                                    $itemOutput['thumbnail'] = $thumbnails['standard'];
+                                } else if ($thumbnails['high']) {
+                                    $itemOutput['thumbnail'] = $thumbnails['high'];
+                                } else if ($thumbnails['medium']) {
+                                    $itemOutput['thumbnail'] = $thumbnails['medium'];
+                                } else if ($thumbnails['default']) {
+                                    $itemOutput['default'] = $thumbnails['default'];
+                                }
+                            } else $itemOutput['thumbnail'] = null;
+                            if ($snippet['publishedAt'] !== '') {
+                                $itemOutput['publishedDate'] = $snippet['publishedAt'];
+                            } else $itemOutput['publishedDate'] = null;
+                            if ($snippet['description'] !== '') {
+                                $itemOutput['description'] = $snippet['description'];
+                            } else $itemOutput['description'] = null;
+                        } else return null;
+                    } else $itemOutput['id'] = null;
 
-                array_push($parsed_youtube_data, $itemOutput);
+                    array_push($parsed_data, $itemOutput);
+                }
+
+                // Sort List Based Upon titledEpisode Number Generated
+
+                $key_values = array_column($parsed_data, 'titledEpisode');
+                array_multisort($key_values, SORT_DESC, $parsed_data);
             }
 
-            // Sort List Based Upon titledEpisode Number Generated
-
-            $key_values = array_column($parsed_youtube_data, 'titledEpisode');
-            array_multisort($key_values, SORT_DESC, $parsed_youtube_data);
-
-            // Set Cookie Storage Time Stamp And Output Parsed Youtube Data Into Browser Local Storage
+            // Set Cookie Storage Time Stamp And Output Parsed '.$type.' Data Into Browser Local Storage
 
             setcookie($cookie_time_storage_name, $cookie_expiration_time, $cookie_expiration_time, '/', '', 0, false);
 
-            echo '<script>localStorage.setItem("'. $playlist_name .'_youtube_playlist", JSON.stringify('. json_encode($parsed_youtube_data) .')); console.log("'. $playlist_name .' youtube data loaded from API and saved on Local Storage as `'. $playlist_name .'_youtube_playlist.`  Remaining time till expiration of stored data is '. $cookie_storage_time_interval .' seconds.  After expiration, a new API call will be made and the data will be updated again when the browser is reloaded again.");</script>';
+            echo '<script>localStorage.setItem("'. $playlist_name . '_'. $type .'_playlist", JSON.stringify('. json_encode($parsed_data) .')); console.log("`'. $playlist_name . '` '. $type .' data loaded from API and saved on Local Storage as `'. $playlist_name .'_'.$type.'_playlist.`  Remaining time till expiration of stored data is '. $cookie_storage_time_interval .' seconds.  After expiration, a new API call will be made and the data will be updated again when the browser is reloaded again.");</script>';
         } else {
             echo '<script>
-                    console.log("'. $playlist_name .' youtube data loaded from Local Storage as the storage expiration time has not yet passed.  Current remaining time until expiration is '. ($_COOKIE[$cookie_time_storage_name] - time()).' seconds.  If a fresh call to the API needs to be made prior to the expiration time, clear the cookie named `'.$cookie_time_storage_name .'` and reload the page.");
+                    console.log("`'. $playlist_name . '` '. $type .' data loaded from Local Storage as the storage expiration time has not yet passed.  Current remaining time until expiration is '. ($_COOKIE[$cookie_time_storage_name] - time()).' seconds.  If a fresh call to the API needs to be made prior to the expiration time, clear the cookie named `'.$cookie_time_storage_name .'` and reload the page.");
                 </script>
             ';
         }
@@ -141,7 +145,7 @@
 
                 /* -- START - Video Item Styling. Some Styling Applies To Lightbox Also -- */
 
-                .'.$playlist_name.'-youtube-video-item, .'.$playlist_name.'-youtube-video-item-text-overlay-enabled {
+                .'.$playlist_name.'-'.$type.'-video-item, .'.$playlist_name.'-'.$type.'-video-item-text-overlay-enabled {
                     cursor: pointer;
                     position: relative;
                     width: 100%;
@@ -149,7 +153,7 @@
                     display: block;
                     box-sizing: border-box;
                 }
-                .'.$playlist_name.'-youtube-video-thumbnail-text-wrapper {
+                .'.$playlist_name.'-'.$type.'-video-thumbnail-text-wrapper {
                     width: 100%;
                     background: #000000;
                     box-sizing: border-box;
@@ -157,32 +161,32 @@
                     aspect-ratio: 1.777 / 1;
                     font-family: inherit !important;
                 }
-                .'.$playlist_name.'-youtube-video-item img, .'.$playlist_name.'-youtube-video-item-text-overlay-enabled img, 
-                .'.$playlist_name.'-youtube-video-item svg, .'.$playlist_name.'-youtube-video-item-text-overlay-enabled svg  {
+                .'.$playlist_name.'-'.$type.'-video-item img, .'.$playlist_name.'-'.$type.'-video-item-text-overlay-enabled img, 
+                .'.$playlist_name.'-'.$type.'-video-item svg, .'.$playlist_name.'-'.$type.'-video-item-text-overlay-enabled svg  {
                     transition: 0.5s;
                 }
-                .'.$playlist_name.'-youtube-video-item-text-overlay-enabled:hover > * img:nth-child(1) {
+                .'.$playlist_name.'-'.$type.'-video-item-text-overlay-enabled:hover > * img:nth-child(1) {
                     opacity: 0.25;
                 }
-                .'.$playlist_name.'-youtube-video-item-text-overlay-enabled:hover svg, .'.$playlist_name.'-youtube-video-item:hover > * img:nth-child(2) {
+                .'.$playlist_name.'-'.$type.'-video-item-text-overlay-enabled:hover svg, .'.$playlist_name.'-'.$type.'-video-item:hover > * img:nth-child(2) {
                     opacity: 0;
                 }
-                .'.$playlist_name.'-youtube-video-item-thumbnail {
+                .'.$playlist_name.'-'.$type.'-video-item-thumbnail {
                     object-fit: cover;
                     width: 100%;
                     height: 100%;
                 }
-                .'.$playlist_name.'-youtube-item-play-button {
+                .'.$playlist_name.'-'.$type.'-item-play-button {
                     position: absolute;
                     left: 50%;
                     top: 50%;
                     transform: translate(-50%, -50%);
                 }
-                .'.$playlist_name.'-youtube-item-play-button img, .'.$playlist_name.'-youtube-item-play-button svg {
+                .'.$playlist_name.'-'.$type.'-item-play-button img, .'.$playlist_name.'-'.$type.'-item-play-button svg {
                     width: 100%;
                     height: 100%;
                 }
-                .'.$playlist_name.'-youtube-text-overlay {
+                .'.$playlist_name.'-'.$type.'-text-overlay {
                     position: absolute;
                     display: flex;
                     justify-content: center;
@@ -216,21 +220,21 @@
                     transition: 0.5s;
                     font-family: inherit !important;
                 }
-                .'.$playlist_name.'-youtube-text-overlay > * {
+                .'.$playlist_name.'-'.$type.'-text-overlay > * {
                     margin: 0;
                     text-align: center;
                     color: #fff;
                     font-family: inherit !important;
                 }
-                .'.$playlist_name.'-youtube-text-overlay h3 {
+                .'.$playlist_name.'-'.$type.'-text-overlay h3 {
                     font-size: min(9.5vw, 40px);
                     font-family: inherit !important;
                 }
-                .'.$playlist_name.'-youtube-text-overlay p {
+                .'.$playlist_name.'-'.$type.'-text-overlay p {
                     font-size: min(7vw, 1.375rem);
                     font-family: inherit !important;
                 }
-                .'.$playlist_name.'-youtube-text-overlay:hover {
+                .'.$playlist_name.'-'.$type.'-text-overlay:hover {
                     opacity: 1;
                 }
 
@@ -259,17 +263,17 @@
                     transition: 0.75s;
                     aspect-ratio: 1.777 / 1;
                 }
-                [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-youtube-video-item {
+                [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-'.$type.'-video-item {
                     filter: grayscale(75%);
                     transition: 0.5s;
                 }
-                [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-youtube-video-item svg {
+                [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-'.$type.'-video-item svg {
                     opacity: 0;
                 }
-                [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-youtube-video-item:hover svg{
+                [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-'.$type.'-video-item:hover svg{
                     opacity: 1 !important;
                 }
-                [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-youtube-video-item:hover {
+                [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-'.$type.'-video-item:hover {
                     filter: grayscale(0%) !important;
                     transform: scale(1.25);
                 }
@@ -445,7 +449,7 @@
                 [data-lightboxid="'.$playlist_name.'"] .lightbox-video-frame .fast-forward-overlay h1,
                 [data-lightboxid="'.$playlist_name.'"] .lightbox-video-frame [data-lightboxframe="true"] h1 {
                     color: #fff;
-                    font-size: 9.75vh;
+                    font-size: clamp(56px, 5vw, 80px);
                     font-family: inherit !important;
                     text-align: center;
                     font-weight: 700;
@@ -454,21 +458,21 @@
                 [data-lightboxid="'.$playlist_name.'"] .lightbox-close-button {
                     color: white;
                     position: fixed;
-                    top: 1.357vh;
-                    left: calc(100% - 1.72vh);
+                    top: clamp(8px, 1.357vh, 12px);
+                    left: calc(100% - clamp(8px, 1.72vh, 10px));
                     transform: translateX(-100%);
                     font-family: Ruda, sans-serif;
                     font-weight: 700;
                     font-style: normal;
-                    padding: 0.9vh;
-                    font-size: 3.16vh;
+                    padding: clamp(2px, 0.9vh, 12px);
+                    font-size: clamp(20px, 3.16vh, 28px);
                     cursor: pointer;
-                    border: 0.6vh white solid;
+                    border: clamp(3px, 0.6vh, 6px) white solid;
                     border-radius: 50%;
-                    width: 12vw;
-                    height: 12vw;
-                    max-width: 3.16vh;
-                    max-height: 3.16vh;
+                    width: min(12vw, 30px);
+                    height: min(12vw, 30px);
+                    max-width: clamp(40px, 3.16vh, 60px);
+                    max-height: clamp(40px, 3.16vh, 60px);
                     display: flex;
                     justify-content: center;
                     align-items: center;
@@ -478,12 +482,10 @@
                 }
                 [data-lightboxid="'.$playlist_name.'"] .lightbox-playlist-button {
                     position: fixed;
-                    top: 2.11vh;
-                    left: 2.11vh;
-                    max-width: 4.75vh;
-                    max-height: 4.75vh;
-                    width: 15vh;
-                    height: 15vh;
+                    top: clamp(14px, 2.11vh, 16px);
+                    left: clamp(14px, 2.11vh, 16px);
+                    width: clamp(32px, 7vh, 48px);
+                    height: clamp(32px, 7vh, 48px);
                     transition: 0.25s;
                     cursor: pointer;
                     z-index: 10 !important;
@@ -498,10 +500,8 @@
                     transform: scale(0.9);
                 } 
                 [data-lightboxid="'.$playlist_name.'"] .lightbox-player-container svg {
-                    min-width: 4vw;
-                    max-height: 6.664vw;
-                    width: 3.08vh;
-                    height: 5.1395vh;
+                    width: clamp(36px, 5vmin, 60px);
+                    height: clamp(36px, 5vmin, 60px);
                     cursor: pointer;
                     z-index: 3;
                     transition: 0.25s;
@@ -606,11 +606,11 @@
                         top: 12px;
                         left: calc(100% - 12px);
                     }
-                    [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-youtube-video-item {
+                    [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-'.$type.'-video-item {
                         filter: grayscale(0%) !important;
                         transform: scale(1);
                     }
-                    [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-youtube-video-item:hover {
+                    [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-'.$type.'-video-item:hover {
                         transform: scale(1);
                     }
                     [data-lightboxid="'.$playlist_name.'"] .lightbox-close-button {
@@ -626,11 +626,6 @@
                     }
                 }
                 @media(min-width: 1920px) {
-                    [data-lightboxid="'.$playlist_name.'"] .fast-forward-overlay h1,
-                    [data-lightboxid="'.$playlist_name.'"] [data-lightboxframe="true"] h1 {
-                        font-size: 80px !important;
-                    }
-            
                     [data-lightboxid="'.$playlist_name.'"] .lightbox-playlist-container .playlist-logo {
                         min-width: 380px !important;
                         max-width: 380px !important;
@@ -653,9 +648,9 @@
 
             function initialize_'.$playlist_name.'_playlist() {
 
-                // Load Youtube Data From Local Storage
+                // Load '.$type.' Data From Local Storage
 
-                const '.$playlist_name.'_youtube_data = JSON.parse(localStorage.getItem("' . $playlist_name . '_youtube_playlist"));
+                const '.$playlist_name.'_'.$type.'_data = JSON.parse(localStorage.getItem("' . $playlist_name . '_'.$type.'_playlist"));
 
                 // Play button Icon
 
@@ -695,20 +690,20 @@
                             showTextOverlay: false,
                             instructionMessage: null,
                             fontFamily: null,
-                            showplaylist: false
+                            lightboxshowplaylist: false
                         }
                     }
 
                     const { title, thumbnail, publishedDate, id, description } = item;
-                    const { showPlayButton, playButtonIconImgUrl, playButtonStyling, showTextOverlay, instructionMessage, fontFamily, showplaylist } = settings;
+                    const { showPlayButton, playButtonIconImgUrl, playButtonStyling, showTextOverlay, instructionMessage, fontFamily, lightboxshowplaylist } = settings;
                     const htmlRender = `
-                        <!-- ' .$playlist_name. ' Youtube Playlist Video - ${title} (Published On - ${publishedDate}) -->
-                        <a ${settings.fontFamily ? `style=${fontFamily}` : ""} class="'.$playlist_name.'-youtube-video-item${showTextOverlay ? `-text-overlay-enabled` : ``}" data-itemclickable="true" data-id="${id}" ${showplaylist ? `data-showplaylist="true"` : ""}>
-                            <div class="'.$playlist_name.'-youtube-video-thumbnail-text-wrapper">
-                                <img class="'.$playlist_name.'-youtube-video-item-thumbnail" src="${thumbnail.url}" width="${thumbnail.width}" height="${thumbnail.height}" alt="${title}">
+                        <!-- ' .$playlist_name. ' '.$type.' playlist video - ${title} (Published On - ${publishedDate}) -->
+                        <a ${settings.fontFamily ? `style=${fontFamily}` : ""} class="'.$playlist_name.'-'.$type.'-video-item${showTextOverlay ? `-text-overlay-enabled` : ``}" data-itemclickable="true" data-id="${id}" ${lightboxshowplaylist ? `data-lightboxshowplaylist="true"` : ""}>
+                            <div class="'.$playlist_name.'-'.$type.'-video-thumbnail-text-wrapper">
+                                <img class="'.$playlist_name.'-'.$type.'-video-item-thumbnail" src="${thumbnail.url}" width="${thumbnail.width}" height="${thumbnail.height}" alt="${title}">
                                 ${showPlayButton ? 
                                     `
-                                        <div class="'.$playlist_name.'-youtube-item-play-button" style="${playButtonStyling}">
+                                        <div class="'.$playlist_name.'-'.$type.'-item-play-button" style="${playButtonStyling}">
                                             ${showPlayButton ? 
                                                 `${playButtonIconImgUrl ? `<img src="${playButtonIconImgUrl}">` :
                                                     '.$playlist_name.'_play_button_icon_html
@@ -719,7 +714,7 @@
                                 : ``}
                                 ${showTextOverlay ? 
                                     `
-                                        <div class="'.$playlist_name.'-youtube-text-overlay">
+                                        <div class="'.$playlist_name.'-'.$type.'-text-overlay">
                                             <h3>${item.titledEpisode !== -1 ? `Episode ${item.titledEpisode}` : `${item.title}`}</h3>
                                             <p>${instructionMessage}</p>
                                         </div>
@@ -732,7 +727,7 @@
                     return htmlRender;
                 }
 
-                // Look Through Videos Added On Page And Generate HTML Code Where Divs With Specified Data Attributes For Youtube Widget Access Were
+                // Look Through Videos Added On Page And Generate HTML Code Where Divs With Specified Data Attributes For Media Widget Access Were
 
                 let '.$playlist_name.'_show_logo_img_url = null;
 
@@ -749,11 +744,17 @@
                 let '.$playlist_name.'_show_theme_color = "#fff";
 
                 window.addEventListener("load", () => {
-                    const '.$playlist_name.'_videos_items_on_page = document.querySelectorAll(`[data-widget="youtube"]`);
+                    const '.$playlist_name.'_videos_items_on_page = document.querySelectorAll(`[data-mediaplatform="'.$type.'"]`);
                     if ('.$playlist_name.'_videos_items_on_page.length > 0) {
                         '.$playlist_name.'_videos_items_on_page.forEach(item => {
 
                             const itemData = item.dataset;
+
+                            // Check That Item Corresponds To Correct Playlist.  If Not, Return To Exit
+
+                            if (itemData.playlistname !== "'.$playlist_name.'") {
+                                return
+                            }
 
                             // Select Video
 
@@ -762,10 +763,10 @@
                             let index;
 
                             if (episodeNumber) {
-                                index = '.$playlist_name.'_youtube_data.findIndex(item => item.titledEpisode === Number(episodeNumber));
+                                index = '.$playlist_name.'_'.$type.'_data.findIndex(item => item.titledEpisode === Number(episodeNumber));
                             }
                             if (nameSelect) {
-                                index = '.$playlist_name.'_youtube_data.findIndex(item => item.title.toLowerCase().includes(nameSelect.toLowerCase()));
+                                index = '.$playlist_name.'_'.$type.'_data.findIndex(item => item.title.toLowerCase().includes(nameSelect.toLowerCase()));
                             }
                             if (itemData.orderdescending) {
                                 index = Number(itemData.orderdescending) - 1;
@@ -785,27 +786,27 @@
 
                             // Declare Show Theme Color
 
-                            if (item.dataset.'.$playlist_name.'_show_theme_color ) {
-                                '.$playlist_name.'_show_theme_color  = item.dataset.'.$playlist_name.'_show_theme_color 
+                            if (itemData.lightboxthemecolor ) {
+                                '.$playlist_name.'_show_theme_color  = itemData.lightboxthemecolor 
                             }
 
                             // Show Logo Image URL
 
-                            if (item.dataset.'.$playlist_name.'_show_logo_img_url) {
-                                '.$playlist_name.'_show_logo_img_url = item.dataset.'.$playlist_name.'_show_logo_img_url;
+                            if (itemData.lightboxshowlogoimgurl) {
+                                '.$playlist_name.'_show_logo_img_url = itemData.lightboxshowlogoimgurl;
                             }
 
                             // Lightbox Font
 
-                            if (item.dataset.lightboxfont) {
-                                '.$playlist_name.'_lightbox_font = item.dataset.lightboxfont;
+                            if (itemData.lightboxfont) {
+                                '.$playlist_name.'_lightbox_font = itemData.lightboxfont;
                             }
                             
                             // Text Overlay Messages
 
                             const instructionMessage = itemData.instructionMessage ? itemData.instructionMessage : "Click Here To Watch";
 
-                            const showplaylist = itemData.showplaylist && itemData.showplaylist === "true" ? true : false;
+                            const lightboxshowplaylist = itemData.lightboxshowplaylist && itemData.lightboxshowplaylist === "true" ? true : false;
                             
                             const settings = {
                                 showPlayButton,
@@ -814,10 +815,19 @@
                                 showTextOverlay,
                                 instructionMessage,
                                 fontFamily,
-                                showplaylist
+                                lightboxshowplaylist
                             };
-                            if ('.$playlist_name.'_youtube_data[index]) {
-                                item.outerHTML = '.$playlist_name.'_render_video_item('.$playlist_name.'_youtube_data[index], settings);
+
+                            // Checks If multiplegrid parameter was provided
+
+                            if (itemData.multiplegrid && Number(itemData.multiplegrid) !== NaN) {
+                                const renderGridData = '.$playlist_name.'_'.$type.'_data.filter((item, index) => index < Number(itemData.multiplegrid));
+                                item.outerHTML = renderGridData.map(row => '.$playlist_name.'_render_video_item(row, settings)).join("");
+                                return
+                            } 
+
+                            if ('.$playlist_name.'_'.$type.'_data[index]) {
+                                item.outerHTML = '.$playlist_name.'_render_video_item('.$playlist_name.'_'.$type.'_data[index], settings);
                                 return;
                             } else item.outerHTML = `<h3>No video item found in playlist based upon search parameters provided.</h3>`
 
@@ -827,7 +837,7 @@
                     // Generate Lightbox HTML Root Tag In Body
 
                     const '.$playlist_name.'_lightbox_div = document.createElement("div");
-                    '.$playlist_name.'_lightbox_div.dataset.type = "youtube";
+                    '.$playlist_name.'_lightbox_div.dataset.type = "'.$type.'";
                     '.$playlist_name.'_lightbox_div.dataset.lightboxid = "'.$playlist_name.'";
                     document.body.appendChild('.$playlist_name.'_lightbox_div);
                     const lightbox = document.querySelector(`[data-lightboxid = "'.$playlist_name.'"]`);
@@ -854,21 +864,21 @@
                             <div class="lightbox-video-frame">
                                 <div class="lightbox-frames" data-lightboxframes="true">
                                 <div data-frameposition="-1" class="frame-transition-left video-thumbnail-wrapper" data-lightboxframe="true">
-                                    <iframe width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+                                    <iframe width="560" height="315" title="'.$type.' video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
                                     </iframe>
                                     <div class="hover-text-container">
                                     <h1></h1>
                                     </div>
                                 </div>
                                 <div data-frameposition="0" class="video-thumbnail-wrapper" data-lightboxframe="true">
-                                    <iframe width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+                                    <iframe width="560" height="315" title="'.$type.' video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
                                     </iframe>
                                     <div class="hover-text-container">
                                     <h1></h1>
                                     </div>
                                 </div>
                                 <div data-frameposition="1" class="frame-transition-right video-thumbnail-wrapper" data-lightboxframe="true">
-                                    <iframe width="560" height="315" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+                                    <iframe width="560" height="315" title="'.$type.' video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
                                     </iframe>
                                     <div class="hover-text-container">
                                     <h1></h1>
@@ -905,7 +915,7 @@
 
                     let '.$playlist_name.'_lightbox_activated = false;
 
-                    function '.$playlist_name.'_lightbox_activate_handler(itemClicked, showPlaylist) {
+                    function '.$playlist_name.'_lightbox_activate_handler(itemClicked, lightboxshowplaylist) {
 
                         const lightbox = '.$playlist_name.'_lightbox_div;
                         lightbox.innerHTML = "";
@@ -927,11 +937,11 @@
 
                         // Playlist Button
 
-                        const playlistButton = showPlaylist ? '.$playlist_name.'_play_button_icon_html : null;
+                        const playlistButton = lightboxshowplaylist ? '.$playlist_name.'_play_button_icon_html : null;
 
-                        // Youtube Playlist Selected
+                        // '.$type.' Playlist Selected
 
-                        const playListSorted = showPlaylist ? '.$playlist_name.'_youtube_data : '.$playlist_name.'_youtube_data.filter(item => item.id === itemClicked.dataset.id);
+                        const playListSorted = lightboxshowplaylist ? '.$playlist_name.'_'.$type.'_data : '.$playlist_name.'_'.$type.'_data.filter(item => item.id === itemClicked.dataset.id);
                         
                         // Elements To Hide When User Idle In Lightbox After 5 Seconds
 
@@ -947,7 +957,9 @@
 
                         // Lightbox Base Url Origin
 
-                        const lightboxFrameVideoBaseUrl = "https://www.youtube.com/embed/";
+                        const lightboxFrameVideoBaseUrl = '; echo $type === "youtube" ? "`https://www.youtube.com/embed/`" : "";
+                    
+                        echo '
 
                         // Sets Media Query Break Point Of When Video Containers Should Stack In One Column.  Calculation Based Upon minimumWidthOfEachVideo Number.  Default Value Is: minimumWidthOfEachGridVideoItem * 2
 
@@ -1018,7 +1030,7 @@
                         lightbox.addEventListener(`mousemove`, e => lightboxMouseMoveHandler(e, elementsToHideWhenIdle));
                         lightbox.addEventListener(`click`, e => lightboxMouseMoveHandler(e, elementsToHideWhenIdle));
 
-                        // Video Index And Base Url For Youtube Embed Iframe.  Will Be Set To 0 If Returned Value Is -1
+                        // Video Index And Base Url For '.$type.' Embed Iframe.  Will Be Set To 0 If Returned Value Is -1
 
                         let currentVideoIndex;
 
@@ -1316,13 +1328,15 @@
 
                 function frameTransitionHandler(frame, direction, type, currentVideoIndex, transitionType, fastForward) {
                 
-                    // Youtube Playlist Selected
+                    // '.$type.' Playlist Selected
 
-                    const playListSorted = '.$playlist_name.'_youtube_data;
+                    const playListSorted = '.$playlist_name.'_'.$type.'_data;
 
                     // Lightbox Base Url Origin
 
-                    const lightboxFrameVideoBaseUrl = "https://www.youtube.com/embed/";
+                    const lightboxFrameVideoBaseUrl = '; echo $type === "youtube" ? "`https://www.youtube.com/embed/`" : "";
+                    
+                    echo '
 
                     // Frame Transition Time
 
@@ -1481,7 +1495,7 @@
                     
                     videoItemsRendered.forEach(item => {
                         item.addEventListener("click", () => {
-                            if (item.dataset.showplaylist && item.dataset.showplaylist === "true") {
+                            if (item.dataset.lightboxshowplaylist && item.dataset.lightboxshowplaylist === "true") {
                                 '.$playlist_name.'_lightbox_activate_handler(item, true);
                             } else '.$playlist_name.'_lightbox_activate_handler(item, false);
                         });
@@ -1506,18 +1520,18 @@
             <!-- TESTING ONLY -->
 
             <div style="width: 88.85vw; height: 50vw;">
-                <div data-widget="youtube" 
+                <div data-mediaplatform="youtube" 
                     data-playlistname="living_large_tv"
                     data-playbuttonstyling="width: 30%; height: 30%; opacity: 0.3;"
                     data-showplaybutton="true"
                     data-showTextOverlay="true"
                     data-fontfamily="Poppins"
-                    data-lightboxfont="Poppins"
                     data-orderdescending="1"
-                    data-showplaylist="true"
+                    data-lightboxfont="Poppins"
+                    data-lightboxshowplaylist="true"
                     >
                 </div>
-                <div data-widget="youtube" 
+                <div data-mediaplatform="youtube" 
                     data-playlistname="living_large_tv"
                     data-playbuttonstyling="width: 30%; height: 30%; opacity: 0.3;"
                     data-showplaybutton="true"
@@ -1525,25 +1539,26 @@
                     data-fontfamily="sans-serif"
                     data-lightboxfont="sans-serif"
                     data-episodenumber="128"
-                    data-showplaylist="false"
+                    data-lightboxshowplaylist="false"
                     >
                 </div>
-                <div data-widget="youtube" 
+                <div data-mediaplatform="youtube" 
                     data-playlistname="living_large_tv"
-                    data-nameselect="135" 
+                    data-multiplegrid="6"
+                    data-orderdescending="75" 
                     data-playbuttonstyling="width: 40%; height: 40%; opacity: 0.3;"
                     data-showplaybutton="true"
                     data-showTextOverlay="true"
                     data-fontfamily="roboto"
-                    data-'.$playlist_name.'_show_theme_color ="#F36C21"
-                    data-'.$playlist_name.'_show_logo_img_url="https://livinglarge-tv.com/wp-content/uploads/2022/08/MH-DeskScreenLogo-1.png"
+                    data-lightboxshowplaylist="true"
+                    data-lightboxthemecolor ="#F36C21"
+                    data-lightboxshowlogoimgurl="https://livinglarge-tv.com/wp-content/uploads/2022/08/MH-DeskScreenLogo-1.png"
                     data-lightboxfont="Poppins"
-                    data-showplaylist="false"
                     >
                 </div>
             </div>
         ';
     }
 
-    get_youtube_playlist('living_large_tv', 'AIzaSyC182q2iM2ZBPSjwNysd2LiAvj-RElMdsw', 'PLE69e89d5PM1U_JyAV5U-dguNaMQ4yGJm');
+    get_media_content('youtube', 'living_large_tv', 'AIzaSyC182q2iM2ZBPSjwNysd2LiAvj-RElMdsw', 'PLE69e89d5PM1U_JyAV5U-dguNaMQ4yGJm');
 ?>
