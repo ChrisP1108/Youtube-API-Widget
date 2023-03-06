@@ -4,7 +4,7 @@
 
     function get_youtube_playlist($playlist_name = 'unnamed', $api_key = null, $playlist_id = null) {
 
-        $cookie_time_storage_name = $playlist_name . '_playlist_stored';
+        $cookie_time_storage_name = $playlist_name . '_playlist_storage_expiration';
 
         // Time That Playlist In Local Storage Will Be Utilized For Before Another API Call.  Time In Seconds
         
@@ -45,14 +45,90 @@
                 $youtube_items = array_merge($youtube_items, $youtube_loop['items']);
             }
 
+            // Combine All Youtube Video Items Together From While Loop If Looped Through
+
             $youtube_data['items'] = $youtube_items;
+
+            // Youtube Video Items Parsed And Formatted For Easier Handling
+
+            $parsed_youtube_data = [];
+
+            // Assign Episode Number Based Upon Number In Title.  If No Number Found Or Number Is Greater Than 2000, -1 Is Assigned To titledEpisode
+
+            function episode_number_generator($title) {
+                $output = '';
+                $splitter = str_split($title);
+                foreach($splitter as $char) {
+                    if (preg_match('/[0-9]/', $char) === 1) {
+                        $output .= $char;
+                    } else {
+                        if ($output !== '') {
+                            break;
+                        }
+                    }
+                }
+                $output = intval($output);
+                if ($output !== 0 && $output < 2000) {
+                    return intval($output);
+                } else return -1;
+            }
+
+            // Loop Through Video Items And Parse Accordingly
+
+            foreach($youtube_data['items'] as $item) {
+                $itemOutput = [];
+                if ($item) {
+                    if ($item['snippet']) {
+                        $snippet = $item['snippet'];
+                        if ($snippet['title'] !== '') {
+                            $itemOutput['titledEpisode'] = episode_number_generator($snippet['title']);
+                            $itemOutput['title'] = $snippet['title'];
+                        } else {
+                            $itemOutput['titledEpisode'] = null;
+                            $itemOutput['title'] = null;
+                        }
+                        if ($snippet['resourceId'] && $snippet['resourceId']['videoId']) {
+                            $itemOutput['id'] = $snippet['resourceId']['videoId'];
+                        } else $itemOutput['id'] = null;
+                        if ($snippet['thumbnails']) {
+                            $thumbnails = $snippet['thumbnails'];
+                            if ($thumbnails['maxres']) {
+                                $itemOutput['thumbnail'] = $thumbnails['maxres'];
+                            } else if ($thumbnails['standard']) {
+                                $itemOutput['thumbnail'] = $thumbnails['standard'];
+                            } else if ($thumbnails['high']) {
+                                $itemOutput['thumbnail'] = $thumbnails['high'];
+                            } else if ($thumbnails['medium']) {
+                                $itemOutput['thumbnail'] = $thumbnails['medium'];
+                            } else if ($thumbnails['default']) {
+                                $itemOutput['default'] = $thumbnails['default'];
+                            }
+                        } else $itemOutput['thumbnail'] = null;
+                        if ($snippet['publishedAt'] !== '') {
+                            $itemOutput['publishedDate'] = $snippet['publishedAt'];
+                        } else $itemOutput['publishedDate'] = null;
+                        if ($snippet['description'] !== '') {
+                            $itemOutput['description'] = $snippet['description'];
+                        } else $itemOutput['description'] = null;
+                    } else return null;
+                } else $itemOutput['id'] = null;
+
+                array_push($parsed_youtube_data, $itemOutput);
+            }
+
+            // Sort List Based Upon titledEpisode Number Generated
+
+            $key_values = array_column($parsed_youtube_data, 'titledEpisode');
+            array_multisort($key_values, SORT_DESC, $parsed_youtube_data);
+
+            // Set Cookie Storage Time Stamp And Output Parsed Youtube Data Into Browser Local Storage
 
             setcookie($cookie_time_storage_name, $cookie_expiration_time, $cookie_expiration_time, '/', '', 0, false);
 
-            echo '<script>localStorage.setItem("'. $playlist_name .'_youtube_playlist", JSON.stringify('. json_encode($youtube_data) .')); console.log("'. $playlist_name .' youtube data loaded from API and stored on localStorage as `youtubePlaylists.`");</script>';
+            echo '<script>localStorage.setItem("'. $playlist_name .'_youtube_playlist", JSON.stringify('. json_encode($parsed_youtube_data) .')); console.log("'. $playlist_name .' youtube data loaded from API and stored on localStorage as `youtubePlaylists.`");</script>';
         } else {
             echo '<script>
-                    console.log("'. $playlist_name .' youtube data loaded from localStorage as the existing data is still within the time storage interval.");
+                    console.log("'. $playlist_name .' youtube data loaded from localStorage as the storage expiration time has not yet passed.  Current remaining time until expiration is '. ($_COOKIE[$cookie_time_storage_name] - time()).' seconds.  If a fresh call to the API needs to be made prior to the expiration time, clear the cookie named `'.$cookie_time_storage_name .'` and reload the page.");
                 </script>
             ';
         }
@@ -570,82 +646,9 @@
 
             <script>
 
-                // Load Youtube Widget
+                // Load Youtube Data From Local Storage
 
-                // Episode Number Assigning
-
-                function '.$playlist_name.'_number_reducer(input) {
-                    let finalResult;
-                    function hasNumber(numCheck) {
-                        return numCheck.search(/[0-9]/) > -1 ? numCheck.search(/[0-9]/) : -1;
-                    }
-                    const hasOneDigit = hasNumber(input);
-                    if (hasOneDigit > -1) {
-                        input = input.slice(input.search(/[0-9]/));
-                        finalResult = input[0];
-                        for (let i = 1; hasNumber(input.slice(i)) > -1; i++) {
-                        finalResult += input[i] 
-                        }
-                        return Number(finalResult)
-                    } else return -1
-                }
-
-                // Data List Sorting
-
-                const '.$playlist_name.'_sort_videos_by = "number-descending";
-
-                function '.$playlist_name.'_list_sorter(a, b) {
-                    const aTime = Date.parse(a.publishedDate);
-                    const bTime = Date.parse(b.publishedDate);
-                    const sortVideosBy = '.$playlist_name.'_sort_videos_by;
-                    switch (sortVideosBy) {
-                        case "number-descending":
-                            return a.titledEpisode < b.titledEpisode ? 1 : -1;
-                        case "number-ascending":
-                            return a.titledEpisode < b.titledEpisode ? -1 : 1;
-                        case "date-descending":
-                            return aTime < bTime ? 1 : -1;
-                        case "date-ascending":
-                            return aTime < bTime ? -1 : 1;
-                    }
-                }
-
-                // Parse Youtube Data
-
-                const '.$playlist_name.'_youtube_data = JSON.parse(localStorage.getItem("' . $playlist_name . '_youtube_playlist")).items.map(item => {
-                    const itemOutput = { };
-                    if (item) {
-                        if (item.snippet) {
-                            const { snippet } = item;
-                            if (snippet.title) {
-                                itemOutput.titledEpisode = '.$playlist_name.'_number_reducer(snippet.title)
-                                itemOutput.title = snippet.title;
-                            } else { 
-                                itemOutput.titledEpisode = null;
-                                itemOutput.title = null;
-                            }
-                            if (snippet.resourceId && snippet.resourceId.videoId) {
-                                itemOutput.id = snippet.resourceId.videoId
-                            } else itemOutput.id = null;
-                            if (snippet.thumbnails) {
-                                const thumbnails = snippet.thumbnails;
-                                itemOutput.thumbnail = thumbnails.maxres ? thumbnails.maxres : thumbnails.standard ? thumbnails.standard : thumbnails.high ? thumbnails.high : thumbnails.medium ? thumbnails.medium : thumbnails.default;
-                            } else itemOutput.thumbnail = null;
-                            if (snippet.publishedAt) {
-                                itemOutput.publishedDate = snippet.publishedAt
-                            } else itemOutput.publishedDate = null;
-                            if (snippet.description) {
-                                itemOutput.description = snippet.description;
-                            } else itemOutput.description = null;
-                        } else return null;
-                        itemOutput.titledEpisode = '.$playlist_name.'_number_reducer(item.snippet.title)
-                    } else itemOutput.id = null;
-                    return itemOutput;
-                });
-
-                // Sort youtubeData
-
-                '.$playlist_name.'_youtube_data.sort((a, b) => '.$playlist_name.'_list_sorter(a, b));
+                const '.$playlist_name.'_youtube_data = JSON.parse(localStorage.getItem("' . $playlist_name . '_youtube_playlist"));
 
                 // Play button Icon
 
@@ -749,7 +752,6 @@
 
                             const nameSelect = itemData.nameselect;
                             const episodeNumber = itemData.episodenumber;
-                            const orderDescending = itemData.orderdescending - 1;
                             let index;
 
                             if (episodeNumber) {
@@ -758,8 +760,8 @@
                             if (nameSelect) {
                                 index = '.$playlist_name.'_youtube_data.findIndex(item => item.title.toLowerCase().includes(nameSelect.toLowerCase()));
                             }
-                            if (orderDescending) {
-                                index = Number(orderDescending);
+                            if (itemData.orderdescending) {
+                                index = Number(itemData.orderdescending) - 1;
                             }
 
                             // CSS Styling
@@ -1074,7 +1076,7 @@
 
                         function gridItemsProcessing(outputList, playlist) {
 
-                            const sortVideosBy = '.$playlist_name.'_sort_videos_by;
+                            const sortVideosBy = "number-descending";
 
                             return outputList.map(item => {
                                 if (!item.id) {
@@ -1490,18 +1492,29 @@
             <div style="width: 88.85vw; height: 50vw;">
                 <div data-widget="youtube" 
                     data-playlistname="living_large_tv"
-                    data-nameselect="140" 
                     data-playbuttonstyling="width: 30%; height: 30%; opacity: 0.3;"
                     data-showplaybutton="true"
                     data-showTextOverlay="true"
-                    data-fontfamily="Poppins",
-                    data-lightboxfont="Poppins",
+                    data-fontfamily="Poppins"
+                    data-lightboxfont="Poppins"
+                    data-orderdescending="1"
                     data-showplaylist="true"
                     >
                 </div>
                 <div data-widget="youtube" 
                     data-playlistname="living_large_tv"
-                    data-nameselect="99" 
+                    data-playbuttonstyling="width: 30%; height: 30%; opacity: 0.3;"
+                    data-showplaybutton="true"
+                    data-showTextOverlay="true"
+                    data-fontfamily="sans-serif"
+                    data-lightboxfont="sans-serif"
+                    data-episodenumber="128"
+                    data-showplaylist="false"
+                    >
+                </div>
+                <div data-widget="youtube" 
+                    data-playlistname="living_large_tv"
+                    data-nameselect="135" 
                     data-playbuttonstyling="width: 40%; height: 40%; opacity: 0.3;"
                     data-showplaybutton="true"
                     data-showTextOverlay="true"
