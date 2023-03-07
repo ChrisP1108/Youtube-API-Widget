@@ -1,4 +1,5 @@
-<?php 
+
+    // Version 2.1
 
     // Gets Media Data.  API Key And PlaylistID Must Be Passed In
 
@@ -138,7 +139,7 @@
 
             // Set Cookie Storage Time Stamp And Output Parsed '.$type.' Data Into Browser Local Storage
 
-            setcookie($cookie_time_storage_name, $cookie_expiration_time, $cookie_expiration_time, '/', '', 0, false);
+            setcookie($cookie_time_storage_name, $cookie_expiration_time, $cookie_expiration_time);
 
             echo '<script>localStorage.setItem("'. $playlist_name . '_'. $type .'_playlist", JSON.stringify('. json_encode($parsed_data) .')); console.log("`'. $playlist_name . '` '. $type .' data loaded from API and saved on Local Storage as `'. $playlist_name .'_'.$type.'_playlist.`  Remaining time till expiration of stored data is '. $cookie_storage_time_interval .' seconds.  After expiration, a new API call will be made and the data will be updated again when the browser is reloaded again.");</script>';
         } else {
@@ -432,7 +433,8 @@
                 }
                 [data-lightboxid="'.$playlist_name.'"] .lightbox-playlist-container .playlist-logo {
                     top: 0;
-                    height: auto !important;
+                    height: clamp(80px, 20vh, 360px);
+                    width: auto;
                     padding: 0 16px 24px;
                     min-width: 18vw !important;
                     max-width: 30vh !important;
@@ -1575,55 +1577,5 @@
             initialize_'.$playlist_name.'_playlist();
 
             </script>
-
-            <!-- TESTING ONLY -->
-
-            <div style="width: 100%; height: 100%">
-                <div data-mediaplatform="youtube" 
-                    data-playlistname="living_large_tv"
-                    data-playbuttonstyling="width: 30%; height: 30%; opacity: 0.3;"
-                    data-showplaybutton="true"
-                    data-showTextOverlay="true"
-                    data-fontfamily="Poppins"
-                    data-orderdescending="1"
-                    data-lightboxfont="Poppins"
-                    data-lightboxshowplaylist="true"
-                    >
-                </div>
-                <div data-mediaplatform="youtube" 
-                    data-playlistname="living_large_tv"
-                    data-playbuttonstyling="width: 30%; height: 30%; opacity: 0.3;"
-                    data-showplaybutton="true"
-                    data-showTextOverlay="true"
-                    data-fontfamily="sans-serif"
-                    data-lightboxfont="sans-serif"
-                    data-episodenumber="139"
-                    data-lightboxshowplaylist="false"
-                    >
-                </div>
-                <div data-mediaplatform="youtube" 
-                    data-playlistname="living_large_tv"
-                    data-multiplegrid="true"
-                    data-multiplegridgap="48px"
-                    data-multipleminsize="400px"
-                    data-multiplegridshowall="false"
-                    data-multiplegridlimititems="6"
-                    data-multiplegridepisoderange="100-110"
-                    data-multiplegridsearch=""
-                    data-orderdescending="75" 
-                    data-playbuttonstyling="width: 35%; height: 35%; opacity: 0.3;"
-                    data-showplaybutton="true"
-                    data-showTextOverlay="true"
-                    data-fontfamily="roboto"
-                    data-lightboxshowplaylist="true"
-                    data-lightboxthemecolor ="#F36C21"
-                    data-lightboxshowlogoimgurl="https://livinglarge-tv.com/wp-content/uploads/2022/08/MH-DeskScreenLogo-1.png"
-                    data-lightboxfont="Poppins"
-                    >
-                </div>
-            </div>
         ';
     }
-
-    get_media_content('youtube', 'living_large_tv', 'AIzaSyC182q2iM2ZBPSjwNysd2LiAvj-RElMdsw', 'PLE69e89d5PM1U_JyAV5U-dguNaMQ4yGJm');
-?>
