@@ -3,21 +3,11 @@
 
     // Gets Media Data.  API Key And PlaylistID Must Be Passed In
 
-    function get_media_content($type = null, $playlist_name = 'unnamed', $api_key = null, $playlist_id = null) {
-
-        $cookie_time_storage_name = $playlist_name . '_'. $type . '_playlist_storage_expiration';
-
-        // Time That Playlist In Local Storage Will Be Utilized For Before Another API Call.  Time In Seconds
+    function get_media_content($type = null, $playlist_name = 'unnamed', $api_key = null, $playlist_id = null, $expired = true) {
         
-        $cookie_storage_time_interval = 3600;
+        // Checks If Cookie Has Expired Based Upon Expiration Parameter
 
-        // Cookie Expiration Time
-
-        $cookie_expiration_time = time() + $cookie_storage_time_interval;
-
-        // Checks If Cookie Is Already Stored On Server And Is Within Time Interval.  If Not, Then New API Call Made And New Cookie Set
-
-        if (!isset($_COOKIE[$cookie_time_storage_name]) || $_COOKIE[$cookie_time_storage_name] < time()) {
+        if ($expired) {
 
             // Declare Parsed Data
 
@@ -139,12 +129,10 @@
 
             // Set Cookie Storage Time Stamp And Output Parsed '.$type.' Data Into Browser Local Storage
 
-            setcookie($cookie_time_storage_name, $cookie_expiration_time, $cookie_expiration_time);
-
-            echo '<script>localStorage.setItem("'. $playlist_name . '_'. $type .'_playlist", JSON.stringify('. json_encode($parsed_data) .')); console.log("`'. $playlist_name . '` '. $type .' data loaded from API and saved on Local Storage as `'. $playlist_name .'_'.$type.'_playlist.`  Remaining time till expiration of stored data is '. $cookie_storage_time_interval .' seconds.  After expiration, a new API call will be made and the data will be updated again when the browser is reloaded again.");</script>';
+            echo '<script>localStorage.setItem("'. $playlist_name . '_'. $type .'_playlist", JSON.stringify('. json_encode($parsed_data) .')); console.log("`'. $playlist_name . '` '. $type .' data loaded from API and saved on Local Storage as `'. $playlist_name .'_'.$type.'_playlist.`.");</script>';
         } else {
             echo '<script>
-                    console.log("`'. $playlist_name . '` '. $type .' data loaded from Local Storage as the storage expiration time has not yet passed.  Current remaining time until expiration is '. ($_COOKIE[$cookie_time_storage_name] - time()).' seconds.  If a fresh call to the API needs to be made prior to the expiration time, clear the cookie named `'.$cookie_time_storage_name .'` and reload the page.");
+                    console.log("`'. $playlist_name . '` '. $type .' data loaded from Local Storage as the storage expiration time has not yet passed.  If a fresh call to the API needs to be made, clear your browser cookie that has the name corresponding to what the PHP snippet code shows.");
                 </script>
             ';
         }
@@ -242,6 +230,7 @@
                 .'.$playlist_name.'-'.$type.'-text-overlay h3 {
                     font-size: min(9.5vw, 40px);
                     font-family: inherit !important;
+                    font-weight: 700;
                 }
                 .'.$playlist_name.'-'.$type.'-text-overlay p {
                     font-size: min(7vw, 1.375rem);
@@ -870,14 +859,14 @@
 
                                     // Will override search and limit items if parameter is present for episode range
 
-                                    if (itemData.multiplegridepisoderange && itemData.multiplegridepisoderange !== "" && itemData.multiplegridepisoderange.includes("-")) {
+                                    if (itemData.multiplegridepisoderange && itemData.multiplegridepisoderange !== "" && itemData.multiplegridepisoderange.includes("-") && itemData.multiplegridepisoderange !== "-" && /[0-9]/.test(itemData.multiplegridepisoderange)) {
                                         const splitter = itemData.multiplegridepisoderange.split("-");
                                         renderGridData = [...'.$playlist_name.'_'.$type.'_data];
                                         renderGridData = renderGridData.filter(item => item.titledEpisode >= Number(splitter[0]) && item.titledEpisode <= Number(splitter[1]));
                                     }
                                 }
                                 const gapBetweenVideos = itemData.multiplegridgap ? itemData.multiplegridgap : "48px";
-                                const minSize = itemData.multipleminsize ? itemData.multipleminsize : "400px";
+                                const minSize = itemData.multiplegridminsize ? itemData.multiplegridminsize : "400px";
                                 if (renderGridData.length > 0) {
                                     item.outerHTML = 
                                         `<div class="'.$playlist_name.'_multiple_grid_layout" style="gap: ${gapBetweenVideos}; grid-template-columns: repeat(auto-fill, minmax(min(100%, ${minSize}), 1fr));">
