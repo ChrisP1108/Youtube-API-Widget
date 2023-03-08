@@ -154,6 +154,7 @@
                     display: flex;
                     justify-content: center;
                     align-items: center;
+                    font-family: inherit !important
                 }
 
                 [data-mediaplatform="youtube"]::before {
@@ -165,7 +166,7 @@
                     display: flex;
                     justify-content: center;
                     align-items: center;
-                    font-family: Roboto;
+                    font-family: inherit !important;
                     font-size: clamp(1.5rem, 2vw, 2rem);
                 }
 
@@ -929,14 +930,14 @@
                                         `<div class="'.$playlist_name.'_multiple_grid_layout" style="gap: ${gapBetweenVideos}; grid-template-columns: repeat(auto-fill, minmax(min(100%, ${minSize}), 1fr));">
                                             ${renderGridData.map(row => '.$playlist_name.'_render_video_item(row, settings)).join("")}
                                         </div>`
-                                } else item.outerHTML = `<h3 style=${fontFamily} class="'.$playlist_name.'_no_results_msg">No video items found in playlist based upon search parameters provided.</h3>`
+                                } else item.outerHTML = `<h3 style="font-family: inherit; background: #000; color: white;" class="'.$playlist_name.'_no_results_msg">No video items found in playlist based upon search parameters provided.</h3>`
                                 return
                             } 
 
                             if ('.$playlist_name.'_'.$type.'_data[index]) {
                                 item.outerHTML = '.$playlist_name.'_render_video_item('.$playlist_name.'_'.$type.'_data[index], settings);
                                 return;
-                            } else item.outerHTML = `<h3 style=${fontFamily} class="'.$playlist_name.'_no_results_msg">No video item found in playlist based upon search parameters provided.</h3>`
+                            } else item.outerHTML = `<h3 style="font-family: inherit; background: #000; color: white;" class="'.$playlist_name.'_no_results_msg">No video item found in playlist based upon search parameters provided.</h3>`
 
                         });
                     }
