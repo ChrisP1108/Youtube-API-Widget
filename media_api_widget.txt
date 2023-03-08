@@ -721,11 +721,11 @@
                 const '.$playlist_name.'_'.$type.'_data = JSON.parse(localStorage.getItem("' . $playlist_name . '_'.$type.'_playlist"));
 
                 if (!'.$playlist_name.'_'.$type.'_data) {
-                    console.error("No data found for playlist or data in Local Storage was deleted.  Try clearing your browser cookies and reload.");
+                    console.error("No data found for `'.$playlist_name.'_'.$type.'` or data in Local Storage was deleted.  Try clearing your browser cookies and reload.");
                 }
 
                 if ('.$playlist_name.'_'.$type.'_data && '.$playlist_name.'_'.$type.'_data.length === 0) {
-                    console.error("Data cannot be loaded.  Playlist is empty.");
+                    console.error("`'.$playlist_name.'_'.$type.'` data cannot be loaded.. Data is empty.");
                 }
 
                 // Play button Icon
