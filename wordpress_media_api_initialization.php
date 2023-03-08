@@ -5,16 +5,19 @@
         // START
 
             // Checks For Cookie.  This allows greater efficiency of the API and improves performance by resuing Local Storage data for a given period of time without having to call the API on every page load.
-            
+	
             global $media_cookie_expired;
 
             add_action('init', function() {
                 global $media_cookie_expired;
-                if (isset($_COOKIE['media_api_stored'])) {
+                $cookie_name = 'media_api_stored';
+                $cookie_expiration_time = time() + 3600;
+                
+                if (isset($_COOKIE[$cookie_name])) {
                     $media_cookie_expired = false;
                 } else {
                     $media_cookie_expired = true;
-                    setcookie('media_api_stored', time() + 3600, time() + 3600, "/"); // 1 Hour
+                    setcookie($cookie_name, $cookie_expiration_time, $cookie_expiration_time, "/"); // 1 Hour
                 }
             });
 
