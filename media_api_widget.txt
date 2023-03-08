@@ -1049,7 +1049,13 @@
 
                         // '.$type.' Playlist Selected
 
-                        const playListSorted = lightboxshowplaylist ? '.$playlist_name.'_'.$type.'_data : '.$playlist_name.'_'.$type.'_data.filter(item => item.id === itemClicked.dataset.id);
+                        let playListSorted = lightboxshowplaylist ? '.$playlist_name.'_'.$type.'_data : '.$playlist_name.'_'.$type.'_data.filter(item => item.id === itemClicked.dataset.id);
+
+                        // Removes Non Episode Numbered Videos From Playlist
+
+                        if ("'.$type.'" === "youtube") {
+                            playListSorted = playListSorted.filter(item => item.titledEpisode && item.titledEpisode !== -1);
+                        }
                         
                         // Elements To Hide When User Idle In Lightbox After 5 Seconds
 
