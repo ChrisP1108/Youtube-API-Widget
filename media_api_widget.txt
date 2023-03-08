@@ -151,6 +151,9 @@
                     width: 100%;
                     height: auto;
                     aspect-ratio: 1.777 / 1;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
                 }
 
                 [data-mediaplatform="youtube"]::before {
@@ -164,6 +167,19 @@
                     align-items: center;
                     font-family: Roboto;
                     font-size: clamp(1.5rem, 2vw, 2rem);
+                }
+
+                [data-mediaplatform="youtube"] h2 {
+                    font-family: Roboto;
+                    font-size: clamp(1.5rem, 2vw, 2rem);
+                    width: 100%;
+                    height: 100%;
+                    background: black;
+                    z-index: 5;
+                    color: white;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
                 }
 
                 /* -- START - Video Item Styling. Some Styling Applies To Lightbox Also -- */
@@ -704,6 +720,14 @@
 
                 const '.$playlist_name.'_'.$type.'_data = JSON.parse(localStorage.getItem("' . $playlist_name . '_'.$type.'_playlist"));
 
+                if (!'.$playlist_name.'_'.$type.'_data) {
+                    console.error("No data found for playlist or data in Local Storage was deleted.  Try clearing your browser cookies and reload.");
+                }
+
+                if ('.$playlist_name.'_'.$type.'_data && '.$playlist_name.'_'.$type.'_data.length === 0) {
+                    console.error("Data cannot be loaded.  Playlist is empty.");
+                }
+
                 // Play button Icon
 
                 const '.$playlist_name.'_play_button_icon_html = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="Layer_1" data-name="Layer 1" viewBox="0 0 145.2 145.2"><defs>
@@ -799,6 +823,11 @@
                     const '.$playlist_name.'_videos_items_on_page = document.querySelectorAll(`[data-mediaplatform="'.$type.'"]`);
                     if ('.$playlist_name.'_videos_items_on_page.length > 0) {
                         '.$playlist_name.'_videos_items_on_page.forEach(item => {
+                            
+                            if (!'.$playlist_name.'_'.$type.'_data || '.$playlist_name.'_'.$type.'_data.length === 0) {
+                                item.innerHTML = "<h2>Error loading video.</h2>";
+                                return;
+                            }
 
                             const itemData = item.dataset;
 
