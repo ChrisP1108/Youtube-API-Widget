@@ -1053,7 +1053,7 @@
 
                         // Removes Non Episode Numbered Videos From Playlist
 
-                        if ("'.$type.'" === "youtube") {
+                        if ("'.$type.'" === "youtube" && lightboxshowplaylist) {
                             playListSorted = playListSorted.filter(item => item.titledEpisode && item.titledEpisode !== -1);
                         }
                         
