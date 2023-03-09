@@ -1,9 +1,9 @@
 
-    // Version 2.1
+    // Version 2.2
 
     // Gets Media Data.  API Key And PlaylistID Must Be Passed In
 
-    function get_media_content($type = null, $playlist_name = 'unnamed', $api_key = null, $playlist_id = null, $expired = true) {
+    function get_media_content($type = null, $playlist_name = 'unnamed', $api_key = null, $media_data = null, $expired = true) {
         
         // Checks If Cookie Has Expired Based Upon Expiration Parameter
 
@@ -12,9 +12,11 @@
             // Declare Parsed Data
 
             $parsed_data = [];
+
+            // Load Youtube Data If Media Is Youtube
             
             if ($type === 'youtube') {
-                $youtube_req_url = 'https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId='. $playlist_id .'&key=' . $api_key . '&maxResults=10000';
+                $youtube_req_url = 'https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId='. $media_data .'&key=' . $api_key . '&maxResults=10000';
 
                 $youtube_get_req = @file_get_contents($youtube_req_url);
 
@@ -46,7 +48,7 @@
 
                 $youtube_data['items'] = $youtube_items;
 
-                // Assign Episode Number Based Upon Number In Title.  If No Number Found Or Number Is Greater Than 2000, -1 Is Assigned To titledEpisode
+                // Assign Episode Number Based Upon Number In Title.  If No Number Found Or Number Is Greater Than 2000, -1 Is Assigned To episode
 
                 function episode_number_generator($title) {
                     $output = '';
@@ -74,10 +76,10 @@
                         if ($item['snippet']) {
                             $snippet = $item['snippet'];
                             if ($snippet['title'] !== '') {
-                                $itemOutput['titledEpisode'] = episode_number_generator($snippet['title']);
+                                $itemOutput['episode'] = episode_number_generator($snippet['title']);
                                 $itemOutput['title'] = $snippet['title'];
                             } else {
-                                $itemOutput['titledEpisode'] = null;
+                                $itemOutput['episode'] = null;
                                 $itemOutput['title'] = null;
                             }
                             if ($snippet['resourceId'] && $snippet['resourceId']['videoId']) {
@@ -109,12 +111,12 @@
                     array_push($parsed_data, $itemOutput);
                 }
 
-                // Sort List Based Upon titledEpisode Number Generated
+                // Sort List Based Upon episode Number Generated
 
-                $key_values = array_column($parsed_data, 'titledEpisode');
+                $key_values = array_column($parsed_data, 'episode');
                 array_multisort($key_values, SORT_DESC, $parsed_data);
 
-                // Checks to make sure there aren't any videos with the same title.  If so, it is removed
+                // Checks to make sure there aren't any Items with the same title.  If so, it is removed
 
                 $pre_duplicate_removal = $parsed_data;
 
@@ -127,6 +129,39 @@
                 $parsed_data = array_values($pre_duplicate_removal);
             }
 
+            if ($type === 'podcast') {
+
+                $rss_feed = @file_get_contents($media_data);
+
+                // $parsed_data = simplexml_load_string($rss_feed);
+
+                $parsed_rss = simplexml_load_string($rss_feed);
+
+                $thumbnail = get_object_vars(get_object_vars($parsed_rss->channel)['image']->url)[0];
+                $title = get_object_vars($parsed_rss->channel)['title'];
+                $copyright = get_object_vars($parsed_rss->channel)['copyright'];
+                
+                $parsed_data['podcast']['image'] = $thumbnail;
+                $parsed_data['podcast']['title'] = $title;
+                $parsed_data['podcast']['copyright'] = $copyright;
+                $parsed_data['items'] = [];
+
+                foreach($parsed_rss->channel->item as $item) {
+                    $arr = get_object_vars($item);
+                    $rss_arr = get_object_vars($parsed_rss->channel);
+                    $audio = get_object_vars($item->enclosure)['@attributes'];
+                    $itemOutput = [];
+                    $itemOutput['title'] = $arr['title'];
+                    $itemOutput['description'] = $arr['description'];
+                    $itemOutput['guid'] = $arr['guid'];
+                    $itemOutput['audio']['url'] = $audio['url'];
+                    $itemOutput['audio']['length'] = $audio['length'];
+                    $itemOutput['audio']['type'] = $audio['type'];
+                    $itemOutput['publishedDate'] = $arr['pubDate'];
+                    array_push($parsed_data['items'], $itemOutput);
+                }
+            }
+
             // Set Cookie Storage Time Stamp And Output Parsed '.$type.' Data Into Browser Local Storage
 
             echo '<script>localStorage.setItem("'. $playlist_name . '_'. $type .'_playlist", JSON.stringify('. json_encode($parsed_data) .')); console.log("`'. $playlist_name . '` '. $type .' data loaded from API and saved on Local Storage as `'. $playlist_name .'_'.$type.'_playlist.`.");</script>';
@@ -137,27 +172,27 @@
             ';
         }
 
-        // Javascript Output To Load Videos And Lightbox
+        // UNIVERSAL CODE FOR ALL MEDIA TYPES
 
         echo '
             <style>
 
                 /* -- '.$playlist_name.' Styling. The CSS styling below is for CSS that will be universal throughout */
 
-                /* -- '.$playlist_name.' Pre-styling of youtube container to show black background prior to rendering*/
+                /* -- '.$playlist_name.' Pre-styling of container to show black background prior to rendering*/
 
-                [data-mediaplatform="youtube"] {
+                [data-mediaplatform="'.$type.'"] {
                     background: #000;
                     width: 100%;
                     height: auto;
-                    aspect-ratio: 1.777 / 1;
+                    aspect-ratio: '; echo $type !== 'podcast' ? '1.777 / 1;' : '1 / 1;'; echo '
                     display: flex;
                     justify-content: center;
                     align-items: center;
                     font-family: inherit !important
                 }
 
-                [data-mediaplatform="youtube"]::before {
+                [data-mediaplatform="'.$type.'"]::before {
                     content: "Loading...";
                     position: absolute;
                     width: 100%;
@@ -170,7 +205,7 @@
                     font-size: clamp(1.5rem, 2vw, 2rem);
                 }
 
-                [data-mediaplatform="youtube"] h2 {
+                [data-mediaplatform="'.$type.'"] h2 {
                     font-family: Roboto;
                     font-size: clamp(1.5rem, 2vw, 2rem);
                     width: 100%;
@@ -183,15 +218,35 @@
                     align-items: center;
                 }
 
-                /* -- START - Video Item Styling. Some Styling Applies To Lightbox Also -- */
-
-                .'.$playlist_name.'-'.$type.'-video-item, .'.$playlist_name.'-'.$type.'-video-item-text-overlay-enabled {
+                .'.$playlist_name.'_no_results_msg {
+                    width: 100%;
+                    height: auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0;
+                    font-size: clamp(1.125rem, 5vw, 1.75rem);
+                    text-align: center;
+                    margin: 0;
+                    padding: clamp(16px, 5vw, 60px);
+                    box-sizing: border-box;
+                    background: #fff;
+                    font-family: inherit;
+                    background: #000;
+                    color: white;
+                    width: 100%;
+                    height: auto;
+                }
+                .'.$playlist_name.'-'.$type.'-media-item, .'.$playlist_name.'-'.$type.'-media-item-text-overlay-enabled,
+                .'.$playlist_name.'-'.$type.'-podcast-item, .'.$playlist_name.'-'.$type.'-podcast-item-text-overlay-enabled
+                {
                     cursor: pointer;
                     position: relative;
                     width: 100%;
                     height: auto;
                     display: block;
                     box-sizing: border-box;
+                    background: #000;
                     animation-name: '.$playlist_name.'-'.$type.'-fade-in;
                     animation-duration: 1s;
                 }
@@ -199,7 +254,7 @@
                     from { opacity: 0; }
                     to { opacity: 1; }
                 }
-                .'.$playlist_name.'-'.$type.'-video-thumbnail-text-wrapper {
+                .'.$playlist_name.'-'.$type.'-item-thumbnail-text-wrapper {
                     width: 100%;
                     background: #000000;
                     box-sizing: border-box;
@@ -207,17 +262,17 @@
                     aspect-ratio: 1.777 / 1;
                     font-family: inherit !important;
                 }
-                .'.$playlist_name.'-'.$type.'-video-item img, .'.$playlist_name.'-'.$type.'-video-item-text-overlay-enabled img, 
-                .'.$playlist_name.'-'.$type.'-video-item svg, .'.$playlist_name.'-'.$type.'-video-item-text-overlay-enabled svg  {
+                .'.$playlist_name.'-'.$type.'-media-item img, .'.$playlist_name.'-'.$type.'-media-item-text-overlay-enabled img, 
+                .'.$playlist_name.'-'.$type.'-media-item svg, .'.$playlist_name.'-'.$type.'-media-item-text-overlay-enabled svg  {
                     transition: 0.5s;
                 }
-                .'.$playlist_name.'-'.$type.'-video-item-text-overlay-enabled:hover > * img:nth-child(1) {
+                .'.$playlist_name.'-'.$type.'-media-item-text-overlay-enabled:hover > * img:nth-child(1) {
                     opacity: 0.25;
                 }
-                .'.$playlist_name.'-'.$type.'-video-item-text-overlay-enabled:hover svg, .'.$playlist_name.'-'.$type.'-video-item:hover > * img:nth-child(2) {
+                .'.$playlist_name.'-'.$type.'-media-item-text-overlay-enabled:hover svg, .'.$playlist_name.'-'.$type.'-media-item:hover > * img:nth-child(2) {
                     opacity: 0;
                 }
-                .'.$playlist_name.'-'.$type.'-video-item-thumbnail {
+                .'.$playlist_name.'-'.$type.'-media-item-thumbnail {
                     object-fit: cover;
                     width: 100%;
                     height: 100%;
@@ -284,26 +339,17 @@
                 .'.$playlist_name.'-'.$type.'-text-overlay:hover {
                     opacity: 1;
                 }
+                </style>
+            ';
+
+        // YOUTUBE HTML, CSS, JAVASCRIPT CODE TO BROWSER
+
+        echo $type === 'youtube' ? '
+                <style>
 
                 .'.$playlist_name.'_multiple_grid_layout {
                     display: grid;
                     grid-template-rows: min-content;
-                }
-
-                .'.$playlist_name.'_no_results_msg {
-                    width: 100%;
-                    height: auto;
-                    aspect-ratio: 1.777 / 1;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin: 0;
-                    font-size: clamp(1.125rem, 5vw, 1.75rem);
-                    text-align: center;
-                    margin: 0;
-                    padding: clamp(16px, 5vw, 60px);
-                    box-sizing: border-box;
-                    background: #fff;
                 }
 
                 /* -- END - Video Item Styling -- */
@@ -331,17 +377,17 @@
                     transition: 0.75s;
                     aspect-ratio: 1.777 / 1;
                 }
-                [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-'.$type.'-video-item {
+                [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-'.$type.'-media-item {
                     filter: grayscale(75%);
                     transition: 0.5s;
                 }
-                [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-'.$type.'-video-item svg {
+                [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-'.$type.'-media-item svg {
                     opacity: 0;
                 }
-                [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-'.$type.'-video-item:hover svg{
+                [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-'.$type.'-media-item:hover svg{
                     opacity: 1 !important;
                 }
-                [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-'.$type.'-video-item:hover {
+                [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-'.$type.'-media-item:hover {
                     filter: grayscale(0%) !important;
                     transform: scale(1.25);
                 }
@@ -512,7 +558,7 @@
                     justify-content: center;
                     z-index: 100;
                 }
-                [data-lightboxid="'.$playlist_name.'"] [data-itemclickable="true"] {
+                [data-lightboxid="'.$playlist_name.'"] [data-itemclickabletype="'.$playlist_name.'_'.$type.'"] {
                     cursor: pointer;
                 }
                 [data-lightboxid="'.$playlist_name.'"] .lightbox-video-frame .fast-forward-overlay h1,
@@ -675,11 +721,11 @@
                         top: 12px;
                         left: calc(100% - 12px);
                     }
-                    [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-'.$type.'-video-item {
+                    [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-'.$type.'-media-item {
                         filter: grayscale(0%) !important;
                         transform: scale(1);
                     }
-                    [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-'.$type.'-video-item:hover {
+                    [data-lightboxid="'.$playlist_name.'"] .'.$playlist_name.'-'.$type.'-media-item:hover {
                         transform: scale(1);
                     }
                     [data-lightboxid="'.$playlist_name.'"] .lightbox-close-button {
@@ -755,7 +801,7 @@
                 
                 // Render Video Item
 
-                function '.$playlist_name.'_render_video_item(item, settings, playlistItem) {
+                function '.$playlist_name.'_render_item(item, settings, playlistItem) {
 
                     // Set Styling For Lightbox Playlist Items
                     
@@ -775,9 +821,9 @@
                     const { showPlayButton, playButtonIconImgUrl, playButtonStyling, showTextOverlay, instructionMessage, fontFamily, lightboxshowplaylist } = settings;
                     const htmlRender = `
                         <!-- ' .$playlist_name. ' '.$type.' playlist video - ${title} (Published On - ${publishedDate}) -->
-                        <a ${settings.fontFamily ? `style=${fontFamily}` : ""} class="'.$playlist_name.'-'.$type.'-video-item${showTextOverlay ? `-text-overlay-enabled` : ``}" data-itemclickable="true" data-id="${id}" ${lightboxshowplaylist ? `data-lightboxshowplaylist="true"` : ""}>
-                            <div class="'.$playlist_name.'-'.$type.'-video-thumbnail-text-wrapper">
-                                <img class="'.$playlist_name.'-'.$type.'-video-item-thumbnail" src="${thumbnail.url}" width="${thumbnail.width}" height="${thumbnail.height}" alt="${title}">
+                        <a ${settings.fontFamily ? `style=${fontFamily}` : ""} class="'.$playlist_name.'-'.$type.'-media-item${showTextOverlay ? `-text-overlay-enabled` : ``}" data-itemclickabletype="'.$playlist_name.'_'.$type.'" data-id="${id}" ${lightboxshowplaylist ? `data-lightboxshowplaylist="true"` : ""}>
+                            <div class="'.$playlist_name.'-'.$type.'-item-thumbnail-text-wrapper">
+                                <img class="'.$playlist_name.'-'.$type.'-media-item-thumbnail" src="${thumbnail.url}" width="${thumbnail.width}" height="${thumbnail.height}" alt="${title}">
                                 ${showPlayButton ? 
                                     `
                                         <div class="'.$playlist_name.'-'.$type.'-item-play-button" style="${playButtonStyling}">
@@ -792,19 +838,19 @@
                                 ${showTextOverlay ? 
                                     `
                                         <div class="'.$playlist_name.'-'.$type.'-text-overlay">
-                                            <h3>${item.titledEpisode !== -1 ? `Episode ${item.titledEpisode}` : `${item.title}`}</h3>
+                                            <h3>${item.episode !== -1 ? `Episode ${item.episode}` : `${item.title}`}</h3>
                                             <p>${instructionMessage}</p>
                                         </div>
                                     ` 
                                 : ``}
                             </div>
-                            ${ playlistItem ? `<h3 class="playlist-episode-text">${item.titledEpisode !== -1 ? `Episode ${item.titledEpisode}` : `${item.title}`}</h3>` : ""} 
+                            ${ playlistItem ? `<h3 class="playlist-episode-text">${item.episode !== -1 ? `Episode ${item.episode}` : `${item.title}`}</h3>` : ""} 
                         </a>
                     `
                     return htmlRender;
                 }
 
-                // Look Through Videos Added On Page And Generate HTML Code Where Divs With Specified Data Attributes For Media Widget Access Were
+                // Look Through Items Added On Page And Generate HTML Code Where Divs With Specified Data Attributes For Media Widget Access Were
 
                 let '.$playlist_name.'_show_logo_img_url = null;
 
@@ -821,9 +867,9 @@
                 let '.$playlist_name.'_show_theme_color = "#fff";
 
                 window.addEventListener("load", () => {
-                    const '.$playlist_name.'_videos_items_on_page = document.querySelectorAll(`[data-mediaplatform="'.$type.'"]`);
-                    if ('.$playlist_name.'_videos_items_on_page.length > 0) {
-                        '.$playlist_name.'_videos_items_on_page.forEach(item => {
+                    const '.$playlist_name.'_items_on_page = document.querySelectorAll(`[data-mediaplatform="'.$type.'"]`);
+                    if ('.$playlist_name.'_items_on_page.length > 0) {
+                        '.$playlist_name.'_items_on_page.forEach(item => {
                             
                             if (!'.$playlist_name.'_'.$type.'_data || '.$playlist_name.'_'.$type.'_data.length === 0) {
                                 item.innerHTML = "<h2>Error loading video.</h2>";
@@ -834,18 +880,18 @@
 
                             // Check That Item Corresponds To Correct Playlist.  If Not, Return To Exit
 
-                            if (itemData.playlistname !== "'.$playlist_name.'") {
+                            if (itemData.playlistname !== "'.$playlist_name.'" && itemData.mediaplatform !== '.$type.') {
                                 return
                             }
 
-                            // Select Video
+                            // Select Item
 
                             const nameSelect = itemData.nameselect;
                             const episodeNumber = itemData.episodenumber;
                             let index;
 
-                            if (episodeNumber) {
-                                index = '.$playlist_name.'_'.$type.'_data.findIndex(item => item.titledEpisode === Number(episodeNumber));
+                            if (episodeNumber && '.$type.' === "youtube") {
+                                index = '.$playlist_name.'_'.$type.'_data.findIndex(item => item.episode === Number(episodeNumber));
                             }
                             if (nameSelect) {
                                 index = '.$playlist_name.'_'.$type.'_data.findIndex(item => item.title.toLowerCase().includes(nameSelect.toLowerCase()));
@@ -920,24 +966,24 @@
                                     if (itemData.multiplegridepisoderange && itemData.multiplegridepisoderange !== "" && itemData.multiplegridepisoderange.includes("-") && itemData.multiplegridepisoderange !== "-" && /[0-9]/.test(itemData.multiplegridepisoderange)) {
                                         const splitter = itemData.multiplegridepisoderange.split("-");
                                         renderGridData = [...'.$playlist_name.'_'.$type.'_data];
-                                        renderGridData = renderGridData.filter(item => item.titledEpisode >= Number(splitter[0]) && item.titledEpisode <= Number(splitter[1]));
+                                        renderGridData = renderGridData.filter(item => item.episode >= Number(splitter[0]) && item.episode <= Number(splitter[1]));
                                     }
                                 }
-                                const gapBetweenVideos = itemData.multiplegridgap ? itemData.multiplegridgap : "48px";
+                                const gapBetweenItems = itemData.multiplegridgap ? itemData.multiplegridgap : "48px";
                                 const minSize = itemData.multiplegridminsize ? itemData.multiplegridminsize : "400px";
                                 if (renderGridData.length > 0) {
                                     item.outerHTML = 
-                                        `<div class="'.$playlist_name.'_multiple_grid_layout" style="gap: ${gapBetweenVideos}; grid-template-columns: repeat(auto-fill, minmax(min(100%, ${minSize}), 1fr));">
-                                            ${renderGridData.map(row => '.$playlist_name.'_render_video_item(row, settings)).join("")}
+                                        `<div class="'.$playlist_name.'_multiple_grid_layout" style="gap: ${gapBetweenItems}; grid-template-columns: repeat(auto-fill, minmax(min(100%, ${minSize}), 1fr));">
+                                            ${renderGridData.map(row => '.$playlist_name.'_render_item(row, settings)).join("")}
                                         </div>`
-                                } else item.outerHTML = `<h3 style="font-family: inherit; background: #000; color: white; aspect-ratio: 1.777 / 1 width: 100%; height: auto;" class="'.$playlist_name.'_no_results_msg">No video items found in playlist based upon search parameters provided.</h3>`
+                                } else item.outerHTML = `<h3 style="aspect-ratio: 1.777 / 1;" class="'.$playlist_name.'_no_results_msg">No video items found in playlist based upon search parameters provided.</h3>`
                                 return
                             } 
 
                             if ('.$playlist_name.'_'.$type.'_data[index]) {
-                                item.outerHTML = '.$playlist_name.'_render_video_item('.$playlist_name.'_'.$type.'_data[index], settings);
+                                item.outerHTML = '.$playlist_name.'_render_item('.$playlist_name.'_'.$type.'_data[index], settings);
                                 return;
-                            } else item.outerHTML = `<h3 style="font-family: inherit; background: #000; color: white; aspect-ratio: 1.777 / 1; width: 100%; height: auto;" class="'.$playlist_name.'_no_results_msg">No video item found in playlist based upon search parameters provided.</h3>`
+                            } else item.outerHTML = `<h3 style="aspect-ratio: 1.777 / 1;" class="'.$playlist_name.'_no_results_msg">No video item found in playlist based upon search parameters provided.</h3>`
 
                         });
                     }
@@ -1051,10 +1097,10 @@
 
                         let playListSorted = lightboxshowplaylist ? '.$playlist_name.'_'.$type.'_data : '.$playlist_name.'_'.$type.'_data.filter(item => item.id === itemClicked.dataset.id);
 
-                        // Removes Non Episode Numbered Videos From Playlist
+                        // Removes Non Episode Numbered Items From Playlist
 
                         if ("'.$type.'" === "youtube" && lightboxshowplaylist) {
-                            playListSorted = playListSorted.filter(item => item.titledEpisode && item.titledEpisode !== -1);
+                            playListSorted = playListSorted.filter(item => item.episode && item.episode !== -1);
                         }
                         
                         // Elements To Hide When User Idle In Lightbox After 5 Seconds
@@ -1071,9 +1117,7 @@
 
                         // Lightbox Base Url Origin
 
-                        const lightboxFrameVideoBaseUrl = '; echo $type === "youtube" ? "`https://www.youtube.com/embed/`" : "";
-                    
-                        echo '
+                        const lightboxFrameVideoBaseUrl = `https://www.youtube.com/embed/`;
 
                         // Sets Media Query Break Point Of When Video Containers Should Stack In One Column.  Calculation Based Upon minimumWidthOfEachVideo Number.  Default Value Is: minimumWidthOfEachGridVideoItem * 2
 
@@ -1086,8 +1130,8 @@
                         // Set Thumbnail Episode Number Or Title Text
 
                         function setThumbnailText(item) {
-                            const { titledEpisode, title } = item;
-                            return titledEpisode !== -1 ? `Episode ${titledEpisode}` : `${title}`
+                            const { episode, title } = item;
+                            return episode !== -1 ? `Episode ${episode}` : `${title}`
                         }
 
                         // Monitors Mouse Movements And Clicks In Lightbox
@@ -1209,12 +1253,12 @@
 
                         function gridItemsProcessing(outputList, playlist) {
 
-                            const sortVideosBy = "number-descending";
+                            const sortItemsBy = "number-descending";
 
-                            // Removes Non Episode Numbered Videos From Playlist
+                            // Removes Non Episode Numbered Items From Playlist
 
                             if ("'.$type.'" === "youtube") {
-                                outputList = outputList.filter(item => item.titledEpisode && item.titledEpisode !== -1);
+                                outputList = outputList.filter(item => item.episode && item.episode !== -1);
                             }
 
                             return outputList.map(item => {
@@ -1225,9 +1269,9 @@
                                     console.error(`Video Playlist Item ${item.id} Did Not Have A Title And Could Not Be Loaded.`)
                                 } else if (item.title.toLowerCase() === `deleted video` || item.title.toLowerCase() === `private video`) {
                                     console.error(`Video Playlist Item ${item.id} Could Not Be Loaded As Its Status Is: ${item.title}`);
-                                } else if (sortVideosBy === `number-ascending` || sortVideosBy === `number-descending` && item.titledEpisode.toString() === `NaN`) {
-                                    console.error(`Video Playlist Item ${item.id} Entitled "${item.title}" Could Not Be Loaded As Number(s) Were Detected In Its Title Name But Could Not Generate An Episode Number.  This Can Occur If The Video Title Has Two Or More Numbers In It.  It Must Have Only One Number In Its Title Name That Pertains To Its Episode Number When Sorting Videos In The "${sortVideosBy}" Mode.  If This Is The Case, Please Change The Title Name Accordingly.`)
-                                } else return '.$playlist_name.'_render_video_item(item, null, playlist);
+                                } else if (sortItemsBy === `number-ascending` || sortItemsBy === `number-descending` && item.episode.toString() === `NaN`) {
+                                    console.error(`Video Playlist Item ${item.id} Entitled "${item.title}" Could Not Be Loaded As Number(s) Were Detected In Its Title Name But Could Not Generate An Episode Number.  This Can Occur If The Video Title Has Two Or More Numbers In It.  It Must Have Only One Number In Its Title Name That Pertains To Its Episode Number When Sorting Items In The "${sortItemsBy}" Mode.  If This Is The Case, Please Change The Title Name Accordingly.`)
+                                } else return '.$playlist_name.'_render_item(item, null, playlist);
                             }).join(``)
                         }
 
@@ -1235,7 +1279,7 @@
 
                         // Event Listeners On Playlist Items Clicked
 
-                        const lightboxPlaylistItems = lightboxPlaylistContent.querySelectorAll(`[data-itemclickable="true"]`);
+                        const lightboxPlaylistItems = lightboxPlaylistContent.querySelectorAll(`[data-itemclickabletype="'.$playlist_name.'_'.$type.'"]`);
 
                         lightboxPlaylistItems.forEach(itemClicked => 
                             itemClicked.addEventListener(`click`, () => {
@@ -1454,9 +1498,7 @@
 
                     // Lightbox Base Url Origin
 
-                    const lightboxFrameVideoBaseUrl = '; echo $type === "youtube" ? "`https://www.youtube.com/embed/`" : "";
-                    
-                    echo '
+                    const lightboxFrameVideoBaseUrl = "`https://www.youtube.com/embed/`";
 
                     // Frame Transition Time
 
@@ -1465,8 +1507,8 @@
                     // Set Thumbnail Episode Number Or Title Text
 
                     function setThumbnailText(item) {
-                        const { titledEpisode, title } = item;
-                        return titledEpisode !== -1 ? `Episode ${titledEpisode}` : `${title}`
+                        const { episode, title } = item;
+                        return episode !== -1 ? `Episode ${episode}` : `${title}`
                     }
                     
                     const currentFrameData = playListSorted[currentVideoIndex];
@@ -1611,7 +1653,7 @@
 
                     // Monitor Click Of Video Items Rendered
 
-                    const videoItemsRendered = document.querySelectorAll(`[data-itemclickable="true"]`);
+                    const videoItemsRendered = document.querySelectorAll(`[data-itemclickabletype="'.$playlist_name.'_'.$type.'"]`);
                     
                     videoItemsRendered.forEach(item => {
                         item.addEventListener("click", () => {
@@ -1636,5 +1678,76 @@
             initialize_'.$playlist_name.'_playlist();
 
             </script>
+        ' : 
+
+        // PODCAST HTML, CSS, JAVASCRIPT CODE OUTPUT TO BROWSER
+
+        '<style>
+            .'.$playlist_name.'-'.$type.'-podcast-item {
+                width: 100%;
+                background: #000000;
+                box-sizing: border-box;
+                position: relative;
+                aspect-ratio: 1 / 1;
+                font-family: inherit !important;
+            }
+        </style>
+        <script>
+
+            // Load '.$type.' Data From Local Storage
+
+            const '.$playlist_name.'_'.$type.'_data = JSON.parse(localStorage.getItem("' . $playlist_name . '_'.$type.'_playlist"));
+
+            // Select Divs with data-mediaplatform="podcast"
+
+            window.addEventListener("load", () => {
+                const podcastItems = '.$playlist_name.'_'.$type.'_data.items;
+                const podcastInfo = '.$playlist_name.'_'.$type.'_data.podcast;
+                const podcastDivs = document.querySelectorAll(`[data-mediaplatform="podcast"]`);
+
+                podcastDivs.forEach(item => {
+                    const itemData = item.dataset
+                    const customThumbnail = itemData.customthumbnail ? itemData.customthumbnail : null;
+                    const showTextOverlay = itemData.showtextoverlay === "true" ? true : false;
+                    const fontFamily = itemData.fontfamily ? `font-family: ${item.fontfamily}` : ``;
+                    const selectedItem = Number(itemData.orderdescending) ? podcastItems[Number(itemData.orderdescending)] : null; 
+
+                    if (selectedItem) {
+                        item.outerHTML = `
+                            <a ${fontFamily ? `style=${fontFamily}` : ""} class="'.$playlist_name.'-'.$type.'-podcast-item${showTextOverlay ? `-text-overlay-enabled` : ``}" data-itemclickabletype="'.$playlist_name.'_'.$type.'" data-guid="${selectedItem.guid}">
+                                <div class="'.$playlist_name.'-'.$type.'-item-thumbnail-text-wrapper">
+                                    <img class="'.$playlist_name.'-'.$type.'-media-item-thumbnail" src="${customThumbnail ? customThumbnail : podcastInfo.image}" width="1200" height="1200" alt="${title}">
+                                    ${showPlayButton ? 
+                                        `
+                                            <div class="'.$playlist_name.'-'.$type.'-item-play-button" style="${playButtonStyling}">
+                                                ${showPlayButton ? 
+                                                    `${playButtonIconImgUrl ? `<img src="${playButtonIconImgUrl}">` :
+                                                        '.$playlist_name.'_play_button_icon_html
+                                                    }` : ``
+                                                }
+                                            </div>
+                                        ` 
+                                    : ``}
+                                    ${showTextOverlay ? 
+                                        `
+                                            <div class="'.$playlist_name.'-'.$type.'-text-overlay">
+                                                <h3>${item.episode !== -1 ? `Episode ${item.episode}` : `${item.title}`}</h3>
+                                                <p>${instructionMessage}</p>
+                                            </div>
+                                        ` 
+                                    : ``}
+                                </div>
+                                ${ playlistItem ? `<h3 class="playlist-episode-text">${item.episode !== -1 ? `Episode ${item.episode}` : `${item.title}`}</h3>` : ""} 
+                            </a>`;
+                        const renderedPodcastItem = document.querySelector(`[data-itemclickabletype="'.$playlist_name.'_'.$type.'"]`);
+                        renderedPodcastItem.addEventListener("click", () => {
+                            console.log(renderedPodcastItem);
+                        });
+                    } else {
+                        item.outerHTML = `<h3 style="aspect-ratio: 1 / 1;"class="'.$playlist_name.'_no_results_msg">No podcast items found in playlist based upon search parameters provided.</h3>`
+                    }
+                });
+            });
+        </script>
         ';
     }
