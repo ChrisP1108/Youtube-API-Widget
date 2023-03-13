@@ -16,6 +16,13 @@
                 animation-name: media-item-fade-in;
                 animation-duration: 1s;
             }
+
+            .media_item .audio-play-bar, .media_item-text-overlay-enabled .audio-play-bar {
+                position: absolute;
+                top: 100%;
+                transform: translateY(-100%);
+                pointer-events: none !important;
+            }
             @keyframes media-item-fade-in {
                 from { opacity: 0; }
                 to { opacity: 1; }
@@ -35,7 +42,7 @@
             .media_item-text-overlay-enabled:hover > * img:nth-child(1) {
                 opacity: 0.25;
             }
-            .media_item-text-overlay-enabled:hover svg, .media_item:hover > * img:nth-child(2) {
+            .media_item-text-overlay-enabled:hover svg:nth-child(1), .media_item:hover > * img:nth-child(2) {
                 opacity: 0;
             }
             .media_item-thumbnail {
@@ -78,6 +85,11 @@
             }
             .media-item-text-overlay h3 {
                 font-size: min(9.5vw, 40px);
+                font-family: inherit !important;
+                font-weight: 700;
+            }
+            .media-item-text-overlay h5 {
+                font-size: min(7vw, 32px);
                 font-family: inherit !important;
                 font-weight: 700;
             }
@@ -271,7 +283,7 @@
                 justify-content: center;
                 position: absolute;
             }
-            [data-lightboxmediacontenttype="video"] {
+            [data-lightboxmediacontenttype="video"], [data-lightboxmediacontenttype="audio"] {
                 width: 100%;
                 height: 100vh;
                 display: none;
@@ -578,8 +590,7 @@
                             .cls-1 { fill: none; }      
                             .cls-2 { clip-path: url(#clip-path); }      
                             .cls-3 { opacity: 1; }      
-                            .cls-4 { clip-path: url(#clip-path-3); }      
-                            .cls-5 { fill: ${color}; }    
+                            .cls-4 { clip-path: url(#clip-path-3); }         
                         </style>
                         <clipPath id="clip-path" transform="translate(-264.41 -245.59)">
                             <rect class="cls-1" x="264.41" y="245.59" width="145.2" height="145.2"></rect>
@@ -591,14 +602,39 @@
                         <g class="cls-2">
                         <g class="cls-3">
                         <g class="cls-4">
-                        <path class="cls-5" d="M378.93,318.19,311,357.4V279Zm30.68,0a72.6,72.6,0,1,0-72.6,72.6,72.6,72.6,0,0,0,72.6-72.6" transform="translate(-264.41 -245.59)"></path>
+                        <path style="fill: ${color}" class="cls-5" d="M378.93,318.19,311,357.4V279Zm30.68,0a72.6,72.6,0,1,0-72.6,72.6,72.6,72.6,0,0,0,72.6-72.6" transform="translate(-264.41 -245.59)"></path>
                         </g></g></g></g>
                     </svg>`;
+            }
+
+            // Audio Playbar
+
+            function audio_play_bar(color = "#fff") {
+                return `
+                    <svg xmlns="http://www.w3.org/2000/svg" id="audio_play_bar" class="audio-play-bar" data-name="Layer 1" viewBox="0 0 453 45">
+                        <defs>
+                            <style>        
+                                .cls-2 {        
+                                    fill: #231f20;      
+                                }      
+                                .cls-3 {        
+                                    fill: none;        
+                                    stroke: #231f20;        
+                                    stroke-width: 3px;      
+                                }    
+                            </style>
+                        </defs>
+                        <rect style="fill: ${color}" width="453" height="45"></rect>
+                        <polygon class="cls-2" points="42.99 22 17.01 7 17.01 37 42.99 22"></polygon>
+                        <line class="cls-3" x1="52" y1="9" x2="52" y2="36"></line><line class="cls-3" x1="58" y1="9" x2="58" y2="36"></line><line class="cls-3" x1="64" y1="9" x2="64" y2="36"></line><line class="cls-3" x1="70" y1="9" x2="70" y2="36"></line><line class="cls-3" x1="76" y1="9" x2="76" y2="36"></line><line class="cls-3" x1="82" y1="9" x2="82" y2="36"></line><line class="cls-3" x1="88" y1="9" x2="88" y2="36"></line><line class="cls-3" x1="94" y1="9" x2="94" y2="36"></line><line class="cls-3" x1="100" y1="9" x2="100" y2="36"></line><line class="cls-3" x1="106" y1="9" x2="106" y2="36"></line><line class="cls-3" x1="112" y1="9" x2="112" y2="36"></line><line class="cls-3" x1="118" y1="9" x2="118" y2="36"></line><line class="cls-3" x1="124" y1="9" x2="124" y2="36"></line><line class="cls-3" x1="130" y1="9" x2="130" y2="36"></line><line class="cls-3" x1="136" y1="9" x2="136" y2="36"></line><line class="cls-3" x1="142" y1="9" x2="142" y2="36"></line><line class="cls-3" x1="148" y1="9" x2="148" y2="36"></line><line class="cls-3" x1="154" y1="9" x2="154" y2="36"></line><line class="cls-3" x1="160" y1="9" x2="160" y2="36"></line><line class="cls-3" x1="166" y1="9" x2="166" y2="36"></line><line class="cls-3" x1="172" y1="9" x2="172" y2="36"></line><line class="cls-3" x1="178" y1="9" x2="178" y2="36"></line><line class="cls-3" x1="184" y1="9" x2="184" y2="36"></line><line class="cls-3" x1="190" y1="9" x2="190" y2="36"></line><line class="cls-3" x1="196" y1="9" x2="196" y2="36"></line><line class="cls-3" x1="202" y1="9" x2="202" y2="36"></line><line class="cls-3" x1="208" y1="9" x2="208" y2="36"></line><line class="cls-3" x1="214" y1="9" x2="214" y2="36"></line><line class="cls-3" x1="220" y1="9" x2="220" y2="36"></line><line class="cls-3" x1="226" y1="9" x2="226" y2="36"></line><line class="cls-3" x1="232" y1="9" x2="232" y2="36"></line><line class="cls-3" x1="238" y1="9" x2="238" y2="36"></line><line class="cls-3" x1="244" y1="9" x2="244" y2="36"></line><line class="cls-3" x1="250" y1="9" x2="250" y2="36"></line><line class="cls-3" x1="256" y1="9" x2="256" y2="36"></line><line class="cls-3" x1="262" y1="9" x2="262" y2="36"></line><line class="cls-3" x1="268" y1="9" x2="268" y2="36"></line><line class="cls-3" x1="274" y1="9" x2="274" y2="36"></line><line class="cls-3" x1="280" y1="9" x2="280" y2="36"></line><line class="cls-3" x1="286" y1="9" x2="286" y2="36"></line><line class="cls-3" x1="292" y1="9" x2="292" y2="36"></line><line class="cls-3" x1="298" y1="9" x2="298" y2="36"></line><line class="cls-3" x1="304" y1="9" x2="304" y2="36"></line><line class="cls-3" x1="310" y1="9" x2="310" y2="36"></line><line class="cls-3" x1="316" y1="9" x2="316" y2="36"></line><line class="cls-3" x1="322" y1="9" x2="322" y2="36"></line><line class="cls-3" x1="328" y1="9" x2="328" y2="36"></line><line class="cls-3" x1="334" y1="9" x2="334" y2="36"></line><line class="cls-3" x1="340" y1="9" x2="340" y2="36"></line><line class="cls-3" x1="346" y1="9" x2="346" y2="36"></line><line class="cls-3" x1="352" y1="9" x2="352" y2="36"></line><line class="cls-3" x1="358" y1="9" x2="358" y2="36"></line><line class="cls-3" x1="364" y1="9" x2="364" y2="36"></line><line class="cls-3" x1="370" y1="9" x2="370" y2="36"></line><line class="cls-3" x1="376" y1="9" x2="376" y2="36"></line><line class="cls-3" x1="382" y1="9" x2="382" y2="36"></line><line class="cls-3" x1="388" y1="9" x2="388" y2="36"></line><line class="cls-3" x1="394" y1="9" x2="394" y2="36"></line><line class="cls-3" x1="400" y1="9" x2="400" y2="36"></line><line class="cls-3" x1="406" y1="9" x2="406" y2="36"></line><line class="cls-3" x1="412" y1="9" x2="412" y2="36"></line><line class="cls-3" x1="418" y1="9" x2="418" y2="36"></line><line class="cls-3" x1="424" y1="9" x2="424" y2="36"></line><line class="cls-3" x1="430" y1="9" x2="430" y2="36"></line><line class="cls-3" x1="436" y1="9" x2="436" y2="36"></line>
+                        </svg>
+                `
             }
 
             // Render Media Item
 
             function render_media_item(item, settings, playlistItem, info) {
+
                 // Set Styling For Lightbox Playlist Items
                 
                 if (playlistItem) {
@@ -614,7 +650,7 @@
                 }
 
                 const { name, type } = info;
-                const mediaType = type === "youtube" || type === "podcast" ? "video" : "audio";
+                const mediaType = type === "youtube" || type === "vimeo" ? "video" : "audio";
                 const { title, thumbnail, publishedDate, id, description } = item;
                 const { showPlayButton, playButtonIconImgUrl, playButtonStyling, showTextOverlay, instructionMessage, fontFamily, lightboxshowplaylist } = settings;
                 const htmlRender = `
@@ -636,13 +672,16 @@
                             ${showTextOverlay ? 
                                 `
                                     <div class="media-item-text-overlay">
-                                        <h3>${item.episode !== -1 ? `Episode ${item.episode}` : `${item.title}`}</h3>
-                                        <p>${instructionMessage}</p>
+                                        ${mediaType === "video" ?
+                                            `<h3>${item.episode !== -1 ? `Episode ${item.episode}` : `${item.title}`}</h3>` : ``
+                                        }
+                                        ${mediaType === "video" ? `<p>${instructionMessage}</p>` : `<h5>${instructionMessage}</h5>`}
                                     </div>
                                 ` 
                             : ``}
                         </div>
                         ${ playlistItem ? `<h3 class="playlist-episode-text">${item.episode !== -1 ? `Episode ${item.episode}` : `${item.title}`}</h3>` : ""} 
+                        ${mediaType === "audio" ? audio_play_bar("#de9f27") : ""}
                     </a>
                 `
                 return htmlRender;
@@ -651,7 +690,7 @@
             // Initialize Loading Of Media Items And Lightbox
 
             function initialize_media(media_items, media_data, media_name, media_type) {
-
+                
                 // Variables For Lightbox
 
                 let showThemeColor;
@@ -677,23 +716,7 @@
 
                         if (itemData.playlistname !== media_name && itemData.mediaplatform !== media_type) {
                             return
-                        }
-
-                        // Select Item
-
-                        const nameSelect = itemData.nameselect;
-                        const episodeNumber = itemData.episodenumber;
-                        let index;
-
-                        if (episodeNumber && media_type === "youtube") {
-                            index = media_data.findIndex(item => item.episode === Number(episodeNumber));
-                        }
-                        if (nameSelect) {
-                            index = media_data.findIndex(item => item.title.toLowerCase().includes(nameSelect.toLowerCase()));
-                        }
-                        if (itemData.orderdescending) {
-                            index = Number(itemData.orderdescending) - 1;
-                        }
+                        } 
 
                         // CSS Styling
 
@@ -715,10 +738,29 @@
                         
                         // Text Overlay Messages
 
-                        const instructionMessage = itemData.instructionMessage ? itemData.instructionMessage : "Click Here To Watch";
+                        const instructionMessage = itemData.instructionMessage ? itemData.instructionMessage : media_type === "youtube" ? "Click Here To Watch" : media_type === "podcast" ? "Click Here To Listen" : "";
 
                         const lightboxshowplaylist = itemData.lightboxshowplaylist && itemData.lightboxshowplaylist === "true" ? true : false;
                         
+                        // Thumbnail
+
+                        const thumbnailimg = itemData.thumbnail ? itemData.thumbnail : null;
+
+                        // Data Parsing
+
+                        const renderData = media_type === "youtube" ? media_data 
+                            : media_type === "podcast" ? media_data.channel.item.map(item => ({...item, thumbnail: { url: thumbnailimg }, publishedDate: item.pubDate, id: item.guid, episode: -1 })) 
+                            : [];  
+
+                        // Delete extra fields from podcast that are not needed to render item
+
+                        if (media_type === "podcast") {
+                            renderData.forEach(item => {
+                                delete(item.guid);
+                                delete(item.pubData);
+                            })
+                        }
+
                         const settings = {
                             showPlayButton,
                             playButtonIconImgUrl,
@@ -734,10 +776,26 @@
                             type: media_type
                         };
 
+                        // Select Item
+
+                        const nameSelect = itemData.nameselect;
+                        const episodeNumber = itemData.episodenumber;
+                        let index;
+
+                        if (episodeNumber && media_type === "youtube") {
+                            index = renderData.findIndex(item => item.episode === Number(episodeNumber));
+                        }
+                        if (nameSelect) {
+                            index = renderData.findIndex(item => item.title.toLowerCase().includes(nameSelect.toLowerCase()));
+                        }
+                        if (itemData.orderdescending) {
+                            index = Number(itemData.orderdescending) - 1;
+                        }
+
                         // Checks If multiplegrid parameter was provided and filters accordingly prior to rendering
 
                         if (itemData.multiplegrid === "true" && media_data.length > 1) {
-                            let renderGridData = [...media_data];
+                            let renderGridData = [...renderData];
 
                             // If multiplegridshowall is not set to true, then playlist will be filtered accordingly.  
 
@@ -768,8 +826,8 @@
                             return
                         } 
 
-                        if (media_data[index]) {
-                            item.outerHTML = render_media_item(media_data[index], settings, false, info);
+                        if (renderData[index]) {
+                            item.outerHTML = render_media_item(renderData[index], settings, false, info);
                             return;
                         } else item.outerHTML = `<h3 class="media-api-widget-err-msg">No video item found in playlist based upon search parameters provided.</h3>`
                     });
