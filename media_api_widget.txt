@@ -23,7 +23,7 @@
             }
             .media_item .sub-text, .media_item-text-overlay-enabled .sub-text {
                 font-size: clamp(10px, 5vw, 1.25rem);
-                line-height: clamp(14px, 5vw, 1.5rem);
+                line-height: clamp(16px, 7vw, 48px);
             }
             .media_item .audio-play-bar, .media_item-text-overlay-enabled .audio-play-bar {
                 position: absolute;
@@ -92,6 +92,7 @@
                 font-size: min(9.5vw, 40px);
                 font-family: inherit !important;
                 font-weight: 700;
+                line-height: min(11vw, 48px);
             }
             .media-item-text-overlay h5 {
                 font-size: min(7vw, 32px);
@@ -684,13 +685,13 @@
                             : ``}
                             ${showTextOverlay ? 
                                 `
-                                    <div class="media-item-text-overlay">
+                                    <div class="media-item-text-overlay" ${mediaType === "audio" ? `style="padding-bottom: max(10vw, 48px);"` : "" }>
                                         <h3>${item.episode !== -1 ? `Episode ${item.episode}` 
                                             : `${item.title.split(" ").length > 3 
                                                 ? item.title.split(" ").filter((l, i) => i < 3).join(" ") + `<br><span class="sub-text">${item.title.split(" ").filter((l, i) => i >= 3).join(" ")}</span>` 
                                                 : item.title}`}
                                         </h3>
-                                        <p ${mediaType === "audio" ? `style="margin-bottom: 28px"` : ``}">${instructionMessage}</p>
+                                        <p>${instructionMessage}</p>
                                     </div>
                                 ` 
                             : ``}
@@ -1773,7 +1774,7 @@
             echo '<script>localStorage.setItem("'. $playlist_name . '_'. $type .'_playlist", JSON.stringify('. json_encode($parsed_data) .')); console.log("`'. $playlist_name . '` '. $type .' data loaded from API and saved on Local Storage as `'. $playlist_name .'_'.$type.'_playlist.`.");</script>';
         } else {
             echo '<script>
-                    console.log("`'. $playlist_name . '` '. $type .' data loaded from Local Storage as the storage expiration time has not yet passed.  If a fresh call to the API needs to be made, clear your browser cookie that has the name corresponding to what the PHP snippet code shows.");
+                    console.log("`'. $playlist_name . '` '. $type .' data loaded from Local Storage as the storage expiration time has not yet passed.  If a fresh call to the API needs to be made, clear your browser cookies for this website.");
                 </script>
             ';
         }
