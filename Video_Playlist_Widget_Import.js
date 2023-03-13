@@ -1,4 +1,4 @@
-// VERSION 1.15
+// VERSION 1.17
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -77,8 +77,8 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       const textOverThumbnailColor = typeof inputData.textOverThumbnailColor === 'string' ? inputData.textOverThumbnailColor : '#ffffff'; // Sets Color Of Text Over Video Thumbnail On Mouse Hover.  Default Value Is: '#ffffff'
       const textContainerMargin = typeof inputData.textContainerMargin === 'string' ? inputData.textContainerMargin : '24px'; // Sets Padding Of Text Container That Cover Over Video Thumbnail For Text On Mouse Hover.  Default Value Is: '24px'
       const spaceBetweenTitleAndClickToPlayText = typeof inputData.spaceBetweenTitleAndClickToPlayText === 'string' ? inputData.spaceBetweenTitleAndClickToPlayText : '2.25rem'; // Sets Vertical Spacing Between Episode Number Or Video Title Text And Instruction Text On Mouse Hover Over Thumbnail.  Default Value Is: '40px'
-      const playButtonSizing = typeof inputData.playButtonSizing === 'string' ? inputData.playButtonSizing : '30%'; // Sets Sizing Of Play Button Icon Over Video Thumbnail Relative To The HEight Of The Video Thumbnail In Percentage.  Default Value Is: '35%'
-      const playButtonOpacity = typeof inputData.playButtonOpacity === 'number' ? inputData.playButtonOpacity / 100 : .75; // Sets Opacity Of Play Button Icon Over Video Thumbnail.  Divides Number By 100 To Convert Percentage To Decimal. Default Value Is: 75
+      const playButtonSizing = typeof inputData.playButtonSizing === 'string' ? inputData.playButtonSizing : '32%'; // Sets Sizing Of Play Button Icon Over Video Thumbnail Relative To The HEight Of The Video Thumbnail In Percentage.  Default Value Is: '35%'
+      const playButtonOpacity = typeof inputData.playButtonOpacity === 'number' ? inputData.playButtonOpacity / 100 : .6; // Sets Opacity Of Play Button Icon Over Video Thumbnail.  Divides Number By 100 To Convert Percentage To Decimal. Default Value Is: 75
       const minimumWidthOfEachGridVideoItem = typeof inputData.minimumWidthOfEachGridVideoItem === 'number' ? inputData.minimumWidthOfEachGridVideoItem : 400; // Sets Minimun Width Size Of Each Video.  Default Value Is: 480
       const frameTransition = typeof inputData.frameTransition === 'number' ? inputData.frameTransition : 500; // Sets Transition Time Of LightBox Carousel Frame Transitioning In Milliseconds
       const carouselTransition = typeof inputData.carouselTransition === 'number' ? inputData.carouselTransition : 2000; // Sets Transition Time Of Carousel Layout Frame Transitioning In Milliseconds
@@ -948,13 +948,28 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
 
     function playButtonIcon() {
       const playbackButton = `
-      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 1000 1000" enable-background="new 0 0 1000 1000" xml:space="preserve">
-        <metadata> Svg Vector Icons : http://www.onlinewebfonts.com/icon </metadata>
-        <g><path d="M500,10C229.4,10,10,229.4,10,500c0,270.6,219.4,490,490,490c270.6,0,490-219.4,490-490C990,229.4,770.6,10,500,10z M691.7,538.7L398.6,772.9c-20.7,16.5-37.5,7.5-37.5-20.2V249.7c0-27.7,16.8-36.7,37.5-20.1l293.1,234.3C717.6,484.5,717.6,518,691.7,538.7z" style="
-        fill: ${playButtonColor};
-        "/></g>
-      </svg>
-    `
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="Layer_1" data-name="Layer 1" viewBox="0 0 145.2 145.2"><defs>
+            <style>
+                .cls-1 { fill: none; }      
+                .cls-2 { clip-path: url(#clip-path); }      
+                .cls-3 { opacity: 1; }      
+                .cls-4 { clip-path: url(#clip-path-3); }      
+                .cls-5 { fill: ${playButtonColor}; }    
+            </style>
+            <clipPath id="clip-path" transform="translate(-264.41 -245.59)">
+                <rect class="cls-1" x="264.41" y="245.59" width="145.2" height="145.2"></rect>
+            </clipPath>
+            <clipPath id="clip-path-3" transform="translate(-264.41 -245.59)">
+                <rect class="cls-1" x="255.41" y="238.59" width="163.2" height="153.2"></rect>
+            </clipPath></defs>
+            <g class="cls-2">
+            <g class="cls-2">
+            <g class="cls-3">
+            <g class="cls-4">
+            <path class="cls-5" d="M378.93,318.19,311,357.4V279Zm30.68,0a72.6,72.6,0,1,0-72.6,72.6,72.6,72.6,0,0,0,72.6-72.6" transform="translate(-264.41 -245.59)"></path>
+            </g></g></g></g>
+        </svg>
+      `
       return playbackButton
     }
 
