@@ -15,12 +15,13 @@
                 background: #000;
                 animation-name: media-item-fade-in;
                 animation-duration: 1s;
+                overflow: hidden;
             }
 
             .media_item .audio-play-bar, .media_item-text-overlay-enabled .audio-play-bar {
                 position: absolute;
                 top: 100%;
-                transform: translateY(-100%);
+                transform: translateY(-99%);
                 pointer-events: none !important;
             }
             @keyframes media-item-fade-in {
@@ -297,6 +298,12 @@
                 max-width: 220vh;
                 margin: 0 auto;
                 position: relative;
+                height: 100%;
+                width: 100%;
+            }
+            [data-lightboxmediacontenttype="audio"] .lightbox-content-container {
+                position: relative;
+                margin: 0 auto;
                 height: 100%;
                 width: 100%;
             }
@@ -652,7 +659,7 @@
                 const { name, type } = info;
                 const mediaType = type === "youtube" || type === "vimeo" ? "video" : "audio";
                 const { title, thumbnail, publishedDate, id, description } = item;
-                const { showPlayButton, playButtonIconImgUrl, playButtonStyling, showTextOverlay, instructionMessage, fontFamily, lightboxshowplaylist } = settings;
+                const { showPlayButton, playButtonIconImgUrl, playButtonStyling, showTextOverlay, instructionMessage, fontFamily, lightboxshowplaylist, playbarColor } = settings;
                 const htmlRender = `
                     <!-- ${name} ${type} item - ${title} (Published On - ${publishedDate}) -->
                     <a ${settings.fontFamily ? `style=${fontFamily}` : ""} class="media_item${showTextOverlay ? `-text-overlay-enabled` : ``}" data-itemclickablemediatype="${mediaType}" data-itemclickable="true" data-itemclickableplaylist="${name}_${type}" data-id="${id}" ${lightboxshowplaylist ? `data-lightboxshowplaylist="true"` : ""}>
@@ -672,16 +679,14 @@
                             ${showTextOverlay ? 
                                 `
                                     <div class="media-item-text-overlay">
-                                        ${mediaType === "video" ?
-                                            `<h3>${item.episode !== -1 ? `Episode ${item.episode}` : `${item.title}`}</h3>` : ``
-                                        }
-                                        ${mediaType === "video" ? `<p>${instructionMessage}</p>` : `<h5>${instructionMessage}</h5>`}
+                                        <h3>${item.episode !== -1 ? `Episode ${item.episode}` : `${item.title.split(" ").length > 3 ? item.title.split(" ").filter((l, i) => i < 3).join(" ") + "..." : item.title}`}</h3>
+                                        <p ${mediaType === "audio" ? `style="margin-bottom: 1rem"` : ``}">${instructionMessage}</p>
                                     </div>
                                 ` 
                             : ``}
                         </div>
                         ${ playlistItem ? `<h3 class="playlist-episode-text">${item.episode !== -1 ? `Episode ${item.episode}` : `${item.title}`}</h3>` : ""} 
-                        ${mediaType === "audio" ? audio_play_bar("#de9f27") : ""}
+                        ${mediaType === "audio" ? audio_play_bar(playbarColor) : ""}
                     </a>
                 `
                 return htmlRender;
@@ -736,6 +741,8 @@
 
                         lightboxFont = itemData.lightboxfont ? itemData.lightboxfont : lightboxFont;
                         
+                        const playbarColor = itemData.playbarcolor ? itemData.playbarcolor : "#fff";
+                        
                         // Text Overlay Messages
 
                         const instructionMessage = itemData.instructionMessage ? itemData.instructionMessage : media_type === "youtube" ? "Click Here To Watch" : media_type === "podcast" ? "Click Here To Listen" : "";
@@ -768,7 +775,8 @@
                             showTextOverlay,
                             instructionMessage,
                             fontFamily,
-                            lightboxshowplaylist
+                            lightboxshowplaylist,
+                            playbarColor
                         };
 
                         const info = {
@@ -1094,7 +1102,7 @@
                             lightbox.classList.add(`show-lightbox`);
                             html.classList.add(`hide-scroll`);
                         } else {
-                            video_lightbox_clear();
+                            lightbox_clear();
                         }      
                     }
 
@@ -1153,7 +1161,7 @@
 
                     // Event Listener On Exit Button Click To Exit LightBox
 
-                    lightboxCloseButton.addEventListener(`click`, video_lightbox_clear);
+                    lightboxCloseButton.addEventListener(`click`, lightbox_clear);
 
                     // Set lightboxArrowClicked To True For 500 Milliseconds Then Changed Back To False
 
@@ -1507,7 +1515,7 @@
 
                     // Clear Lightbox
 
-                    function video_lightbox_clear() {
+                    function lightbox_clear() {
                         const lightbox = media_lightbox_div;
                         lightbox.innerHTML = ``;
                         lightboxToggled = false;
@@ -1531,8 +1539,44 @@
 
                     window.addEventListener(`resize`, () => {
                         if (!showPlaylist && window.innerWidth < 872) {
-                            video_lightbox_clear();
+                            lightbox_clear();
                         }
+                    });
+
+                    // Podcast Audio Lightbox Activate Handler
+
+                    function audio_lightbox_activate_handler(itemClicked) {
+
+                        // Get Podcast Data, All Episodes, And Episode Clicked On
+
+                        const podcastInfo = { copyright: media_data.channel.copyright, title: media_data.channel.title, description: media_data.channel.description };
+                        const podcastEpisodes = media_data.channel.item.sort((a, b) => Date.parse(a.pubData) > Date.parse(b.pubData) ? -1 : 1);
+                        const episodeSelected = media_data.channel.item.find(i => i.guid === itemClicked.dataset.id);
+                        
+                        const media_audio_lightbox_html = `
+                            <div class="lightbox-content-container"></div>
+                        `;
+
+                        // Init Lightbox
+
+                        const lightbox = media_lightbox_div;
+
+                        lightboxToggled = true;
+                        showPlaylist = true;
+                        lightbox.classList.add(`show-lightbox`);
+                        document.querySelector(`html`).classList.add(`hide-scroll`);
+
+                        lightbox.innerHTML = media_audio_lightbox_html;
+
+                    }
+
+                    // Monitor Click Of Podcast Audio Items Rendered
+
+                    const podcastItemsRendered = document.querySelectorAll(`[data-itemclickablemediatype="audio"]`);
+                    podcastItemsRendered.forEach(item => {
+                        item.addEventListener("click", () => {
+                            audio_lightbox_activate_handler(item);
+                        });
                     });
                 }
             </script>
@@ -1540,7 +1584,7 @@
 
     // Gets Media Data.  API Key And PlaylistID Must Be Passed In
 
-    function get_media_content($type = null, $playlist_name = 'unnamed', $api_key = null, $media_data = null, $expired = true) {
+    function get_media_content($type = null, $playlist_name = 'unnamed', $api_key = null, $playlist_id = null, $expired = true) {
         
         // Checks If Cookie Has Expired Based Upon Expiration Parameter
 
@@ -1553,7 +1597,7 @@
             // Load Youtube Data If Media Is Youtube
             
             if ($type === 'youtube') {
-                $youtube_req_url = 'https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId='. $media_data .'&key=' . $api_key . '&maxResults=10000';
+                $youtube_req_url = 'https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId='. $playlist_id .'&key=' . $api_key . '&maxResults=10000';
 
                 $youtube_get_req = @file_get_contents($youtube_req_url);
 
@@ -1668,7 +1712,17 @@
 
             if ($type === 'podcast') {
 
-                $rss_feed = @file_get_contents($media_data);
+                // Lookup data for RSS through iTunes
+
+                $get_rss= @file_get_contents('https://itunes.apple.com/lookup?id='.$playlist_id.'&entity=podcast');
+
+                $get_rss_data = json_decode($get_rss);
+
+                // Extract RSS Feed Url From JSON data from iTunes
+
+                $rss_url = get_object_vars($get_rss_data)['results'][0]->feedUrl;
+
+                $rss_feed = @file_get_contents($rss_url);
 
                 $parsed_data = simplexml_load_string($rss_feed);
             }
