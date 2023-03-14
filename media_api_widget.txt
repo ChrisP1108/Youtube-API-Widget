@@ -1,5 +1,5 @@
 
-    // Version 2.2
+    // Version 2.3
 
     // Media API Widget Global CSS And Javascript
 
@@ -15,7 +15,6 @@
                 background: #000;
                 animation-name: media-item-fade-in;
                 animation-duration: 1s;
-                overflow: hidden;
             }
             @keyframes media-item-fade-in {
                 from { opacity: 0; }
@@ -31,8 +30,8 @@
                 transform: translateY(-99%);
                 pointer-events: none !important;
             }
-            .media_item, .media_item-text-overlay-enabled
-            .media-item-thumbnail-text-wrapper {
+            .media_item .media-item-thumbnail-text-wrapper,
+            .media_item-text-overlay-enabled .media-item-thumbnail-text-wrapper {
                 width: 100%;
                 background: #000000;
                 box-sizing: border-box;
@@ -50,8 +49,9 @@
             .media_item-text-overlay-enabled:hover svg:nth-child(1), .media_item:hover > * img:nth-child(2) {
                 opacity: 0;
             }
-            .media_item-thumbnail {
-                object-fit: cover;
+            .media-item-thumbnail {
+                object-fit: contain;
+                object-position: 50% 0px;
                 width: 100%;
                 height: 100%;
             }
@@ -89,7 +89,7 @@
                 font-family: inherit !important;
             }
             .media-item-text-overlay h3 {
-                font-size: min(9.5vw, 40px);
+                font-size: min(8.5vw, 40px);
                 font-family: inherit !important;
                 font-weight: 700;
                 line-height: min(11vw, 48px);
@@ -311,6 +311,16 @@
                 margin: 0 auto;
                 height: 100%;
                 width: 100%;
+                display: flex;
+                box-sizing: border-box;
+            }
+            [data-lightboxmediacontenttype="audio"] .lightbox-podcast-embed-player {
+                width: 100%;
+                height: 100%;
+                border-width: 0px;
+            }
+            [data-lightboxmediacontenttype="audio"] .lightbox-podcast-embed-player > * {
+                font-family: "Poppins";
             }
             [data-lightboxmediacontenttype="video"] .lightbox-playlist-container,
             [data-lightboxmediacontenttype="video"] .lightbox-player-container {
@@ -376,15 +386,21 @@
                 justify-content: center;
                 align-items: center;
             }
-            [data-lightboxmediacontenttype="video"] .lightbox-video-frame {
+            [data-lightboxmediacontenttype="video"] .lightbox-box-frame {
                 margin: 0 3%;
             }
-            [data-lightboxmediacontenttype="video"] .lightbox-player-container .lightbox-video-frame iframe {
+            [data-lightboxmediacontenttype="audio"] .lightbox-box-frame {
+                margin: auto;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-around;
+            }
+            [data-lightboxmediacontenttype="video"] .lightbox-player-container .lightbox-box-frame iframe {
                 width: 100%;
                 height: 100%;
                 position: absolute;
             }
-            [data-lightboxmediacontenttype="video"] .lightbox-video-frame .fast-forward-overlay {
+            [data-lightboxmediacontenttype="video"] .lightbox-box-frame .fast-forward-overlay {
                 position: absolute;
                 width: 100%;
                 height: 100%;
@@ -396,8 +412,8 @@
             [data-lightboxmediacontenttype="video"] [data-itemclickable="true"] {
                 cursor: pointer;
             }
-            [data-lightboxmediacontenttype="video"] .lightbox-video-frame .fast-forward-overlay h1,
-            [data-lightboxmediacontenttype="video"] .lightbox-video-frame [data-lightboxframe="true"] h1 {
+            [data-lightboxmediacontenttype="video"] .lightbox-box-frame .fast-forward-overlay h1,
+            [data-lightboxmediacontenttype="video"] .lightbox-box-frame [data-lightboxframe="true"] h1 {
                 color: #fff;
                 font-size: clamp(56px, 5vw, 80px);
                 font-family: inherit !important;
@@ -458,13 +474,19 @@
                 z-index: 3;
                 transition: 0.25s;
             }
-            [data-lightboxmediacontenttype="video"] .lightbox-video-frame {
+            [data-lightboxmediacontenttype="video"] .lightbox-box-frame {
                 width: 78vw!important;
                 height: 43.9vw!important;
                 max-height: 90vh!important;
                 max-height: 90dvh!important;
                 max-width: 160vh!important;
                 position: relative;
+            }
+            [data-lightboxmediacontenttype="audio"] .lightbox-box-frame {
+                width: min(82vw, 1400px);
+                height: 80vh!important;
+                box-shadow: 0px 0px 48px black;
+                filter: drop-shadow(rgba(255, 255, 255, 0.44) 0px 0px 80px);
             }
             [data-lightboxmediacontenttype="video"] .lightbox-playlist-container .playlist-episode-text {
                 font-family: inherit !important;
@@ -576,7 +598,11 @@
                     max-height: 2.25vh;
                     max-height: 2.25dvh;
                 }
+                [data-lightboxmediacontenttype="audio"] .lightbox-box-frame {
+                    width: 90vw!important;
+                }
             }
+
             @media(min-width: 1920px) {
                 [data-lightboxmediacontenttype="video"] .lightbox-playlist-container .playlist-logo {
                     min-width: 380px !important;
@@ -601,21 +627,21 @@
                 return `
                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="Layer_1" data-name="Layer 1" viewBox="0 0 145.2 145.2"><defs>
                         <style>
-                            .cls-1 { fill: none; }      
-                            .cls-2 { clip-path: url(#clip-path); }      
-                            .cls-3 { opacity: 1; }      
-                            .cls-4 { clip-path: url(#clip-path-3); }         
+                            .clsb-1 { fill: none; }      
+                            .clsb-2 { clip-path: url(#clip-path); }      
+                            .clsb-3 { opacity: 1; }      
+                            .clsb-4 { clip-path: url(#clip-path-3); }         
                         </style>
                         <clipPath id="clip-path" transform="translate(-264.41 -245.59)">
-                            <rect class="cls-1" x="264.41" y="245.59" width="145.2" height="145.2"></rect>
+                            <rect class="clsb-1" x="264.41" y="245.59" width="145.2" height="145.2"></rect>
                         </clipPath>
                         <clipPath id="clip-path-3" transform="translate(-264.41 -245.59)">
-                            <rect class="cls-1" x="255.41" y="238.59" width="163.2" height="153.2"></rect>
+                            <rect class="clsb-1" x="255.41" y="238.59" width="163.2" height="153.2"></rect>
                         </clipPath></defs>
-                        <g class="cls-2">
-                        <g class="cls-2">
-                        <g class="cls-3">
-                        <g class="cls-4">
+                        <g class="clsb-2">
+                        <g class="clsb-2">
+                        <g class="clsb-3">
+                        <g class="clsb-4">
                         <path style="fill: ${color}" class="cls-5" d="M378.93,318.19,311,357.4V279Zm30.68,0a72.6,72.6,0,1,0-72.6,72.6,72.6,72.6,0,0,0,72.6-72.6" transform="translate(-264.41 -245.59)"></path>
                         </g></g></g></g>
                     </svg>`;
@@ -628,10 +654,10 @@
                     <svg xmlns="http://www.w3.org/2000/svg" id="audio_play_bar" class="audio-play-bar" data-name="Layer 1" viewBox="0 0 453 45">
                         <defs>
                             <style>        
-                                .cls-2 {        
+                                .pb-2 {        
                                     fill: #231f20;      
                                 }      
-                                .cls-3 {        
+                                .pb-3 {        
                                     fill: none;        
                                     stroke: #231f20;        
                                     stroke-width: 3px;      
@@ -639,8 +665,8 @@
                             </style>
                         </defs>
                         <rect style="fill: ${color}" width="453" height="45"></rect>
-                        <polygon class="cls-2" points="42.99 22 17.01 7 17.01 37 42.99 22"></polygon>
-                        <line class="cls-3" x1="52" y1="9" x2="52" y2="36"></line><line class="cls-3" x1="58" y1="9" x2="58" y2="36"></line><line class="cls-3" x1="64" y1="9" x2="64" y2="36"></line><line class="cls-3" x1="70" y1="9" x2="70" y2="36"></line><line class="cls-3" x1="76" y1="9" x2="76" y2="36"></line><line class="cls-3" x1="82" y1="9" x2="82" y2="36"></line><line class="cls-3" x1="88" y1="9" x2="88" y2="36"></line><line class="cls-3" x1="94" y1="9" x2="94" y2="36"></line><line class="cls-3" x1="100" y1="9" x2="100" y2="36"></line><line class="cls-3" x1="106" y1="9" x2="106" y2="36"></line><line class="cls-3" x1="112" y1="9" x2="112" y2="36"></line><line class="cls-3" x1="118" y1="9" x2="118" y2="36"></line><line class="cls-3" x1="124" y1="9" x2="124" y2="36"></line><line class="cls-3" x1="130" y1="9" x2="130" y2="36"></line><line class="cls-3" x1="136" y1="9" x2="136" y2="36"></line><line class="cls-3" x1="142" y1="9" x2="142" y2="36"></line><line class="cls-3" x1="148" y1="9" x2="148" y2="36"></line><line class="cls-3" x1="154" y1="9" x2="154" y2="36"></line><line class="cls-3" x1="160" y1="9" x2="160" y2="36"></line><line class="cls-3" x1="166" y1="9" x2="166" y2="36"></line><line class="cls-3" x1="172" y1="9" x2="172" y2="36"></line><line class="cls-3" x1="178" y1="9" x2="178" y2="36"></line><line class="cls-3" x1="184" y1="9" x2="184" y2="36"></line><line class="cls-3" x1="190" y1="9" x2="190" y2="36"></line><line class="cls-3" x1="196" y1="9" x2="196" y2="36"></line><line class="cls-3" x1="202" y1="9" x2="202" y2="36"></line><line class="cls-3" x1="208" y1="9" x2="208" y2="36"></line><line class="cls-3" x1="214" y1="9" x2="214" y2="36"></line><line class="cls-3" x1="220" y1="9" x2="220" y2="36"></line><line class="cls-3" x1="226" y1="9" x2="226" y2="36"></line><line class="cls-3" x1="232" y1="9" x2="232" y2="36"></line><line class="cls-3" x1="238" y1="9" x2="238" y2="36"></line><line class="cls-3" x1="244" y1="9" x2="244" y2="36"></line><line class="cls-3" x1="250" y1="9" x2="250" y2="36"></line><line class="cls-3" x1="256" y1="9" x2="256" y2="36"></line><line class="cls-3" x1="262" y1="9" x2="262" y2="36"></line><line class="cls-3" x1="268" y1="9" x2="268" y2="36"></line><line class="cls-3" x1="274" y1="9" x2="274" y2="36"></line><line class="cls-3" x1="280" y1="9" x2="280" y2="36"></line><line class="cls-3" x1="286" y1="9" x2="286" y2="36"></line><line class="cls-3" x1="292" y1="9" x2="292" y2="36"></line><line class="cls-3" x1="298" y1="9" x2="298" y2="36"></line><line class="cls-3" x1="304" y1="9" x2="304" y2="36"></line><line class="cls-3" x1="310" y1="9" x2="310" y2="36"></line><line class="cls-3" x1="316" y1="9" x2="316" y2="36"></line><line class="cls-3" x1="322" y1="9" x2="322" y2="36"></line><line class="cls-3" x1="328" y1="9" x2="328" y2="36"></line><line class="cls-3" x1="334" y1="9" x2="334" y2="36"></line><line class="cls-3" x1="340" y1="9" x2="340" y2="36"></line><line class="cls-3" x1="346" y1="9" x2="346" y2="36"></line><line class="cls-3" x1="352" y1="9" x2="352" y2="36"></line><line class="cls-3" x1="358" y1="9" x2="358" y2="36"></line><line class="cls-3" x1="364" y1="9" x2="364" y2="36"></line><line class="cls-3" x1="370" y1="9" x2="370" y2="36"></line><line class="cls-3" x1="376" y1="9" x2="376" y2="36"></line><line class="cls-3" x1="382" y1="9" x2="382" y2="36"></line><line class="cls-3" x1="388" y1="9" x2="388" y2="36"></line><line class="cls-3" x1="394" y1="9" x2="394" y2="36"></line><line class="cls-3" x1="400" y1="9" x2="400" y2="36"></line><line class="cls-3" x1="406" y1="9" x2="406" y2="36"></line><line class="cls-3" x1="412" y1="9" x2="412" y2="36"></line><line class="cls-3" x1="418" y1="9" x2="418" y2="36"></line><line class="cls-3" x1="424" y1="9" x2="424" y2="36"></line><line class="cls-3" x1="430" y1="9" x2="430" y2="36"></line><line class="cls-3" x1="436" y1="9" x2="436" y2="36"></line>
+                        <polygon class="pb-2" points="42.99 22 17.01 7 17.01 37 42.99 22"></polygon>
+                        <line class="pb-3" x1="52" y1="9" x2="52" y2="36"></line><line class="pb-3" x1="58" y1="9" x2="58" y2="36"></line><line class="pb-3" x1="64" y1="9" x2="64" y2="36"></line><line class="pb-3" x1="70" y1="9" x2="70" y2="36"></line><line class="pb-3" x1="76" y1="9" x2="76" y2="36"></line><line class="pb-3" x1="82" y1="9" x2="82" y2="36"></line><line class="pb-3" x1="88" y1="9" x2="88" y2="36"></line><line class="pb-3" x1="94" y1="9" x2="94" y2="36"></line><line class="pb-3" x1="100" y1="9" x2="100" y2="36"></line><line class="pb-3" x1="106" y1="9" x2="106" y2="36"></line><line class="pb-3" x1="112" y1="9" x2="112" y2="36"></line><line class="pb-3" x1="118" y1="9" x2="118" y2="36"></line><line class="pb-3" x1="124" y1="9" x2="124" y2="36"></line><line class="pb-3" x1="130" y1="9" x2="130" y2="36"></line><line class="pb-3" x1="136" y1="9" x2="136" y2="36"></line><line class="pb-3" x1="142" y1="9" x2="142" y2="36"></line><line class="pb-3" x1="148" y1="9" x2="148" y2="36"></line><line class="pb-3" x1="154" y1="9" x2="154" y2="36"></line><line class="pb-3" x1="160" y1="9" x2="160" y2="36"></line><line class="pb-3" x1="166" y1="9" x2="166" y2="36"></line><line class="pb-3" x1="172" y1="9" x2="172" y2="36"></line><line class="pb-3" x1="178" y1="9" x2="178" y2="36"></line><line class="pb-3" x1="184" y1="9" x2="184" y2="36"></line><line class="pb-3" x1="190" y1="9" x2="190" y2="36"></line><line class="pb-3" x1="196" y1="9" x2="196" y2="36"></line><line class="pb-3" x1="202" y1="9" x2="202" y2="36"></line><line class="pb-3" x1="208" y1="9" x2="208" y2="36"></line><line class="pb-3" x1="214" y1="9" x2="214" y2="36"></line><line class="pb-3" x1="220" y1="9" x2="220" y2="36"></line><line class="pb-3" x1="226" y1="9" x2="226" y2="36"></line><line class="pb-3" x1="232" y1="9" x2="232" y2="36"></line><line class="pb-3" x1="238" y1="9" x2="238" y2="36"></line><line class="pb-3" x1="244" y1="9" x2="244" y2="36"></line><line class="pb-3" x1="250" y1="9" x2="250" y2="36"></line><line class="pb-3" x1="256" y1="9" x2="256" y2="36"></line><line class="pb-3" x1="262" y1="9" x2="262" y2="36"></line><line class="pb-3" x1="268" y1="9" x2="268" y2="36"></line><line class="pb-3" x1="274" y1="9" x2="274" y2="36"></line><line class="pb-3" x1="280" y1="9" x2="280" y2="36"></line><line class="pb-3" x1="286" y1="9" x2="286" y2="36"></line><line class="pb-3" x1="292" y1="9" x2="292" y2="36"></line><line class="pb-3" x1="298" y1="9" x2="298" y2="36"></line><line class="pb-3" x1="304" y1="9" x2="304" y2="36"></line><line class="pb-3" x1="310" y1="9" x2="310" y2="36"></line><line class="pb-3" x1="316" y1="9" x2="316" y2="36"></line><line class="pb-3" x1="322" y1="9" x2="322" y2="36"></line><line class="pb-3" x1="328" y1="9" x2="328" y2="36"></line><line class="pb-3" x1="334" y1="9" x2="334" y2="36"></line><line class="pb-3" x1="340" y1="9" x2="340" y2="36"></line><line class="pb-3" x1="346" y1="9" x2="346" y2="36"></line><line class="pb-3" x1="352" y1="9" x2="352" y2="36"></line><line class="pb-3" x1="358" y1="9" x2="358" y2="36"></line><line class="pb-3" x1="364" y1="9" x2="364" y2="36"></line><line class="pb-3" x1="370" y1="9" x2="370" y2="36"></line><line class="pb-3" x1="376" y1="9" x2="376" y2="36"></line><line class="pb-3" x1="382" y1="9" x2="382" y2="36"></line><line class="pb-3" x1="388" y1="9" x2="388" y2="36"></line><line class="pb-3" x1="394" y1="9" x2="394" y2="36"></line><line class="pb-3" x1="400" y1="9" x2="400" y2="36"></line><line class="pb-3" x1="406" y1="9" x2="406" y2="36"></line><line class="pb-3" x1="412" y1="9" x2="412" y2="36"></line><line class="pb-3" x1="418" y1="9" x2="418" y2="36"></line><line class="pb-3" x1="424" y1="9" x2="424" y2="36"></line><line class="pb-3" x1="430" y1="9" x2="430" y2="36"></line><line class="pb-3" x1="436" y1="9" x2="436" y2="36"></line>
                         </svg>
                 `
             }
@@ -671,7 +697,7 @@
                     <!-- ${name} ${type} item - ${title} (Published On - ${publishedDate}) -->
                     <a ${settings.fontFamily ? `style=${fontFamily}` : ""} class="media_item${showTextOverlay ? `-text-overlay-enabled` : ``}" data-itemclickablemediatype="${mediaType}" data-itemclickable="true" data-itemclickableplaylist="${name}_${type}" data-id="${id}" ${lightboxshowplaylist ? `data-lightboxshowplaylist="true"` : ""}>
                         <div class="media-item-thumbnail-text-wrapper">
-                            <img class="media_item-thumbnail" src="${thumbnail.url}" width="${thumbnail.width ? thumbnail.width : 1280}" height="${thumbnail.height ? thumbnail.height : 720}" alt="${title}">
+                            <img class="media-item-thumbnail" src="${thumbnail.url}" width="${thumbnail.width ? thumbnail.width : 1280}" height="${thumbnail.height ? thumbnail.height : 720}" alt="${title}">
                             ${showPlayButton ? 
                                 `
                                     <div class="media-item-play-button" style="${playButtonStyling}">
@@ -883,7 +909,7 @@
                                 <path data-hideonidle="true" d="M415 720 l-220 -220 223 -222 222 -223 72 73 73 72 -148 148 -147 147 145 145 c80 80 145 149 145 155 0 0 -140 145 -140 145 0 0 -104 -99 -225 -220z"/>
                                 </g>
                             </svg>
-                            <div class="lightbox-video-frame">
+                            <div class="lightbox-box-frame">
                                 <div class="lightbox-frames" data-lightboxframes="true">
                                 <div data-frameposition="-1" class="frame-transition-left video-thumbnail-wrapper" data-lightboxframe="true">
                                     <iframe width="560" height="315" title="${media_type} video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
@@ -1540,7 +1566,7 @@
 
                     // Monitor Click Of Video Items Rendered
 
-                    const videoItemsRendered = document.querySelectorAll(`[data-itemclickablemediatype="video"]`);
+                    const videoItemsRendered = [...document.querySelectorAll(`[data-itemclickableplaylist="${media_name}_${media_type}"]`)].filter(item => item.dataset.itemclickablemediatype === "video");
                     videoItemsRendered.forEach(item => {
                         item.addEventListener("click", () => {
                             if (item.dataset.lightboxshowplaylist && item.dataset.lightboxshowplaylist === "true") {
@@ -1573,18 +1599,26 @@
                             collectionViewUrl: channel.collectionViewUrl 
                         };
 
+                        const showName = channel.item[0].link.split("/")[4];
+
+                        const embedPlayerUrl = `https://omny.fm/shows/${showName}/playlists/podcast/embed?selectedClip=${itemClicked.dataset.id}`;
+
                         const podcastEpisodes = media_data.channel.item.sort((a, b) => Date.parse(a.pubData) > Date.parse(b.pubData) ? -1 : 1);
                         const episodeSelected = media_data.channel.item.find(i => i.guid === itemClicked.dataset.id);
 
                         // If Window Resolution Is Less Than 872px, Open New Window In Apple Podcasts
 
                         if (window.innerWidth < 872) {
-                            window.open(episodeSelected.link);
+                            window.open(embedPlayerUrl);
                             return
                         }
                         
                         const media_audio_lightbox_html = `
-                            <div class="lightbox-content-container"></div>
+                            <div class="lightbox-content-container">
+                                <div class="lightbox-box-frame">
+                                    <iframe class="lightbox-podcast-embed-player" src="${embedPlayerUrl}"></iframe>
+                                </div>
+                            </div>
                             <div class="lightbox-close-button" data-hideonidle="true" data-lightboxclosebutton="true">X</div>
                         `;
 
@@ -1608,7 +1642,7 @@
 
                     // Monitor Click Of Podcast Audio Items Rendered
 
-                    const podcastItemsRendered = document.querySelectorAll(`[data-itemclickablemediatype="audio"]`);
+                    const podcastItemsRendered = [...document.querySelectorAll(`[data-itemclickableplaylist="${media_name}_${media_type}"]`)].filter(item => item.dataset.itemclickablemediatype === "audio");
                     podcastItemsRendered.forEach(item => {
                         item.addEventListener("click", () => {
                             audio_lightbox_activate_handler(item);
@@ -1620,7 +1654,7 @@
 
     // Gets Media Data.  API Key And PlaylistID Must Be Passed In
 
-    function get_media_content($type = null, $playlist_name = 'unnamed', $api_key = null, $playlist_id = null, $expired = true) {
+    function get_media_content($type = null, $playlist_name = 'unnamed', $api_key = null, $media_data = null, $expired = true) {
         
         // Checks If Cookie Has Expired Based Upon Expiration Parameter
 
@@ -1633,7 +1667,7 @@
             // Load Youtube Data If Media Is Youtube
             
             if ($type === 'youtube') {
-                $youtube_req_url = 'https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId='. $playlist_id .'&key=' . $api_key . '&maxResults=10000';
+                $youtube_req_url = 'https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId='. $media_data .'&key=' . $api_key . '&maxResults=10000';
 
                 $youtube_get_req = @file_get_contents($youtube_req_url);
 
@@ -1748,25 +1782,34 @@
 
             if ($type === 'podcast') {
 
-                // Lookup data for RSS through iTunes
+                // Lookup data for RSS through iTunes If Id Supplied
 
-                $get_rss= @file_get_contents('https://itunes.apple.com/lookup?id='.$playlist_id.'&entity=podcast');
+                if (str_split($media_data, 4)[0] !== 'http') {
 
-                $get_rss_data = json_decode($get_rss);
+                    $get_rss= @file_get_contents('https://itunes.apple.com/lookup?id='.$media_data.'&entity=podcast');
 
-                // Extract RSS Feed Url From JSON data from iTunes
+                    $get_rss_data = json_decode($get_rss);
 
-                $rss_url = get_object_vars($get_rss_data)['results'][0]->feedUrl;
+                    // Extract RSS Feed Url From JSON data from iTunes
 
-                $rss_feed = @file_get_contents($rss_url);
+                    $rss_url = get_object_vars($get_rss_data)['results'][0]->feedUrl;
 
-                $parsed_rss_feed = simplexml_load_string($rss_feed);
+                    $rss_feed = @file_get_contents($rss_url);
 
-                $parsed_rss_feed->channel->playlistId = $playlist_id;
+                    $parsed_rss_feed = simplexml_load_string($rss_feed);
 
-                $parsed_rss_feed->channel->collectionViewUrl = get_object_vars($get_rss_data)['results'][0]->collectionViewUrl;
+                    $parsed_rss_feed->channel->playlistId = $media_data;
 
-                $parsed_data = $parsed_rss_feed;
+                    $parsed_rss_feed->channel->collectionViewUrl = get_object_vars($get_rss_data)['results'][0]->collectionViewUrl;
+
+                    $parsed_data = $parsed_rss_feed;
+                } else {
+
+                // Get data if full RSS Url Provided
+
+                    $rss_feed = @file_get_contents($media_data);
+                    $parsed_data = simplexml_load_string($rss_feed);
+                }
             }
 
             // Set Cookie Storage Time Stamp And Output Parsed '.$type.' Data Into Browser Local Storage
@@ -1802,9 +1845,12 @@
                 // Initialize Media
 
                 window.addEventListener("load", () => {
-                    const media_items= document.querySelectorAll(`[data-mediaplatform="'.$type.'"]`);
+                    const media_items= document.querySelectorAll(`[data-playlistname="'.$playlist_name.'"]`);
 
-                    initialize_media(media_items, '.$playlist_name.'_'.$type.'_data, "'.$playlist_name.'", "'.$type.'");
+                    initialize_media([...media_items].filter(item => item.dataset.mediaplatform === "'.$type.'"), 
+                        '.$playlist_name.'_'.$type.'_data, 
+                        "'.$playlist_name.'", "'.$type.'"
+                    );
 
                 });
 
