@@ -1,5 +1,5 @@
 
-    // Version 2.3
+    // Version 2.4
 
     // Media API Widget Global CSS And Javascript
 
@@ -1639,6 +1639,25 @@
                         lightbox.querySelector(`[data-lightboxclosebutton="true"]`).addEventListener("click", () => {
                             lightbox_clear();
                         });
+
+                        // Monitor Mouse Movement To Hide Close Button If Idle For More Than 5 Seconds
+
+                        const closeButton = document.querySelector(`[data-lightboxclosebutton="true"]`);
+
+                        let lastTimeMouseMoved;
+
+                        function audioLightboxMouseMoveHandler(e) {
+                            lastTimeMouseMoved = new Date().getTime();
+                            closeButton.classList.remove("element-invisible");
+                            setTimeout(() => {
+                                if (new Date().getTime() - lastTimeMouseMoved >= 5000 && !e.target.dataset.hideonidle) {
+                                    closeButton.classList.add("element-invisible");
+                                }
+                            }, 5000)
+                        }
+
+                        lightbox.addEventListener("mousemove", audioLightboxMouseMoveHandler);
+                        lightbox.addEventListener("click", audioLightboxMouseMoveHandler);
                     }
 
                     // Monitor Click Of Podcast Audio Items Rendered
