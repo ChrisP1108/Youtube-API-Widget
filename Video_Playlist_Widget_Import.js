@@ -23,7 +23,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       function backupAPIKeys() {
         let apiKeyPicked;
         if (playlistService === 'youtube') {
-          const youtubeAPIKeys = ['AIzaSyC182q2iM2ZBPSjwNysd2LiAvj-RElMdsw', 'AIzaSyA_pSMRbSVW5c9RhCxmLM4bL2ExqWw_leg', 'AIzaSyA-uTYg5ut6MW2fklFi5gNEAIImLFfUGaM', 'AIzaSyCI7Y5K9XF-l1G0mb7qGNp3vd7-1vm2PrU']
+          const youtubeAPIKeys = ['AIzaSyA_pSMRbSVW5c9RhCxmLM4bL2ExqWw_leg'];
           apiKeyPicked = youtubeAPIKeys[Math.floor(Math.random() * youtubeAPIKeys.length)];
         }
         return apiKeyPicked
