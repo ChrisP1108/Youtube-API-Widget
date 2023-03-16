@@ -1,4 +1,4 @@
-// VERSION 1.17
+// VERSION 1.18
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -507,14 +507,17 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       }
       [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container .playlist-logo {
         top: 0;
+        width: auto !important;
         height: auto !important;
+        aspect-ratio: 1.777 / 1;
+        object-fit: contain;
         padding: 0 16px 24px;
         min-width: 18vw !important;
         max-width: 30vh !important;
         ${showLogoWhiteOut ? 'filter: invert(1) brightness(2) saturate(0);' : ''}
       }
       [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container legend {
-        min-width: 22vw;
+        min-width: 0vw;
       }
       [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container::-webkit-scrollbar {
         width: 8px;
@@ -800,6 +803,9 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         ${widgetIdSelector} .video-layout-container .hover-text-container {
           gap: 8vw;
         }
+        [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container .playlist-logo {
+          width: 80% !important;
+        }
       }
       @media(min-width: 1920px) {
         [data-lightboxid="${widgetIdSelector}"] .fast-forward-overlay h1,
@@ -807,14 +813,8 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
           font-size: 80px !important;
         }
 
-        [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container .playlist-logo {
-          min-width: 380px !important;
-          max-width: 380px !important;
-        }
-
         [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container legend {
-          min-width: 416px !important;
-          max-width: 416px !important;
+          min-width: 0vw !important;
         }
       }
     `
