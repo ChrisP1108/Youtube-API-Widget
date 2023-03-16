@@ -804,7 +804,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
           gap: 8vw;
         }
         [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container .playlist-logo {
-          width: 80% !important;
+          width: 90% !important;
         }
       }
       @media(min-width: 1920px) {
