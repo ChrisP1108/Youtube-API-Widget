@@ -1,5 +1,5 @@
 
-    // Version 2.4
+    // Version 2.7
 
     // Media API Widget Global CSS And Javascript
 
@@ -12,7 +12,6 @@
                 height: auto;
                 display: block;
                 box-sizing: border-box;
-                background: #000;
                 animation-name: media-item-fade-in;
                 animation-duration: 1s;
             }
@@ -348,6 +347,7 @@
                 top: 50%;
                 transform: translate(-50%, -50%);
                 padding: 24px 40px 24px 40px;
+                background: #000000D0;
             }
             [data-lightboxmediacontenttype="video"] .lightbox-playlist-container .playlist-heading {
                 font-family: inherit !important;
@@ -360,12 +360,10 @@
             [data-lightboxmediacontenttype="video"] .lightbox-playlist-container .playlist-logo {
                 top: 0;
                 height: auto;
-                width: auto;
+                width: clamp(300px, 30vh, 329px);
                 aspect-ratio: 1.777 / 1;
                 object-fit: contain;
                 padding: 0 16px 24px;
-                min-width: 18vw !important;
-                max-width: 30vh !important;
             }
             [data-lightboxmediacontenttype="video"] .lightbox-playlist-container::-webkit-scrollbar {
                 width: 8px;
@@ -415,7 +413,7 @@
             [data-lightboxmediacontenttype="video"] .lightbox-box-frame .fast-forward-overlay h1,
             [data-lightboxmediacontenttype="video"] .lightbox-box-frame [data-lightboxframe="true"] h1 {
                 color: #fff;
-                font-size: clamp(56px, 5vw, 80px);
+                font-size: clamp(48px, 5vw, 60px);
                 font-family: inherit !important;
                 text-align: center;
                 font-weight: 700;
@@ -483,8 +481,9 @@
                 position: relative;
             }
             [data-lightboxmediacontenttype="audio"] .lightbox-box-frame {
-                width: min(82vw, 1400px);
-                height: 80vh!important;
+                width: min(84vw, 1400px);
+                height: 84vh;
+                height: 84dvh;
                 box-shadow: 0px 0px 48px black;
                 filter: drop-shadow(rgba(255, 255, 255, 0.44) 0px 0px 80px);
             }
@@ -493,7 +492,7 @@
                 color: white;
                 margin: 1rem 0 0;
                 text-align: center;
-                font-size: 1.75rem;
+                font-size: 1.375rem;
                 font-weight: 700;
             }
             [data-lightboxmediacontenttype="video"] .arrow-left {
@@ -719,8 +718,7 @@
 
             // Initialize Loading Of Media Items And Lightbox
 
-            function initialize_media(media_items, media_data, media_name, media_type) {
-                
+            function initialize_media(media_items, media_data, media_name, media_type, podcast_platform) {
                 // Variables For Lightbox
 
                 let showThemeColor;
@@ -782,13 +780,19 @@
 
                         // Data Parsing
 
-                        const renderData = media_type === "youtube" ? media_data 
+                        let renderData;
+
+                        if (podcast_platform !== "spotify") {
+                            renderData = media_type === "youtube" ? media_data 
                             : media_type === "podcast" ? media_data.channel.item.map(item => ({...item, thumbnail: { url: thumbnailimg }, publishedDate: item.pubDate, id: item.guid, episode: -1 })) 
                             : [];  
+                        } else {
+                            renderData = [{ thumbnail: { url: thumbnailimg} , publishedDate: "unknown", id: "unknown", episode: -1, title: `Podcast On Spotify` }];
+                        }
 
                         // Delete extra fields from podcast that are not needed to render item
 
-                        if (media_type === "podcast") {
+                        if (media_type === "podcast" && podcast_platform === "omny") {
                             renderData.forEach(item => {
                                 delete(item.guid);
                                 delete(item.pubData);
@@ -826,6 +830,12 @@
                         }
                         if (itemData.orderdescending) {
                             index = Number(itemData.orderdescending) - 1;
+                        }
+
+                        // If Podcast Is Spotify, Index Will Automatically Be Set To 0
+
+                        if (podcast_platform === "spotify") {
+                            index = 0;
                         }
 
                         // Checks If multiplegrid parameter was provided and filters accordingly prior to rendering
@@ -986,9 +996,9 @@
 
                     let playListSorted = lightboxshowplaylist ? media_data : media_data.filter(item => item.id === itemClicked.dataset.id);
 
-                    // Removes Non Episode Numbered Items From Playlist
+                    // Removes Non Episode Numbered Items From Playlist If Sort Mode Is Set To "number_in_title"
 
-                    if (media_type === "youtube" && lightboxshowplaylist) {
+                    if (media_type === "youtube" && lightboxshowplaylist && !playListSorted.every(item => item.episode === -1)) {
                         playListSorted = playListSorted.filter(item => item.episode && item.episode !== -1);
                     }
                     
@@ -1146,7 +1156,7 @@
 
                         // Removes Non Episode Numbered Items From Playlist
 
-                        if (media_type === "youtube") {
+                        if (media_type === "youtube" && !outputList.every(item => item.episode === - 1)) {
                             outputList = outputList.filter(item => item.episode && item.episode !== -1);
                         }
 
@@ -1575,25 +1585,32 @@
 
                     function audio_lightbox_activate_handler(itemClicked) {
 
-                        // Get Podcast Data, All Episodes, And Episode Clicked On
+                        // Set Ifram Url Based Upon Podcast Player Type
 
-                        const { channel } = media_data;
+                        let embedPlayerUrl;
 
-                        const podcastInfo = { 
-                            copyright: channel.copyright, 
-                            title: channel.title, 
-                            description: channel.description,
-                            playlistId: channel.playlistId,
-                            collectionViewUrl: channel.collectionViewUrl 
-                        };
+                        if (podcast_platform === "omny") {
 
-                        const showName = channel.item[0].link.split("/")[4];
+                            // Get Podcast Data, All Episodes, And Episode Clicked On
+                        
+                            const { channel } = media_data;
 
-                        const embedPlayerUrl = `https://omny.fm/shows/${showName}/playlists/podcast/embed?selectedClip=${itemClicked.dataset.id}`;
+                            const podcastInfo = { 
+                                copyright: channel.copyright, 
+                                title: channel.title, 
+                                description: channel.description,
+                                playlistId: channel.playlistId,
+                                collectionViewUrl: channel.collectionViewUrl 
+                            };
 
-                        const podcastEpisodes = media_data.channel.item.sort((a, b) => Date.parse(a.pubData) > Date.parse(b.pubData) ? -1 : 1);
-                        const episodeSelected = media_data.channel.item.find(i => i.guid === itemClicked.dataset.id);
+                            const showName = channel.item[0].link.split("/")[4];
 
+                            embedPlayerUrl = `https://omny.fm/shows/${showName}/playlists/podcast/embed?selectedClip=${itemClicked.dataset.id}`;
+                        }
+
+                        if (podcast_platform === "spotify") {
+                            embedPlayerUrl = media_data;
+                        }
                         // If Window Resolution Is Less Than 872px, Open New Window In Apple Podcasts
 
                         if (window.innerWidth < 872) {
@@ -1659,13 +1676,43 @@
             </script>
         ';
 
+    // Assign Episode Number Based Upon Number In Title.  If No Number Found Or Number Is Greater Than 2000, -1 Is Assigned To Episode
+
+    function episode_number_generator($title) {
+        $output = '';
+        $splitter = str_split($title);
+        foreach($splitter as $char) {
+            if (preg_match('/[0-9]/', $char) === 1) {
+                $output .= $char;
+            } else {
+                if ($output !== '') {
+                    break;
+                }
+            }
+        }
+        $output = intval($output);
+        if ($output !== 0 && $output < 2000) {
+            return intval($output);
+        } else return -1;
+    }
+
     // Gets Media Data.  API Key And PlaylistID Must Be Passed In
 
-    function get_media_content($type = null, $playlist_name = 'unnamed', $api_key = null, $media_data = null, $expired = true) {
+    function get_media_content($params) {
+        
+        // Get Parameter Data
+
+        $type = $params['type'] ?? null;
+        $podcast_platform = $params['podcast_platform'] ?? null;
+        $playlist_name = $params['playlist_name'] ?? 'unnamed';
+        $api_key = $params['api_key'] ?? null;
+        $media_data = $params['media_data'] ?? null;
+        $sort_mode = $params['sort_mode'] ?? 'normal';
+        $cookie_expired = $params['cookie_expired'] ?? true;
         
         // Checks If Cookie Has Expired Based Upon Expiration Parameter
 
-        if ($expired) {
+        if ($cookie_expired) {
 
             // Declare Parsed Data
 
@@ -1674,13 +1721,14 @@
             // Load Youtube Data If Media Is Youtube
             
             if ($type === 'youtube') {
+
                 $youtube_req_url = 'https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId='. $media_data .'&key=' . $api_key . '&maxResults=10000';
 
                 $youtube_get_req = @file_get_contents($youtube_req_url);
 
                 if (!$youtube_get_req) {
                     echo '<script>
-                        console.error("There was an error getting the Youtube data.  Try reloading or check the API key.");
+                        console.error("There was an error getting the '. $playlist_name . '_'. $type .'_playlist data.  Try reloading or check the API key.");
                     </script>';
                     return;
                 }
@@ -1691,7 +1739,11 @@
 
                 $youtube_items_tally = count($youtube_data['items']);
 
-                $nextPageToken = $youtube_data['nextPageToken'];
+                $nextPageToken = null;
+
+                if ($youtube_data['nextPageToken']) {
+                    $nextPageToken = $youtube_data['nextPageToken'];
+                }
 
                 // Youtube Has A Limit Of 50 Results Per Request.  If Playlist Item Total Is Greater Than 50, Then A While Loop Runs Until Total Items Received Equals Total Results
 
@@ -1706,26 +1758,6 @@
 
                 $youtube_data['items'] = $youtube_items;
 
-                // Assign Episode Number Based Upon Number In Title.  If No Number Found Or Number Is Greater Than 2000, -1 Is Assigned To episode
-
-                function episode_number_generator($title) {
-                    $output = '';
-                    $splitter = str_split($title);
-                    foreach($splitter as $char) {
-                        if (preg_match('/[0-9]/', $char) === 1) {
-                            $output .= $char;
-                        } else {
-                            if ($output !== '') {
-                                break;
-                            }
-                        }
-                    }
-                    $output = intval($output);
-                    if ($output !== 0 && $output < 2000) {
-                        return intval($output);
-                    } else return -1;
-                }
-
                 // Loop Through Video Items And Parse Accordingly
 
                 foreach($youtube_data['items'] as $item) {
@@ -1734,11 +1766,13 @@
                         if ($item['snippet']) {
                             $snippet = $item['snippet'];
                             if ($snippet['title'] !== '') {
-                                $itemOutput['episode'] = episode_number_generator($snippet['title']);
+                                if ($sort_mode === 'number_in_title') {
+                                    $itemOutput['episode'] = episode_number_generator($snippet['title']);
+                                } else $itemOutput['episode'] = -1;
                                 $itemOutput['title'] = $snippet['title'];
                             } else {
-                                $itemOutput['episode'] = null;
                                 $itemOutput['title'] = null;
+                                $itemOutput['episode'] = -1;
                             }
                             if ($snippet['resourceId'] && $snippet['resourceId']['videoId']) {
                                 $itemOutput['id'] = $snippet['resourceId']['videoId'];
@@ -1769,10 +1803,12 @@
                     array_push($parsed_data, $itemOutput);
                 }
 
-                // Sort List Based Upon episode Number Generated
+                // If $sort_mode Was Set To "number_in_title", Sort List Based Upon Episode Number Generated 
 
-                $key_values = array_column($parsed_data, 'episode');
-                array_multisort($key_values, SORT_DESC, $parsed_data);
+                if ($sort_mode === 'number_in_title') {
+                    $key_values = array_column($parsed_data, 'episode');
+                    array_multisort($key_values, SORT_DESC, $parsed_data);
+                }
 
                 // Checks to make sure there aren't any Items with the same title.  If so, it is removed
 
@@ -1787,35 +1823,48 @@
                 $parsed_data = array_values($pre_duplicate_removal);
             }
 
+            // Podcast Data
+
             if ($type === 'podcast') {
 
-                // Lookup data for RSS through iTunes If Id Supplied
+                // Omny Podcast
 
-                if (str_split($media_data, 4)[0] !== 'http') {
+                if ($podcast_platform === 'omny') {
 
-                    $get_rss= @file_get_contents('https://itunes.apple.com/lookup?id='.$media_data.'&entity=podcast');
+                    // Lookup data for RSS through iTunes If Id Supplied
 
-                    $get_rss_data = json_decode($get_rss);
+                    if (str_split($media_data, 4)[0] !== 'http') {
 
-                    // Extract RSS Feed Url From JSON data from iTunes
+                        $get_rss= @file_get_contents('https://itunes.apple.com/lookup?id='.$media_data.'&entity=podcast');
 
-                    $rss_url = get_object_vars($get_rss_data)['results'][0]->feedUrl;
+                        $get_rss_data = json_decode($get_rss);
 
-                    $rss_feed = @file_get_contents($rss_url);
+                        // Extract RSS Feed Url From JSON data from iTunes
 
-                    $parsed_rss_feed = simplexml_load_string($rss_feed);
+                        $rss_url = get_object_vars($get_rss_data)['results'][0]->feedUrl;
 
-                    $parsed_rss_feed->channel->playlistId = $media_data;
+                        $rss_feed = @file_get_contents($rss_url);
 
-                    $parsed_rss_feed->channel->collectionViewUrl = get_object_vars($get_rss_data)['results'][0]->collectionViewUrl;
+                        $parsed_rss_feed = simplexml_load_string($rss_feed);
 
-                    $parsed_data = $parsed_rss_feed;
-                } else {
+                        $parsed_rss_feed->channel->playlistId = $media_data;
 
-                // Get data if full RSS Url Provided
+                        $parsed_rss_feed->channel->collectionViewUrl = get_object_vars($get_rss_data)['results'][0]->collectionViewUrl;
 
-                    $rss_feed = @file_get_contents($media_data);
-                    $parsed_data = simplexml_load_string($rss_feed);
+                        $parsed_data = $parsed_rss_feed;
+                    } else {
+
+                    // Get data if full RSS Url Provided
+
+                        $rss_feed = @file_get_contents($media_data);
+                        $parsed_data = simplexml_load_string($rss_feed);
+                    }
+                }
+
+                // Spotify Podcast Url
+
+                if ($podcast_platform === 'spotify') {
+                    $parsed_data = $media_data;
                 }
             }
 
@@ -1852,13 +1901,13 @@
                 // Initialize Media
 
                 window.addEventListener("load", () => {
-                    const media_items= document.querySelectorAll(`[data-playlistname="'.$playlist_name.'"]`);
+                    const media_items = document.querySelectorAll(`[data-playlistname="'.$playlist_name.'"]`);
 
-                    initialize_media([...media_items].filter(item => item.dataset.mediaplatform === "'.$type.'"), 
+                    initialize_media([...media_items].filter(item => item.dataset.mediaplatform === "'.$type.'" && item.dataset.playlistname === "'.$playlist_name.'"), 
                         '.$playlist_name.'_'.$type.'_data, 
-                        "'.$playlist_name.'", "'.$type.'"
+                        "'.$playlist_name.'", "'.$type.'",
+                        "'.$podcast_platform.'"
                     );
-
                 });
 
             </script>
