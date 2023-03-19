@@ -1852,6 +1852,10 @@
 
                             $rss_feed = @file_get_contents($rss_url);
 
+                            if (!$rss_feed) {
+                                $error_loading_data = true;
+                            }
+
                             $parsed_rss_feed = simplexml_load_string($rss_feed);
 
                             $parsed_rss_feed->channel->playlistId = $media_data;
