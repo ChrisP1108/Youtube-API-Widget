@@ -9,9 +9,6 @@
                 // DO NOT MODIFY CODE BELOW EXCEPT FOR $cookie_name.  THE NAME MUST BE UNIQUE TO THE SITE NAME
         
                 // Checks For Cookie.  This allows greater efficiency of the API and improves performance by resuing Local Storage data for a given period of time without having to call the API on every page load.
-                
-                global $media_cookie_expired;
-                global $cookie_name;
 
                 add_action('init', function() {
                     global $media_cookie_expired;
