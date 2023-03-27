@@ -10,7 +10,7 @@
         
                 // Checks For Cookie.  This allows greater efficiency of the API and improves performance by resuing Local Storage data for a given period of time without having to call the API on every page load.
 
-                add_action('init', function() {
+                add_action('template_redirect', function() {
                     global $media_cookie_expired;
                     global $cookie_name;
                     $cookie_name = 'wise_money_stored'; // PROVIDE A UNIQUE NAME THAT NO OTHER MICROSITE NAME HAS.
