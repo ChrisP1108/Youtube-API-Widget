@@ -794,7 +794,6 @@
                             renderData = [{...renderData[0], trackSelect: Number(itemData.orderdescending) - 1}]
                         }
 
-                        console.log(renderData);
 
                         // Delete extra fields from podcast that are not needed to render item
 
