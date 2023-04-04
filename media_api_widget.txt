@@ -1,5 +1,5 @@
 
-    // Version 2.8
+    // Version 2.9
 
     // Media API Widget Global CSS And Javascript
 
@@ -682,7 +682,7 @@
                 const { showPlayButton, playButtonIconImgUrl, playButtonStyling, showTextOverlay, instructionMessage, fontFamily, lightboxshowplaylist, showPlaybar, playbarColor } = settings;
                 const htmlRender = `
                     <!-- ${name} ${type} item - ${title} (Published On - ${publishedDate}) -->
-                    <a ${settings.fontFamily ? `style=${fontFamily}` : ""} class="media_item${showTextOverlay ? `-text-overlay-enabled` : ``}" data-itemclickablemediatype="${mediaType}" data-itemclickable="true" data-itemclickableplaylist="${name}_${type}" data-id="${id}" ${lightboxshowplaylist ? `data-lightboxshowplaylist="true"` : ""}>
+                    <a ${settings.fontFamily ? `style=${fontFamily}` : ""} class="media_item${showTextOverlay ? `-text-overlay-enabled` : ``}" data-itemclickablemediatype="${mediaType}" data-itemclickable="true" data-itemclickableplaylist="${name}_${type}" data-id="${id}" ${lightboxshowplaylist ? `data-lightboxshowplaylist="true"` : ""} ${item.trackSelect !== null ? `data-trackselect=${Number(item.trackSelect)}` : ""}>
                         <div class="media-item-thumbnail-text-wrapper">
                             <img class="media-item-thumbnail" src="${thumbnail.url}" width="${thumbnail.width ? thumbnail.width : 1280}" height="${thumbnail.height ? thumbnail.height : 720}" alt="${title}">
                             ${showPlayButton ? 
@@ -782,13 +782,19 @@
 
                         let renderData;
 
-                        if (podcast_platform !== "spotify") {
+                        if (podcast_platform !== "embed" && podcast_platform !== "soundcloud") {
                             renderData = media_type === "youtube" ? media_data 
                             : media_type === "podcast" ? media_data.channel.item.map(item => ({...item, thumbnail: { url: thumbnailimg }, publishedDate: item.pubDate, id: item.guid, episode: -1 })) 
                             : [];  
                         } else {
-                            renderData = [{ thumbnail: { url: thumbnailimg} , publishedDate: "unknown", id: "unknown", episode: -1, title: `Podcast On Spotify` }];
+                            renderData = [{ thumbnail: { url: thumbnailimg} , publishedDate: "unknown", id: "unknown", episode: -1, title: `Embedded Podcast` }];
                         }
+
+                        if (podcast_platform === "soundcloud") {
+                            renderData = [{...renderData[0], trackSelect: Number(itemData.orderdescending) - 1}]
+                        }
+
+                        console.log(renderData);
 
                         // Delete extra fields from podcast that are not needed to render item
 
@@ -832,10 +838,18 @@
                             index = Number(itemData.orderdescending) - 1;
                         }
 
-                        // If Podcast Is Spotify, Index Will Automatically Be Set To 0
+                        // If Podcast Is embed or Soundcloud, Index Will Automatically Be Set To 0
 
-                        if (podcast_platform === "spotify") {
+                        if (podcast_platform === "embed" || podcast_platform === "soundcloud") {
                             index = 0;
+                        }
+
+                        let trackSelect = null;
+
+                        // If Track Is Soundcloud, trackselect will be set from itemData.orderdescending
+
+                        if (podcast_platform === "soundcloud") {
+                            trackSelect = Number(itemData.orderdescending) - 1;
                         }
 
                         // Checks If multiplegrid parameter was provided and filters accordingly prior to rendering
@@ -1608,9 +1622,14 @@
                             embedPlayerUrl = `https://omny.fm/shows/${showName}/playlists/podcast/embed?selectedClip=${itemClicked.dataset.id}`;
                         }
 
-                        if (podcast_platform === "spotify") {
+                        if (podcast_platform === "embed") {
                             embedPlayerUrl = media_data;
                         }
+
+                        if (podcast_platform === "soundcloud") {
+                            embedPlayerUrl = media_data + `&start_track=${itemClicked.dataset.trackselect}`;
+                        }
+
                         // If Window Resolution Is Less Than 872px, Open New Window In Apple Podcasts
 
                         if (window.innerWidth < 872) {
@@ -1878,9 +1897,9 @@
                     }
                 }
 
-                // Spotify Podcast Url
+                // embed Podcast Url
 
-                if ($podcast_platform === 'spotify') {
+                if ($podcast_platform === 'embed' || $podcast_platform === 'soundcloud') {
                     $parsed_data = $media_data;
                 }
             }
