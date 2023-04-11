@@ -1,4 +1,4 @@
-// VERSION 1.18
+// VERSION 1.19
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -23,7 +23,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       function backupAPIKeys() {
         let apiKeyPicked;
         if (playlistService === 'youtube') {
-          const youtubeAPIKeys = ['AIzaSyA_pSMRbSVW5c9RhCxmLM4bL2ExqWw_leg'];
+          const youtubeAPIKeys = ['AIzaSyAGeChuN2jmAVvINB7aJv-ZzU_a2bnNGio'];
           apiKeyPicked = youtubeAPIKeys[Math.floor(Math.random() * youtubeAPIKeys.length)];
         }
         return apiKeyPicked
@@ -47,7 +47,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       const showPlayButtons = typeof inputData.showPlayButtons === 'boolean' ? inputData.showPlayButtons : true; // Sets If Play Button Icons Should Be Shown Over Video Thumbnails.  Default Value Is: true
       const showVideoInfo = typeof inputData.showVideoInfo === 'boolean' ? inputData.showVideoInfo : false; // Sets If Text Information About Video Should Be Displayed Below Video Thumbnail.  Default Value Is: false
       const showDescriptionText = typeof inputData.showDescriptionText === 'boolean' ? inputData.showDescriptionText : false; // If showVideoInfo Is Set To True, Sets If Video Description Text Should Be Displayed.  Default Value Is: false
-      const showAllInLightbox = typeof inputData.showAllInLightbox === 'boolean' ? inputData.showAllInLightbox : true; // Determines If Lightbox Will Allow User To See All Videos On PlayList If True. If False, User Can Only View Videos Shown On Page  
+      const showAllInLightbox = typeof inputData.showAllInLightbox === 'boolean' ? inputData.showAllInLightbox : false; // Determines If Lightbox Will Allow User To See All Videos On PlayList If True. If False, User Can Only View Videos Shown On Page  
       const fastForwardSpeed = typeof inputData.fastForwardSpeed === 'number' ? inputData.fastForwardSpeed : 150; // Set The Speed That Frames Should Be Fast Forwarded Through On Carousel And Lightbox When User Holds Down Arrow.
       const showLogoImgUrl = typeof inputData.showLogoImgUrl === 'string' ? inputData.showLogoImgUrl : ''; // Show Logo Image URL For Playlist Heading.  If Nothing, Then TV Episodes Text Will Be Shown 
       let playlistButton = typeof inputData.playlistButton === 'boolean' ? inputData.playlistButton : true; // Sets If Playlist Button Will Be Shown On Page.  Default Value Is: true
