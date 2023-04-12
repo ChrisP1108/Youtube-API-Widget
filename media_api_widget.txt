@@ -192,7 +192,6 @@
             }
             [data-lightboxmediacontenttype="video"] .grid-layout {
                 grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-                place-items: center;
             }
             [data-lightboxmediacontenttype="video"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper {
                 position: relative;
