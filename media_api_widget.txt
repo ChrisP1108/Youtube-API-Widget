@@ -1,5 +1,5 @@
 
-    // Version 2.9
+    // Version 2.10
 
     // Media API Widget Global CSS And Javascript
 
@@ -191,7 +191,8 @@
                 gap: 48px;
             }
             [data-lightboxmediacontenttype="video"] .grid-layout {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+                place-items: center;
             }
             [data-lightboxmediacontenttype="video"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper {
                 position: relative;
@@ -218,7 +219,7 @@
             }
             [data-lightboxmediacontenttype="video"] .media_item:hover {
                 filter: grayscale(0%) !important;
-                transform: scale(1.25);
+                transform: scale(1.15);
             }
             [data-lightboxmediacontenttype="video"] .video-thumbnail-wrapper iframe,
             [data-lightboxmediacontenttype="video"] .video-thumbnail-wrapper h1 {
@@ -1726,6 +1727,7 @@
         $api_key = $params['api_key'] ?? null;
         $media_data = $params['media_data'] ?? null;
         $sort_mode = $params['sort_mode'] ?? 'normal';
+        $load_full_playlist = $params['load_full_playlist'] ?? false;
         $cookie_name = $params['cookie_name'] ?? null;
         $cookie_expired = $params['cookie_expired'] ?? true;
 
@@ -1840,7 +1842,19 @@
                         }
                     }
 
-                    $parsed_data = array_values($pre_duplicate_removal);
+                    // If $load_full_playlist is not set to true, remove all items after index of 5 from array, limiting list to 6 items
+
+                    $youtube_list_output = $pre_duplicate_removal;
+
+                    if ($load_full_playlist !== true) {
+                        foreach($youtube_list_output as $index => $video) {
+                            if ($index > 5) {
+                                unset($youtube_list_output[$index]);
+                            }
+                        }
+                    }
+
+                    $parsed_data = array_values($youtube_list_output);
                 }
             }
 
