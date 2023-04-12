@@ -211,7 +211,6 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       }
       [data-lightboxid="${widgetIdSelector}"] .grid-layout {
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        place-items: center
       }
       ${widgetIdSelector} .loading-spinner {
         filter: drop-shadow(2px 4px 6px #00000090);
