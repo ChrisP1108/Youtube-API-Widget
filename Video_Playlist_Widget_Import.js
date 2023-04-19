@@ -1,4 +1,4 @@
-// VERSION 1.20
+// VERSION 1.21
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -40,13 +40,13 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       const listByRange = typeof inputData.listByRange === 'boolean' ? inputData.listByRange : true; // Show Specific Range Of Videos By Episode Number.  Default Value Is: false
       const fromEpisodeNumber = typeof inputData.fromEpisodeNumber === 'number' ? inputData.fromEpisodeNumber : 1; // If listByRange Is Set To: true, Set Starting Episode Number To Filter From. Default Value Is: 1
       const toEpisodeNumber = typeof inputData.toEpisodeNumber === 'number' ? inputData.toEpisodeNumber : 2000; // If listByRange Is Set To: true, Set Starting Episode Number To Filter From.  Default Value Is: 1
-      const showInformationBelow = typeof inputData.showInformationBelow === 'boolean' ? inputData.showInformationBelow : false; // Show Text Information About Video Below Video Thumbnail.  Default Value Is: false
       const showNonNumberedEpisodesOnly = typeof inputData.showNonNumberedEpisodesOnly === 'boolean' ? inputData.showNonNumberedEpisodesOnly : false; // Shows Videos That Do Not Have An Episode Number Only. Default Value Is: false 
       const hideNonNumberedVideos = typeof inputData.hideNonNumberedVideos === 'boolean' ? inputData.hideNonNumberedVideos : true; // Hides Non-Numbered Videos In Playlist.  Default Value Is: true   
       const timeStorageInterval = typeof inputData.timeStorageInterval === 'number' ? inputData.timeStorageInterval * 60000 : 3600000; // Sets Time Interval That Another API Call Request Can Be Made Instead Of Loading From Local Storage In Minutes That Is Multiplied By 60000 To Convert Minutes To Milliseconds.  Default Value is 60
       const showPlayButtons = typeof inputData.showPlayButtons === 'boolean' ? inputData.showPlayButtons : true; // Sets If Play Button Icons Should Be Shown Over Video Thumbnails.  Default Value Is: true
-      const showVideoInfo = typeof inputData.showVideoInfo === 'boolean' ? inputData.showVideoInfo : false; // Sets If Text Information About Video Should Be Displayed Below Video Thumbnail.  Default Value Is: false
-      const showDescriptionText = typeof inputData.showDescriptionText === 'boolean' ? inputData.showDescriptionText : false; // If showVideoInfo Is Set To True, Sets If Video Description Text Should Be Displayed.  Default Value Is: false
+      let showVideoInfo = typeof inputData.showVideoInfo === 'boolean' ? inputData.showVideoInfo : true; // Sets If Text Information About Video Should Be Displayed Below Video Thumbnail.  Default Value Is: false
+      const showDescriptionText = typeof inputData.showDescriptionText === 'boolean' ? inputData.showDescriptionText : true; // If showVideoInfo Is Set To True, Sets If Video Description Text Should Be Displayed.  Default Value Is: false
+      const showTitleText = typeof inputData.showTitleText === 'boolean' ? inputData.showTitleText : false; // If showTitle Is Set To True, Sets If Video Title Text Should Be Displayed.  Default Value Is: false
       const showAllInLightbox = typeof inputData.showAllInLightbox === 'boolean' ? inputData.showAllInLightbox : false; // Determines If Lightbox Will Allow User To See All Videos On PlayList If True. If False, User Can Only View Videos Shown On Page  
       const fastForwardSpeed = typeof inputData.fastForwardSpeed === 'number' ? inputData.fastForwardSpeed : 150; // Set The Speed That Frames Should Be Fast Forwarded Through On Carousel And Lightbox When User Holds Down Arrow.
       const showLogoImgUrl = typeof inputData.showLogoImgUrl === 'string' ? inputData.showLogoImgUrl : ''; // Show Logo Image URL For Playlist Heading.  If Nothing, Then TV Episodes Text Will Be Shown 
@@ -72,7 +72,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       const textBelowThumbnailSideMargins = typeof inputData.textBelowThumbnailSideMargins === 'string' ? inputData.textBelowThumbnailSideMargins : '24px'; // Sets Text Below Video Thumbnail Margins On Sides.  Default Value Is: '24px'
       const titleTextColorBelowThumbnail = typeof inputData.titleTextColorBelowThumbnail === 'string' ? inputData.titleTextColorBelowThumbnail : '#000000'; // Sets Color Of Video Title Text Below Video Thumbnail.  Default Value Is: '#000000'
       const spaceBetweenTitleAndDescriptionBelowThumbnail = typeof inputData.spaceBetweenTitleAndDescriptionBelowThumbnail === 'string' ? inputData.spaceBetweenTitleAndDescriptionBelowThumbnail : '24px'; // Sets Vertical Space Gap Between Title Text And Description Text Below Video Thumbnail.  Default Value Is: '24px'
-      const descriptionTextColorBelowThumbnail = typeof inputData.descriptionTextColorBelowThumbnail === 'string' ? inputData.descriptionTextColorBelowThumbnail : '#000000'; // Sets Color Of Description Text Below Video Thumbnail.  Default Value Is: '#000000'
+      const descriptionTextColorBelowThumbnail = typeof inputData.descriptionTextColorBelowThumbnail === 'string' ? inputData.descriptionTextColorBelowThumbnail : '#00000090'; // Sets Color Of Description Text Below Video Thumbnail.  Default Value Is: '#000000'
       const imageDarkeningOpacity = typeof inputData.imageDarkeningOpacity === 'string' ? inputData.imageDarkeningOpacity : '20'; // Sets How Dark The Video Thumbnail Should Get Opacity On Mouse Hover.  Default Value Is: '20'
       const textOverThumbnailColor = typeof inputData.textOverThumbnailColor === 'string' ? inputData.textOverThumbnailColor : '#ffffff'; // Sets Color Of Text Over Video Thumbnail On Mouse Hover.  Default Value Is: '#ffffff'
       const textContainerMargin = typeof inputData.textContainerMargin === 'string' ? inputData.textContainerMargin : '24px'; // Sets Padding Of Text Container That Cover Over Video Thumbnail For Text On Mouse Hover.  Default Value Is: '24px'
@@ -226,11 +226,9 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       ${widgetIdSelector} .video-item {
         max-width: 100%;
         text-align: center;
-        overflow: hidden;
         border: ${videoContainerBorderThickness} ${videoContainerBorderColor} solid;
         width: 100%;
         height: 100%;
-        filter: drop-shadow(${dropShadowValues} ${dropShadowColor});
         animation-name: ${widgetId}-fade-in;
         animation-duration: 1s;
       }
@@ -243,8 +241,11 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         background: #000000;
         position: relative;
         cursor: pointer;
+        overflow: hidden;
         width: 100%;
-        ${!showInformationBelow ? `height: 100% !important;` : ''}
+        aspect-ratio: 1.777 / 1;
+        filter: drop-shadow(${dropShadowValues} ${dropShadowColor});
+        ${!showVideoInfo ? `height: 100% !important;` : ''}
       }
       [data-lightboxid="${widgetIdSelector}"] .lightbox-playlist-container .playlist-video-thumbnail-wrapper {
         position: relative;
@@ -260,6 +261,8 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       }
       ${widgetIdSelector} .video-info-text-container span {
         color: ${descriptionTextColorBelowThumbnail};
+        font-size: 1.125rem;
+        line-height: 1.5rem;
       }
       ${widgetIdSelector} .video-thumbnail-wrapper:hover img {
         opacity: calc(${imageDarkeningOpacity} / 100);
@@ -980,8 +983,8 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       const htmlRender = 
         `
           <!-- ${title} (Published On - ${publishedDate}) -->
-          <a class="video-item" data-itemclickable="true" data-id="${id}">
-            <div class="${!playlistItem ? 'video-thumbnail-wrapper' : 'playlist-video-thumbnail-wrapper'}">
+          <a class="video-item">
+            <div class="${!playlistItem ? 'video-thumbnail-wrapper' : 'playlist-video-thumbnail-wrapper'}" data-itemclickable="true" data-id="${id}">
               <img src="${thumbnail.url}" width="${thumbnail.width}" height="${thumbnail.height}" alt="${title}">
               ${showPlayButtons ? playButtonIcon() : ''}
               ${ !playlistItem ? 
@@ -993,7 +996,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
             </div>
             ${ showVideoInfo  && !playlistItem ? 
               `<div class="video-info-text-container">
-                <h3>${setThumbnailText(item)}</h3>
+                ${showTitleText ? `<h3>${setThumbnailText(item)}</h3>` : ''}
                 ${description !== '' && showDescriptionText ? `<span>${description}</span>` : ''}
               </div>`
               : ''
@@ -1903,7 +1906,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
                   } else itemOutput.publishedDate = null;
                   if (snippet.description) {
                     itemOutput.description = snippet.description;
-                  } itemOutput.description = null;
+                  } else itemOutput.description = null;
                 } else return null
                 itemOutput.titledEpisode = numberReducer(item.snippet.title)
               }
@@ -1975,6 +1978,12 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
 
           if (!showAllInLightbox) {
             playListSorted = [...pageOutputList];
+          }
+
+          // Check If All Items Being Displayed On Page All Have Descriptions.  If Not, showVideoInfo Will Be Set To False
+
+          if (playListSorted.some(item => !item.description))  {
+            showVideoInfo = false;
           }
 
           // HTML Rendering
