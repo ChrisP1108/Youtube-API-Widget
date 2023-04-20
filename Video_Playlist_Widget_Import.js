@@ -1,4 +1,4 @@
-// VERSION 1.21
+// VERSION 1.22
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -259,10 +259,13 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         margin-bottom: ${spaceBetweenTitleAndDescriptionBelowThumbnail};
         font-family: ${fontFamily} !important;
       }
-      ${widgetIdSelector} .video-info-text-container span {
+      ${widgetIdSelector} .video-info-text-container h6 {
         color: ${descriptionTextColorBelowThumbnail};
-        font-size: 1.125rem;
-        line-height: 1.5rem;
+        font-size: 1.25rem;
+        font-weight: 400;
+        margin: 0;
+        line-height: 1.75rem;
+        text-transform: none;
       }
       ${widgetIdSelector} .video-thumbnail-wrapper:hover img {
         opacity: calc(${imageDarkeningOpacity} / 100);
@@ -997,7 +1000,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
             ${ showVideoInfo  && !playlistItem ? 
               `<div class="video-info-text-container">
                 ${showTitleText ? `<h3>${setThumbnailText(item)}</h3>` : ''}
-                ${description !== '' && showDescriptionText ? `<span>${description}</span>` : ''}
+                ${description !== '' && showDescriptionText ? `<h6>${description}</h6>` : ''}
               </div>`
               : ''
             }
