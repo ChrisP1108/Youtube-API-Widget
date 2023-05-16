@@ -1,4 +1,4 @@
-// VERSION 1.23
+// VERSION 1.24
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -262,6 +262,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         color: ${descriptionTextColorBelowThumbnail};
         font-size: 1.25rem;
         font-weight: 400;
+        font-family: ${fontFamily} !important;
         margin: 0;
         line-height: 1.75rem;
         text-transform: none;
