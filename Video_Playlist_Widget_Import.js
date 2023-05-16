@@ -1,4 +1,4 @@
-// VERSION 1.22
+// VERSION 1.23
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -68,8 +68,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       const videoContainerBorderColor = typeof inputData.videoContainerBorderColor === 'string' ? inputData.videoContainerBorderColor : '#000000'; // Sets Video Container Border Color: Default Value Is: '#000000'
       const dropShadowValues = typeof inputData.dropShadowValues === 'string' ? inputData.dropShadowValues: '4px 4px 12px'; // Sets Drop-Shadow Values For Video Container.  Default Value Is: 0px 0px 0px
       const dropShadowColor = typeof inputData.dropShadowColor === 'string' ? inputData.dropShadowColor : '#01010147'; // Sets Drop-Shadow Color For Video Container.  Default Value Is: '#00000036'
-      const textBelowThumbnailTopBottomMargin = typeof inputData.textBelowThumbnailTopBottomMargin === 'string' ? inputData.textBelowThumbnailTopBottomMargin : '24px'; // Sets Text Below Video Thumbnail Margins On Top And Bottom. Default Value Is: '24px'
-      const textBelowThumbnailSideMargins = typeof inputData.textBelowThumbnailSideMargins === 'string' ? inputData.textBelowThumbnailSideMargins : '24px'; // Sets Text Below Video Thumbnail Margins On Sides.  Default Value Is: '24px'
+      const textBelowThumbnailTopMargin = typeof inputData.textBelowThumbnailTopMargin === 'string' ? inputData.textBelowThumbnailTopMargin : '24px'; // Sets Text Below Video Thumbnail Margins On Top And Bottom. Default Value Is: '24px'
       const titleTextColorBelowThumbnail = typeof inputData.titleTextColorBelowThumbnail === 'string' ? inputData.titleTextColorBelowThumbnail : '#000000'; // Sets Color Of Video Title Text Below Video Thumbnail.  Default Value Is: '#000000'
       const spaceBetweenTitleAndDescriptionBelowThumbnail = typeof inputData.spaceBetweenTitleAndDescriptionBelowThumbnail === 'string' ? inputData.spaceBetweenTitleAndDescriptionBelowThumbnail : '24px'; // Sets Vertical Space Gap Between Title Text And Description Text Below Video Thumbnail.  Default Value Is: '24px'
       const descriptionTextColorBelowThumbnail = typeof inputData.descriptionTextColorBelowThumbnail === 'string' ? inputData.descriptionTextColorBelowThumbnail : '#00000090'; // Sets Color Of Description Text Below Video Thumbnail.  Default Value Is: '#000000'
@@ -252,7 +251,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         cursor: pointer;
       }
       ${widgetIdSelector} .video-info-text-container {
-        padding: ${textBelowThumbnailTopBottomMargin} ${textBelowThumbnailSideMargins};	
+        padding: ${textBelowThumbnailTopMargin} 0px 0px;	
       }
       ${widgetIdSelector} .video-info-text-container h3 {
         color: ${titleTextColorBelowThumbnail};
