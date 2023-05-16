@@ -1,4 +1,4 @@
-// VERSION 1.24
+// VERSION 1.25
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -230,6 +230,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         height: 100%;
         animation-name: ${widgetId}-fade-in;
         animation-duration: 1s;
+        cursor: auto !important;
       }
       @keyframes ${widgetId}-fade-in {
         from { opacity: 0; }
