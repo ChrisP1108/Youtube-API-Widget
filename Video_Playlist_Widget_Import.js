@@ -1,4 +1,4 @@
-// VERSION 1.26
+// VERSION 1.27
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -1988,6 +1988,17 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
           if (playListSorted.some(item => !item.description))  {
             showVideoInfo = false;
           }
+
+          // Meta Tag Generating Of Each Episode For SEO's
+
+          const headTag = document.querySelector("head");
+
+          pageOutputList.forEach(item => {
+            const metaTag = document.createElement("meta");
+            metaTag.name = setThumbnailText(item);
+            metaTag.content = item.description;
+            headTag.appendChild(metaTag);
+          });
 
           // HTML Rendering
 
