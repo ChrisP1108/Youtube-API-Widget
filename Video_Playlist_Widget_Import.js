@@ -1996,7 +1996,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
           pageOutputList.forEach(item => {
             const metaTag = document.createElement("meta");
             metaTag.name = setThumbnailText(item);
-            metaTag.content = item.description;
+            metaTag.content = item.description ? item.description : "TV Episode";
             headTag.appendChild(metaTag);
           });
 
