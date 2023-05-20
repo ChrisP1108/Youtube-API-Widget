@@ -1,10 +1,20 @@
-
-    // Version 2.10
+   // Version 2.12
 
     // Media API Widget Global CSS And Javascript
 
     echo '
+
+        <!-- MEDIA API WIDGET START -->
+
+        <!-- Media API Styling Start -->
+
         <style>
+            .media-description-text {
+                text-align: center;
+            }
+            [data-mediadescription="true"] {
+                display: none !important;
+            }
             .media_item, .media_item-text-overlay-enabled {
                 cursor: pointer;
                 position: relative;
@@ -605,6 +615,10 @@
             /* -- END - Lightbox Styling -- */
 
         </style>
+
+        <!-- Media API Styling Start -->
+
+        <!-- Media API Javascript DOM Rendering/Event Listener Code Start -->
         
         <script>
 
@@ -851,44 +865,54 @@
                             trackSelect = Number(itemData.orderdescending) - 1;
                         }
 
-                        // Checks If multiplegrid parameter was provided and filters accordingly prior to rendering
+                        // Output Text For Media Description Only Text And Exit
 
-                        if (itemData.multiplegrid === "true" && media_data.length > 1) {
-                            let renderGridData = [...renderData];
-
-                            // If multiplegridshowall is not set to true, then playlist will be filtered accordingly.  
-
-                            if (!itemData.multiplegridshowall || itemData.multiplegridshowall !== "true") {
-                                if (itemData.multiplegridsearch) {
-                                    renderGridData = renderGridData.filter(item => item.title.toLowerCase().includes(itemData.multiplegridsearch.toLowerCase()));   
-                                }
-                                if (Number(itemData.multiplegridlimititems)) {
-                                    renderGridData = renderGridData.filter((item, index) => index < Number(itemData.multiplegridlimititems));
-                                }
-
-                                // Will override search and limit items if parameter is present for episode range
-
-                                if (itemData.multiplegridepisoderange && itemData.multiplegridepisoderange !== "" && itemData.multiplegridepisoderange.includes("-") && itemData.multiplegridepisoderange !== "-" && /[0-9]/.test(itemData.multiplegridepisoderange)) {
-                                    const splitter = itemData.multiplegridepisoderange.split("-");
-                                    renderGridData = [...media_data];
-                                    renderGridData = renderGridData.filter(item => item.episode >= Number(splitter[0]) && item.episode <= Number(splitter[1]));
-                                }
-                            }
-                            const gapBetweenItems = itemData.multiplegridgap ? itemData.multiplegridgap : "48px";
-                            const minSize = itemData.multiplegridminsize ? itemData.multiplegridminsize : "400px";
-                            if (renderGridData.length > 0) {
-                                item.outerHTML = 
-                                    `<div class="media_items_multiple_grid_layout" style="gap: ${gapBetweenItems}; grid-template-columns: repeat(auto-fill, minmax(min(100%, ${minSize}), 1fr));">
-                                        ${renderGridData.map(row => render_media_item(row, settings, false, info)).join("")}
-                                    </div>`
-                            } else item.outerHTML = `<h3 class="media-api-widget-err-msg">No ${media_type} items found in playlist based upon search parameters provided.</h3>`
-                            return
-                        } 
-
-                        if (renderData[index]) {
-                            item.outerHTML = render_media_item(renderData[index], settings, false, info);
+                        if (renderData[index] && itemData.mediadescription === "true") {
+                            item.outerHTML = `<p style="color: ${itemData.mediadescriptiontextcolor}" class="media-description-text">${renderData[index].description}</p>`;
                             return;
-                        } else item.outerHTML = `<h3 class="media-api-widget-err-msg">No ${media_type} item found in playlist based upon search parameters provided.</h3>`
+                        } else {
+
+                            // Checks If multiplegrid parameter was provided and filters accordingly prior to rendering
+
+                            if (itemData.multiplegrid === "true" && media_data.length > 1) {
+                                let renderGridData = [...renderData];
+
+                                // If multiplegridshowall is not set to true, then playlist will be filtered accordingly.  
+
+                                if (!itemData.multiplegridshowall || itemData.multiplegridshowall !== "true") {
+                                    if (itemData.multiplegridsearch) {
+                                        renderGridData = renderGridData.filter(item => item.title.toLowerCase().includes(itemData.multiplegridsearch.toLowerCase()));   
+                                    }
+                                    if (Number(itemData.multiplegridlimititems)) {
+                                        renderGridData = renderGridData.filter((item, index) => index < Number(itemData.multiplegridlimititems));
+                                    }
+
+                                    // Will override search and limit items if parameter is present for episode range
+
+                                    if (itemData.multiplegridepisoderange && itemData.multiplegridepisoderange !== "" && itemData.multiplegridepisoderange.includes("-") && itemData.multiplegridepisoderange !== "-" && /[0-9]/.test(itemData.multiplegridepisoderange)) {
+                                        const splitter = itemData.multiplegridepisoderange.split("-");
+                                        renderGridData = [...media_data];
+                                        renderGridData = renderGridData.filter(item => item.episode >= Number(splitter[0]) && item.episode <= Number(splitter[1]));
+                                    }
+                                }
+                                const gapBetweenItems = itemData.multiplegridgap ? itemData.multiplegridgap : "48px";
+                                const minSize = itemData.multiplegridminsize ? itemData.multiplegridminsize : "400px";
+                                if (renderGridData.length > 0) {
+                                    item.outerHTML = 
+                                        `<div class="media_items_multiple_grid_layout" style="gap: ${gapBetweenItems}; grid-template-columns: repeat(auto-fill, minmax(min(100%, ${minSize}), 1fr));">
+                                            ${renderGridData.map(row => render_media_item(row, settings, false, info)).join("")}
+                                        </div>`
+                                } else item.outerHTML = `<h3 class="media-api-widget-err-msg">No ${media_type} items found in playlist based upon search parameters provided.</h3>`
+                                return
+                            }
+
+                            // Render Single Item
+
+                            if (renderData[index]) {
+                                item.outerHTML = render_media_item(renderData[index], settings, false, info);
+                                return;
+                            } else item.outerHTML = `<h3 class="media-api-widget-err-msg">No ${media_type} item found in playlist based upon search parameters provided.</h3>` 
+                        }
                     });
                 }
 
@@ -1692,6 +1716,9 @@
                     });
                 }
             </script>
+
+        <!-- Media API Javascript DOM Rendering/Event Listener Code End -->
+
         ';
 
     // Assign Episode Number Based Upon Number In Title.  If No Number Found Or Number Is Greater Than 2000, -1 Is Assigned To Episode
@@ -1852,7 +1879,6 @@
                             }
                         }
                     }
-
                     $parsed_data = array_values($youtube_list_output);
                 }
             }
@@ -1962,6 +1988,8 @@
 
         echo '
 
+            <!-- Media API "'.$playlist_name.'_'.$type.'" Code Start -->
+
             <script>
 
                 // Load '.$type.' Data From Local Storage
@@ -1998,4 +2026,85 @@
 
             </script>
         ';
+
+        // SET META TAGS FOR YOUTUBE FOR SEOS IN LOCAL STORAGE TO SEND TO BROWSER
+
+        // Set Meta Tags Via Javascript For Youtube Videos
+
+        if ($type === 'youtube') {
+            echo 
+                '<script>
+                    localStorage.setItem("site_name", "'. $cookie_name . '"); 
+                    let ' . $playlist_name . '_seo_data = JSON.parse(localStorage.getItem("'. $cookie_name . '_seo_data"));
+                    if (!' . $playlist_name . '_seo_data || !' . $playlist_name . '_seo_data.date_first_generated) {
+                        ' . $playlist_name . '_seo_data = null;
+                    }
+                    if (' . $playlist_name . '_seo_data && (Date.now() - ' . $playlist_name . '_seo_data.date_first_generated) > 86400000) {
+                        ' . $playlist_name . '_seo_data = null;
+                    }
+                    const ' . $playlist_name . '_' . $type . '_playlist = JSON.parse(localStorage.getItem("' . $playlist_name . '_' . $type . '_playlist"));
+                    if (' . $playlist_name . '_' . $type . '_playlist) {
+                        const ' . $playlist_name . '_addOnSeoData = ' . $playlist_name . '_' . $type . '_playlist.map(item => (
+                            { 
+                                name: item.episode !== -1 ? `Episode ${item.episode}` : item.title,
+                                content: item.description ? item.description : "TV Episode"
+                            }
+                        ));
+                        if (' . $playlist_name . '_seo_data) {
+                            ' . $playlist_name . '_addOnSeoData.forEach(item => {
+                                if (!' . $playlist_name . '_seo_data.data.some(i => i.name === item.name && i.content === item.content)) {
+                                    ' . $playlist_name . '_seo_data.data.push(item);
+                                }
+                            });
+                        } else {
+                            ' . $playlist_name . '_seo_data = { date_first_generated: Date.now(), data: ' . $playlist_name . '_addOnSeoData };
+                        }
+                        localStorage.setItem("'. $cookie_name . '_seo_data", JSON.stringify(' . $playlist_name . '_seo_data));
+                    }
+                </script>
+                
+            <!-- Media API "'.$playlist_name.'_'.$type.'" Code End -->
+            ';
+        }
     }
+
+    echo '
+        <!-- Media Meta Data Updater Code Start -->
+
+        <script>
+            window.addEventListener("load", () => {
+                async function updateSeoData() {
+                    const url = window.location.origin.includes("box2496") ? `${window.location.origin}/~foundbw0/${window.location.href.split("~foundbw0")[1].split("/")[1]}` : window.location.origin;
+                    const seoContent = JSON.parse(localStorage.getItem(`${localStorage.getItem("site_name")}_seo_data`)).data;
+                    if (seoContent) {
+                        try {
+                            const res = await fetch(url + "/wp-json/media/meta", {
+                                method: "POST",
+                                headers: {
+                                    "content-type": "application/json"
+                                },
+                                body: JSON.stringify(seoContent)
+                            });
+                            
+                            if (res.ok) {
+                                const msg = await res.json();
+                                console.log(`Meta data message from server: ${msg.message}`);
+                            } else {
+                                const err = await res.json();
+                                console.warn(`There was an error updating the SEO data. ${err.message}`);
+                            }
+                        } catch (err) {
+                            console.error(`There was an error in updating the SEO data. ${err}`)
+                        }
+                    } else {
+                        console.warn("SEO Data was unable to be updated as no SEO data to update was found.")
+                    }
+                }
+                setTimeout(updateSeoData, 5000);
+            });
+        </script>
+
+        <!-- / Media Meta Data Updater Code End -->
+
+        <!-- MEDIA API WIDGET END -->
+    ';
