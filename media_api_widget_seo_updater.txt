@@ -1,0 +1,90 @@
+//	THIS CODE STORES / UPDATES META DATA FOR YOUTUBE DESCRIPTIONS SO IT CAN BE OUTPUTTED AS META TAGS IN THE <head> HTML TAG
+
+    // Generate Meta Tags Into String Output
+
+	function generate_meta_tags($arr_data) {
+		$meta_data = '';
+		foreach ($arr_data as $meta) {
+			if (isset($meta['name']) && isset($meta['content'])) {
+				$meta_data .= '<meta name="'. $meta['name'] .'" content="'. $meta['content'] .'">';
+			}
+		}
+		if ($meta_data === '') {
+			return false;
+		} else return $meta_data;
+	}
+
+	global $meta_file_path;
+	$meta_file_path = 'media_meta_data.txt';
+
+	// Update Meta Data If Data Is Different
+
+	function update_media_meta_data($req) {
+		$data = json_decode($req->get_body(), true);
+
+		// Throw Error If No Meta Data
+
+		if (!$data) {
+			return new WP_Error('no meta data', 'please provide JSON data array with name and content key values in each array object.', ['status' => 400, 'data' => $data]);
+		}
+
+		global $meta_file_path;
+
+		// Read From File
+
+		$file_contents = false;
+
+		if (is_readable($meta_file_path)) {
+			$file_contents = file_get_contents($meta_file_path);
+		}
+
+		$meta_output = generate_meta_tags($data);
+
+		if (!$meta_output) {
+			return new WP_Error('no meta data', 'please provide JSON data array with name and content key values in each array object.', ['status' => 400, 'data' => $meta_output]);
+		}
+
+		// Check If File Exists.  If Not, Then Create File.  If Meta Data From Request Body Doesn't Match File Contents, Update File
+
+		if ($file_contents === false) {
+			file_put_contents($meta_file_path, $meta_output);
+			return rest_ensure_response(['message' => 'no existing meta data found.  meta file created']);
+		} else {
+			if ($file_contents !== $meta_output) {
+				file_put_contents($meta_file_path, $meta_output);
+				return rest_ensure_response(['message' => 'meta file data updated', 'data' => $meta_output]);
+			} else {
+				return rest_ensure_response(['message' => 'meta file data matches request data. no changes made as meta data is up to date.']);
+			}
+		}
+
+		return new WP_Error('error creating/updating meta data', 'there was an error when creating/updating meta file.', ['status' => 500]);
+	}
+
+	// Create Route For Sending Meta Data
+
+	add_action( 'rest_api_init', function () { 
+		register_rest_route( 'media', '/meta', [
+			'methods' => 'POST',
+			'permission_callback' => '__return_true',
+			'callback' => 'update_media_meta_data'
+		]);
+	});
+
+	// Update Meta Data
+	
+	add_action('wp_head', function() {
+		global $meta_file_path;
+
+		// Read From File
+
+		$file_contents = false;
+
+		if (is_readable($meta_file_path)) {
+			$file_contents = file_get_contents($meta_file_path);
+		}
+
+		if ($file_contents !== false) {
+			echo $file_contents;
+		}
+	});
