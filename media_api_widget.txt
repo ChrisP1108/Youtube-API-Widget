@@ -1,4 +1,4 @@
-   // Version 2.13
+// Version 2.24
 
     // Media API Widget Global CSS And Javascript
 
@@ -12,7 +12,7 @@
             .media-description-text {
                 text-align: center;
             }
-            [data-mediadescription="true"] {
+            [data-mediadescription="true"], [data-mediatitle="true"] {
                 display: none !important;
             }
             .media_item, .media_item-text-overlay-enabled {
@@ -796,7 +796,7 @@
 
                         let renderData;
 
-                        if (podcast_platform !== "embed" && podcast_platform !== "soundcloud") {
+                        if (podcast_platform !== "embed") {
                             renderData = media_type === "youtube" ? media_data 
                             : media_type === "podcast" ? media_data.channel.item.map(item => ({...item, thumbnail: { url: thumbnailimg }, publishedDate: item.pubDate, id: item.guid, episode: -1 })) 
                             : [];  
@@ -807,7 +807,6 @@
                         if (podcast_platform === "soundcloud") {
                             renderData = [{...renderData[0], trackSelect: Number(itemData.orderdescending) - 1}]
                         }
-
 
                         // Delete extra fields from podcast that are not needed to render item
 
@@ -865,22 +864,34 @@
                             trackSelect = Number(itemData.orderdescending) - 1;
                         }
 
-                        // Output Text For Media Description Only Text And Exit
+                        //  Output Text For Media Description Or Text Only Text And Exit
 
-                        if (renderData[index] && itemData.mediadescription === "true") {
-                            const description = renderData[index].description;
-                            if (description) {
-                                item.outerHTML = `<p style="color: ${itemData.mediadescriptiontextcolor}" class="media-description-text">${renderData[index].description}</p>`;
-                            } else {
-                                console.warn(`No description for "${renderData[index].title}" under order selection of "${index + 1}".  Description text will auto populate once the video has a description.`);
-                                const parentContainer = item.parentNode;
-                                if (parentContainer.classList.toString().includes("elementor-widget-container")) {
-                                    parentContainer.outerHTML = "";
-                                } else {
-                                    item.outerHTML = "";
+                        if (itemData.mediatitle === "true" || itemData.mediadescription === "true") {
+
+                            if (renderData[index]) {
+                                let descriptionOrTitle;
+
+                                if (itemData.mediadescription === "true") {
+                                    descriptionOrTitle = renderData[index].description;
                                 }
+
+                                if (itemData.mediatitle === "true" && !descriptionOrTitle) {
+                                    descriptionOrTitle = renderData[index].title;
+                                }
+
+                                if (descriptionOrTitle) {
+                                    item.outerHTML = `<p style="color: ${itemData.mediadescriptiontextcolor}" class="media-description-text">${descriptionOrTitle}</p>`;
+                                } else {
+                                    console.warn(`No description or title for "${descriptionOrTitle}" under order selection of "${index + 1}".  Description or title text will auto populate once the video or podcast has it.`);
+                                    const parentContainer = item.parentNode;
+                                    if (parentContainer.classList.toString().includes("elementor-widget-container")) {
+                                        parentContainer.outerHTML = "";
+                                    } else {
+                                        item.outerHTML = "";
+                                    }
+                                }
+                                return;
                             }
-                            return;
                         } else {
 
                             // Checks If multiplegrid parameter was provided and filters accordingly prior to rendering
@@ -1656,12 +1667,15 @@
                             embedPlayerUrl = `https://omny.fm/shows/${showName}/playlists/podcast/embed?selectedClip=${itemClicked.dataset.id}`;
                         }
 
-                        if (podcast_platform === "embed") {
-                            embedPlayerUrl = media_data;
+                        if (podcast_platform === "soundcloud") {
+                            const showEpisodeUrl = media_data.channel.item[0].link;
+                            const spliced = showEpisodeUrl.split("/");
+                            const urlOutput = `${spliced[0]}/${spliced[1]}/${spliced[2]}/${spliced[3]}`;
+                            embedPlayerUrl = `https://w.soundcloud.com/player/?url=${urlOutput}&start_track=${itemClicked.dataset.trackselect}`;
                         }
 
-                        if (podcast_platform === "soundcloud") {
-                            embedPlayerUrl = media_data + `&start_track=${itemClicked.dataset.trackselect}`;
+                        if (podcast_platform === "embed") {
+                            embedPlayerUrl = media_data;
                         }
 
                         // If Window Resolution Is Less Than 872px, Open New Window In Apple Podcasts
@@ -1859,7 +1873,9 @@
                             } else return null;
                         } else $itemOutput['id'] = null;
 
-                        array_push($parsed_data, $itemOutput);
+                        if ($itemOutput['thumbnail'] !== null) {
+                            array_push($parsed_data, $itemOutput);
+                        }
                     }
 
                     // If $sort_mode Was Set To "number_in_title", Sort List Based Upon Episode Number Generated 
@@ -1942,13 +1958,55 @@
                             $error_loading_data = true;
                         } else { 
                             $parsed_data = simplexml_load_string($rss_feed);
+
+                            $parsed_rss_feed->channel->playlistId = $media_data;
+
+                            $parsed_rss_feed->channel->collectionViewUrl = get_object_vars($get_rss_data)['results'][0]->collectionViewUrl;
+
+                            $parsed_data = $parsed_rss_feed;
+                        }
+                    }
+                }
+
+                if ($podcast_platform === 'soundcloud') {
+                    if (str_split($media_data, 4)[0] !== 'http') {
+
+                        $rss_feed= @file_get_contents('https://feeds.soundcloud.com/users/soundcloud:users:'.$media_data.'/sounds.rss');
+
+                        if (!$rss_feed) {
+                            $error_loading_data = true;
+                        } else {
+                            $parsed_rss_feed = simplexml_load_string($rss_feed);
+
+                            $parsed_rss_feed->channel->playlistId = $media_data;
+
+                            $parsed_rss_feed->channel->collectionViewUrl = get_object_vars($get_rss_data)['results'][0]->collectionViewUrl;
+
+                            $parsed_data = $parsed_rss_feed;
+                        }
+                    } else {
+
+                    // Get data if full RSS Url Provided
+
+                        $rss_feed = @file_get_contents($media_data);
+
+                        if (!rss_feed) {
+                            $error_loading_data = true;
+                        } else { 
+                            $parsed_data = simplexml_load_string($rss_feed);
+
+                            $parsed_rss_feed->channel->playlistId = $media_data;
+
+                            $parsed_rss_feed->channel->collectionViewUrl = get_object_vars($get_rss_data)['results'][0]->collectionViewUrl;
+
+                            $parsed_data = $parsed_rss_feed;
                         }
                     }
                 }
 
                 // embed Podcast Url
 
-                if ($podcast_platform === 'embed' || $podcast_platform === 'soundcloud') {
+                if ($podcast_platform === 'embed') {
                     $parsed_data = $media_data;
                 }
             }
@@ -2077,6 +2135,7 @@
             <!-- Media API "'.$playlist_name.'_'.$type.'" Code End -->
             ';
         }
+    
     }
 
     echo '
@@ -2087,7 +2146,7 @@
                 async function updateSeoData() {
                     const url = window.location.origin.includes("box2496") ? `${window.location.origin}/~foundbw0/${window.location.href.split("~foundbw0")[1].split("/")[1]}` : window.location.origin;
                     const seoContent = JSON.parse(localStorage.getItem(`${localStorage.getItem("site_name")}_seo_data`));
-                    if (seoContent.data) {
+                    if (seoContent && seoContent.data) {
                         try {
                             const res = await fetch(url + "/wp-json/media/meta", {
                                 method: "POST",
