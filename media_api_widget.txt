@@ -1,4 +1,4 @@
-// Version 2.28
+// Version 2.29
 
     // Media API Widget Global CSS And Javascript
 
@@ -879,7 +879,7 @@
                                     descriptionOrTitle = renderData[index].title;
                                 }
 
-                                if (descriptionOrTitle) {
+                                if (descriptionOrTitle && typeof descriptionOrTitle !== "object") {
                                     item.outerHTML = `<p style="color: ${itemData.mediadescriptiontextcolor}" class="media-description-text">${descriptionOrTitle}</p>`;
                                 } else {
                                     console.warn(`No description or title for "${descriptionOrTitle}" under order selection of "${index + 1}".  Description or title text will auto populate once the video or podcast has it.`);
