@@ -1,4 +1,4 @@
-// Version 2.27
+// Version 2.28
 
     // Media API Widget Global CSS And Javascript
 
@@ -2074,7 +2074,7 @@
                         }
 
                         echo $playlist_name . '_'. $type .'_seo_output.forEach(item => {
-                            if (!'. $playlist_name . '_'. $type .'_all_seo_data.some(i => i.name === item.name && i.content === content)) {
+                            if (!'. $playlist_name . '_'. $type .'_all_seo_data.some(i => i.name === item.name && i.content === item.content)) {
                                 '. $playlist_name . '_'. $type .'_all_seo_data.push(item);
                             }
                         });
