@@ -1,4 +1,4 @@
-// Version 2.29
+// Version 2.30
 
     // Media API Widget Global CSS And Javascript
 
@@ -806,15 +806,6 @@
 
                         if (podcast_platform === "soundcloud") {
                             renderData = renderData.map(i => ({...i, trackSelect: Number(itemData.orderdescending) - 1}));
-                        }
-
-                        // Delete extra fields from podcast that are not needed to render item
-
-                        if (media_type === "podcast" && podcast_platform === "omny") {
-                            renderData.forEach(item => {
-                                delete(item.guid);
-                                delete(item.pubData);
-                            })
                         }
 
                         const settings = {
@@ -1674,6 +1665,13 @@
                             embedPlayerUrl = `https://w.soundcloud.com/player/?url=${urlOutput}&start_track=${itemClicked.dataset.trackselect}`;
                         }
 
+                        if (podcast_platform === "buzzsprout") {
+                            const { channel } = media_data;
+                            const playlistId = channel.rssUrl.split("/")[3].split(".")[0];
+                            const episodeId = itemClicked.dataset.id.split("-")[1];
+                            embedPlayerUrl = `https://www.buzzsprout.com/${playlistId}/${episodeId}`;
+                        }
+
                         if (podcast_platform === "embed") {
                             embedPlayerUrl = media_data;
                         }
@@ -1916,76 +1914,52 @@
 
                 // Omny Podcast
 
-                if ($podcast_platform === 'omny') {
+                $get_rss = null;
 
-                    // Lookup data for RSS through iTunes If Id Supplied
+                if (str_split($media_data, 4)[0] !== 'http' && $podcast_platform !== 'embed') {
 
-                    if (str_split($media_data, 4)[0] !== 'http') {
-
-                        $get_rss= @file_get_contents('https://itunes.apple.com/lookup?id='.$media_data.'&entity=podcast');
-
-                        if (!$get_rss) {
-                            $error_loading_data = true;
-                        } else {
-                        
-                            $get_rss_data = json_decode($get_rss);
-
-                            // Extract RSS Feed Url From JSON data from iTunes
-
-                            $rss_url = get_object_vars($get_rss_data)['results'][0]->feedUrl;
-
-                            $rss_feed = @file_get_contents($rss_url);
-
-                            if (!$rss_feed) {
-                                $error_loading_data = true;
-                            }
-
-                            $parsed_rss_feed = simplexml_load_string($rss_feed);
-
-                            $parsed_rss_feed->channel->playlistId = $media_data;
-
-                            $parsed_rss_feed->channel->collectionViewUrl = get_object_vars($get_rss_data)['results'][0]->collectionViewUrl;
-
-                            $parsed_data = $parsed_rss_feed;
-                        }
-                    } else {
-
-                    // Get data if full RSS Url Provided
-
-                        $rss_feed = @file_get_contents($media_data);
-
-                        if (!rss_feed) {
-                            $error_loading_data = true;
-                        } else { 
-                            $parsed_rss_feed = simplexml_load_string($rss_feed);
-
-                            $parsed_rss_feed->channel->collectionViewUrl = get_object_vars($get_rss_data)['results'][0]->collectionViewUrl;
-
-                            $parsed_data = $parsed_rss_feed;
-                        }
+                    if ($podcast_platform === 'omny' || $podcast_platform === 'soundcloud' || $podcast_platform === 'buzzsprout') {
+                        $get_rss = @file_get_contents('https://itunes.apple.com/lookup?id='.$media_data.'&entity=podcast');
                     }
-                }
 
-                if ($podcast_platform === 'soundcloud') {
-                    if (str_split($media_data, 4)[0] !== 'http') {
+                    if (!$get_rss) {
+                        $error_loading_data = true;
+                    } else {
+                    
+                        $get_rss_data = json_decode($get_rss);
 
-                        $rss_feed= @file_get_contents('https://feeds.soundcloud.com/users/soundcloud:users:'.$media_data.'/sounds.rss');
+                        // Extract RSS Feed Url From JSON data from iTunes
+
+                        $rss_url = get_object_vars($get_rss_data)['results'][0]->feedUrl;
+
+                        $rss_feed = @file_get_contents($rss_url);
 
                         if (!$rss_feed) {
                             $error_loading_data = true;
-                        } else {
-                            $parsed_rss_feed = simplexml_load_string($rss_feed);
-
-                            $parsed_rss_feed->channel->playlistId = $media_data;
-
-                            $parsed_rss_feed->channel->collectionViewUrl = get_object_vars($get_rss_data)['results'][0]->collectionViewUrl;
-
-                            $parsed_data = $parsed_rss_feed;
                         }
-                    } else {
 
-                    // Get data if full RSS Url Provided
+                        $parsed_rss_feed = simplexml_load_string($rss_feed);
 
+                        $parsed_rss_feed->channel->playlistId = $media_data;
+
+                        $parsed_rss_feed->channel->rssUrl = $rss_url;
+
+                        $parsed_rss_feed->channel->collectionViewUrl = get_object_vars($get_rss_data)['results'][0]->collectionViewUrl;
+
+                        $parsed_data = $parsed_rss_feed;
+                    }
+
+                } else {
+
+                    // Embed Podcast Url Without Direct RSS Feed
+
+                    if ($podcast_platform === 'embed') {
+                        $parsed_data = $media_data;
+                    } 
+                    
+                    // Direct RSS Feed Url
+
+                    else {
                         $rss_feed = @file_get_contents($media_data);
 
                         if (!$rss_feed) {
@@ -1993,17 +1967,13 @@
                         } else { 
                             $parsed_rss_feed = simplexml_load_string($rss_feed);
 
+                            $parsed_rss_feed->channel->rssUrl = $rss_url;
+
                             $parsed_rss_feed->channel->collectionViewUrl = get_object_vars($get_rss_data)['results'][0]->collectionViewUrl;
 
                             $parsed_data = $parsed_rss_feed;
                         }
                     }
-                }
-
-                // embed Podcast Url
-
-                if ($podcast_platform === 'embed') {
-                    $parsed_data = $media_data;
                 }
             }
         } 
