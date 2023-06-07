@@ -1,4 +1,4 @@
-// VERSION 1.27
+// VERSION 1.28
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -33,6 +33,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       const resultLimitPerRequest = typeof inputData.resultLimitPerRequest === 'number' ? inputData.resultLimitPerRequest : 50; // Youtube API Has A Limit Of 50 Results Per Request.
       const limitVideos = typeof inputData.limitVideos === 'boolean' ? inputData.limitVideos : true; // Limit Videos Displayed.  Default Value Is: true
       const maxResults = typeof inputData.maxResults === 'number' ? inputData.maxResults : 6; // If limitVideos Is Set To: true, Limit Number Of Videos Displayed.  Default Value Is: 6
+      const showAllVideoTypes = typeof inputData.showAllVideoTypes === 'boolean' ? inputData.showAllVideoTypes : false; // Determins If All Video Types Whether It Has An Episode Number Or Not Should Be Displayed
       const filterByName = typeof inputData.filterByName === 'boolean' ? inputData.filterByName : false; // Filter Video Results Based On Characters In Title.  Default Value Is: false
       const filterNameParameters = typeof inputData.filterNameParameters === 'string' ? inputData.filterNameParameters.toLowerCase() : ''; // If filterByName Is Set To: true, Filter String Parameters For filterByName.  Default Value Is: ''
       const sortVideosBy = typeof inputData.sortVideosBy === 'string' ? inputData.sortVideosBy : 'number-descending'; // How Video Items Should Be Sorted.  Default Value Is: 'number-descending'
@@ -1014,7 +1015,9 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
 
     function setThumbnailText(item) {
       const { titledEpisode, title } = item;
-      return titledEpisode !== -1 ? `Episode ${titledEpisode}` : `${title}`
+      if (!showAllVideoTypes) {
+        return titledEpisode !== -1 ? `Episode ${titledEpisode}` : `${title}`
+      } else return title;
     }
 
   // Event Methods
@@ -1939,30 +1942,36 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
               pageOutputList.sort((a, b) => listSorter(a, b));
           }
 
-          // Removes Duplicates If Found 
+          // If showAllVideoTypes Is False, Check Through Filters
 
-          pageOutputList = pageOutputList.filter((item, index) => {
-            if (pageOutputList[index + 1]) {
-              return pageOutputList[index + 1].titledEpisode !== item.titledEpisode ? true : false;
-            } else return true
-          });
+          if (!showAllVideoTypes) {
 
-          // Filter By Episode Range If listByRange Is True
+            // Removes Duplicates If Found 
 
-          if (listByRange) {
-            pageOutputList = pageOutputList.filter(item => item.titledEpisode >= fromEpisodeNumber && item.titledEpisode <= toEpisodeNumber);
-          }
+            pageOutputList = pageOutputList.filter((item, index) => {
+              if (pageOutputList[index + 1]) {
+                return pageOutputList[index + 1].titledEpisode !== item.titledEpisode ? true : false;
+              } else return true
+            });
 
-          // Filter Out Numbered Episodes Only Non Numbered Episodes Are Shown If showNonNumberedEpisodesOnly Is True
+            // Filter By Episode Range If listByRange Is True
 
-          if (showNonNumberedEpisodesOnly) {
-              pageOutputList = pageOutputList.filter(item => item.titledEpisode === - 1);
-          }
+            if (listByRange) {
+              pageOutputList = pageOutputList.filter(item => item.titledEpisode >= fromEpisodeNumber && item.titledEpisode <= toEpisodeNumber);
+            }
 
-          // Filter Out Non Numbered Episodes If hideNonNumberedVideos Is True
+            // Filter Out Numbered Episodes Only Non Numbered Episodes Are Shown If showNonNumberedEpisodesOnly Is True
 
-          if (hideNonNumberedVideos) {
-              pageOutputList = pageOutputList.filter(item => item.titledEpisode !== - 1);
+            if (showNonNumberedEpisodesOnly) {
+                pageOutputList = pageOutputList.filter(item => item.titledEpisode === - 1);
+            }
+
+            // Filter Out Non Numbered Episodes If hideNonNumberedVideos Is True
+
+            if (hideNonNumberedVideos) {
+                pageOutputList = pageOutputList.filter(item => item.titledEpisode !== - 1);
+            }
+
           }
 
           // Capture All Videos After Filtering And Sorting Before Quantity For Output Is Reduced If showAllInLightbox Is True To Show All Videos In Lightbox
