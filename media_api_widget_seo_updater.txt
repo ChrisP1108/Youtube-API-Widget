@@ -1,3 +1,5 @@
+// VERSION 1.3
+
 //	THIS CODE STORES / UPDATES META DATA FOR YOUTUBE DESCRIPTIONS SO IT CAN BE OUTPUTTED AS META TAGS IN THE <head> HTML TAG
 
     // Generate Meta Tags Into String Output
@@ -6,7 +8,7 @@
 		$meta_data = '';
 		foreach ($arr_data as $meta) {
 			if (isset($meta['name']) && isset($meta['content'])) {
-				$meta_data .= '<meta name="'. $meta['name'] .'" content="'. $meta['content'] .'">';
+				$meta_data .= '<meta name="'. htmlspecialchars($meta['name']) .'" content="'. htmlspecialchars($meta['content']) .'">';
 			}
 		}
 		if ($meta_data === '') {
