@@ -1,4 +1,4 @@
-// Version 2.30
+// Version 2.31
 
     // Media API Widget Global CSS And Javascript
 
@@ -690,13 +690,26 @@
                     }
                 }
 
+                // Checks If Podcast And Is The Custom Player
+
+                const customPodcastPlayer = settings.podcastplayermode ? true : false;
+
+                let podcastPlayerData = customPodcastPlayer ? `data-podcastplayermode="${settings.podcastplayermode}" data-podcastplayerbuttoncolor="${settings.podcastplayerbuttoncolor}"
+                    data-podcastplayercolor="${settings.podcastplayercolor}" data-podcastprogressplayerbarcolor="${settings.podcastprogressplayerbarcolor}" data-podcastplayerhighlightcolor="${settings.podcastplayerhighlightcolor}"
+                    data-podcastplayerfont="${settings.podcastplayerfont}" data-podcastplayerscrollcolor="${settings.podcastplayerscrollcolor}"
+                    data-podcastplayertextcolor="${settings.podcastplayertextcolor}"
+                    `: false;
+
                 const { name, type } = info;
                 const mediaType = type === "youtube" || type === "vimeo" ? "video" : "audio";
                 const { title, thumbnail, publishedDate, id, description } = item;
                 const { showPlayButton, playButtonIconImgUrl, playButtonStyling, showTextOverlay, instructionMessage, fontFamily, lightboxshowplaylist, showPlaybar, playbarColor } = settings;
                 const htmlRender = `
                     <!-- ${name} ${type} item - ${title} (Published On - ${publishedDate}) -->
-                    <a ${settings.fontFamily ? `style=${fontFamily}` : ""} class="media_item${showTextOverlay ? `-text-overlay-enabled` : ``}" data-itemclickablemediatype="${mediaType}" data-itemclickable="true" data-itemclickableplaylist="${name}_${type}" data-id="${id}" ${lightboxshowplaylist ? `data-lightboxshowplaylist="true"` : ""} ${item.trackSelect !== null ? `data-trackselect=${Number(item.trackSelect)}` : ""}>
+                    <a ${settings.fontFamily ? `style=${fontFamily}` : ""} class="media_item${showTextOverlay ? `-text-overlay-enabled` : ``}" data-itemclickablemediatype="${mediaType}" data-itemclickable="true" data-itemclickableplaylist="${name}_${type}" 
+                        data-id="${id}" ${lightboxshowplaylist ? `data-lightboxshowplaylist="true"` : ""} ${item.trackSelect !== null ? `data-trackselect=${Number(item.trackSelect)}` : ""}
+                        ${customPodcastPlayer  ? podcastPlayerData : ""}
+                    >
                         <div class="media-item-thumbnail-text-wrapper">
                             <img class="media-item-thumbnail" src="${thumbnail.url}" width="${thumbnail.width ? thumbnail.width : 1280}" height="${thumbnail.height ? thumbnail.height : 720}" alt="${title}">
                             ${showPlayButton ? 
@@ -808,6 +821,10 @@
                             renderData = renderData.map(i => ({...i, trackSelect: Number(itemData.orderdescending) - 1}));
                         }
 
+                        if (podcast_platform === "custom") {
+                            renderData = renderData.map(i => ({...i, trackSelect: Number(itemData.orderdescending)}));
+                        }
+
                         const settings = {
                             showPlayButton,
                             playButtonIconImgUrl,
@@ -847,12 +864,29 @@
                             index = 0;
                         }
 
+                        // If Podcast Is Custom, Add Fields In Settings
+
+                        if (podcast_platform === "custom") {
+                            settings.podcastplayermode = itemData.podcastplayermode ? itemData.podcastplayermode : "dark";
+                            settings.podcastplayerbuttoncolor = itemData.podcastplayerbuttoncolor ? itemData.podcastplayerbuttoncolor.slice(1) : "";
+                            settings.podcastplayercolor = itemData.podcastplayercolor ? itemData.podcastplayercolor.slice(1) : "";
+                            settings.podcastprogressplayerbarcolor = itemData.podcastprogressplayerbarcolor ? itemData.podcastprogressplayerbarcolor.slice(1) : "";
+                            settings.podcastplayerhighlightcolor = itemData.podcastplayerhighlightcolor ? itemData.podcastplayerhighlightcolor.slice(1) : "";
+                            settings.podcastplayerfont = itemData.podcastplayerfont ? itemData.podcastplayerfont : "";
+                            settings.podcastplayerscrollcolor = itemData.podcastplayerscrollcolor ? itemData.podcastplayerscrollcolor.slice(1) : "";
+                            settings.podcastplayertextcolor = itemData.podcastplayertextcolor ? itemData.podcastplayertextcolor.slice(1) : "";
+                        }
+
                         let trackSelect = null;
 
                         // If Track Is Soundcloud, trackselect will be set from itemData.orderdescending
 
                         if (podcast_platform === "soundcloud") {
                             trackSelect = Number(itemData.orderdescending) - 1;
+                        }
+
+                        if (podcast_platform === "custom") {
+                            trackSelect = Number(itemData.orderdescending)
                         }
 
                         //  Output Text For Media Description Or Text Only Text And Exit
@@ -1676,6 +1710,20 @@
                             embedPlayerUrl = media_data;
                         }
 
+                        if (podcast_platform === "custom") {
+                            const rssUrl = media_data.channel.rssUrl;
+                            const mode = itemClicked.dataset.podcastplayermode;
+                            const playButtonColor = itemClicked.dataset.podcastplayerbuttoncolor;
+                            const color = itemClicked.dataset.podcastplayercolor;
+                            const progressBarColor = itemClicked.dataset.podcastprogressplayerbarcolor;
+                            const highlightColor = itemClicked.dataset.podcastplayerhighlightcolor;
+                            const font = itemClicked.dataset.podcastplayerfont;
+                            const scrollbarColor = itemClicked.dataset.podcastplayerscrollcolor;
+                            const textColor = itemClicked.dataset.podcastplayertextcolor;
+
+                            embedPlayerUrl = `https://www.partnerwithmagellan.com/podcast-player/?url=${rssUrl}&track=${itemClicked.dataset.trackselect}&mode=${mode}&buttoncolor=${playButtonColor}&color1=${color}&progressbarcolor=${progressBarColor}&highlightcolor=${highlightColor}&font=${font}&scrollcolor=${scrollbarColor}&textcolor=${textColor}`;
+                        }
+
                         // If Window Resolution Is Less Than 872px, Open New Window In Apple Podcasts
 
                         if (window.innerWidth < 872) {
@@ -1762,6 +1810,45 @@
         if ($output !== 0 && $output < 2000) {
             return intval($output);
         } else return -1;
+    }
+
+    // Parse Podcast RSS Feed
+
+    function parse_rss_feed($rss_feed = null, $apple_data = false) {
+
+        if ($rss_feed) {
+
+            if ($apple_data) {
+                $get_rss_data = json_decode($rss_feed);
+
+                // Extract RSS Feed Url From JSON data from iTunes
+
+                $rss_url = get_object_vars($get_rss_data)['results'][0]->feedUrl;
+
+                $rss_feed = @file_get_contents($rss_url);
+            }
+
+            $parsed_rss_feed = simplexml_load_string($rss_feed);
+
+            $parsed_rss_feed->channel->playlistId = $media_data;
+
+            $parsed_rss_feed->channel->rssUrl = $rss_url;
+
+            $parsed_rss_feed->channel->collectionViewUrl = get_object_vars($get_rss_data)['results'][0]->collectionViewUrl;
+
+            foreach($parsed_rss_feed->channel->item as $index => $item) {
+                $description_text = htmlspecialchars(strip_tags($item->description));
+                $item->description = $description_text;
+                $title_text = htmlspecialchars($item->title);
+                $item->title = $title_text;
+            }
+            
+            return $parsed_rss_feed;
+
+        } else {
+            return null;
+        }
+
     }
 
     // Gets Media Data.  API Key And PlaylistID Must Be Passed In
@@ -1912,41 +1999,18 @@
 
             if ($type === 'podcast') {
 
-                // Omny Podcast
-
                 $get_rss = null;
 
-                if (str_split($media_data, 4)[0] !== 'http' && $podcast_platform !== 'embed') {
+                if (str_split($media_data, 4)[0] !== 'http' &&  $podcast_platform !== 'embed') {
 
-                    if ($podcast_platform === 'omny' || $podcast_platform === 'soundcloud' || $podcast_platform === 'buzzsprout') {
+                    if ($podcast_platform === 'omny' || $podcast_platform === 'soundcloud' || $podcast_platform === 'buzzsprout' || $podcast_platform === 'custom') {
                         $get_rss = @file_get_contents('https://itunes.apple.com/lookup?id='.$media_data.'&entity=podcast');
                     }
 
                     if (!$get_rss) {
                         $error_loading_data = true;
                     } else {
-                    
-                        $get_rss_data = json_decode($get_rss);
-
-                        // Extract RSS Feed Url From JSON data from iTunes
-
-                        $rss_url = get_object_vars($get_rss_data)['results'][0]->feedUrl;
-
-                        $rss_feed = @file_get_contents($rss_url);
-
-                        if (!$rss_feed) {
-                            $error_loading_data = true;
-                        }
-
-                        $parsed_rss_feed = simplexml_load_string($rss_feed);
-
-                        $parsed_rss_feed->channel->playlistId = $media_data;
-
-                        $parsed_rss_feed->channel->rssUrl = $rss_url;
-
-                        $parsed_rss_feed->channel->collectionViewUrl = get_object_vars($get_rss_data)['results'][0]->collectionViewUrl;
-
-                        $parsed_data = $parsed_rss_feed;
+                        $parsed_data = parse_rss_feed($get_rss, true);
                     }
 
                 } else {
@@ -1960,19 +2024,15 @@
                     // Direct RSS Feed Url
 
                     else {
-                        $rss_feed = @file_get_contents($media_data);
 
-                        if (!$rss_feed) {
+                        $get_rss = @file_get_contents($media_data);
+
+                        if (!$get_rss) {
                             $error_loading_data = true;
-                        } else { 
-                            $parsed_rss_feed = simplexml_load_string($rss_feed);
-
-                            $parsed_rss_feed->channel->rssUrl = $rss_url;
-
-                            $parsed_rss_feed->channel->collectionViewUrl = get_object_vars($get_rss_data)['results'][0]->collectionViewUrl;
-
-                            $parsed_data = $parsed_rss_feed;
+                        } else {
+                            $parsed_data = parse_rss_feed($get_rss, false);
                         }
+                    
                     }
                 }
             }
