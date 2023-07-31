@@ -1,4 +1,4 @@
-// Version 2.31
+// Version 2.32
 
     // Media API Widget Global CSS And Javascript
 
@@ -746,6 +746,7 @@
             // Initialize Loading Of Media Items And Lightbox
 
             function initialize_media(media_items, media_data, media_name, media_type, podcast_platform) {
+
                 // Variables For Lightbox
 
                 let showThemeColor;
@@ -1711,7 +1712,7 @@
                         }
 
                         if (podcast_platform === "custom") {
-                            const rssUrl = media_data.channel.rssUrl;
+                            let rssUrl = media_data.channel.rssUrl;
                             const mode = itemClicked.dataset.podcastplayermode;
                             const playButtonColor = itemClicked.dataset.podcastplayerbuttoncolor;
                             const color = itemClicked.dataset.podcastplayercolor;
@@ -1826,7 +1827,7 @@
                 $rss_url = get_object_vars($get_rss_data)['results'][0]->feedUrl;
 
                 $rss_feed = @file_get_contents($rss_url);
-            }
+            } 
 
             $parsed_rss_feed = simplexml_load_string($rss_feed);
 
@@ -2031,6 +2032,7 @@
                             $error_loading_data = true;
                         } else {
                             $parsed_data = parse_rss_feed($get_rss, false);
+                            $parsed_data->channel->rssUrl = $media_data;
                         }
                     
                     }
