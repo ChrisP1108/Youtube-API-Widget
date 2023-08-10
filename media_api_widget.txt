@@ -1,4 +1,4 @@
-// Version 2.32
+// Version 2.33
 
     // Media API Widget Global CSS And Javascript
 
@@ -868,7 +868,7 @@
                         // If Podcast Is Custom, Add Fields In Settings
 
                         if (podcast_platform === "custom") {
-                            settings.podcastplayermode = itemData.podcastplayermode ? itemData.podcastplayermode : "dark";
+                            settings.podcastplayermode = itemData.podcastplayermode ? itemData.podcastplayermode.slice(1) : "dark";
                             settings.podcastplayerbuttoncolor = itemData.podcastplayerbuttoncolor ? itemData.podcastplayerbuttoncolor.slice(1) : "";
                             settings.podcastplayercolor = itemData.podcastplayercolor ? itemData.podcastplayercolor.slice(1) : "";
                             settings.podcastprogressplayerbarcolor = itemData.podcastprogressplayerbarcolor ? itemData.podcastprogressplayerbarcolor.slice(1) : "";
