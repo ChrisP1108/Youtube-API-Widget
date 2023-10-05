@@ -1,4 +1,4 @@
-// Version 2.33
+// Version 2.35
 
     // Media API Widget Global CSS And Javascript
 
@@ -811,6 +811,11 @@
                         let renderData;
 
                         if (podcast_platform !== "embed") {
+                            if (media_type === "podcast") {
+                                if (!media_data.channel.item.length) {
+                                    media_data.channel.item = [media_data.channel.item];
+                                }
+                            }
                             renderData = media_type === "youtube" ? media_data 
                             : media_type === "podcast" ? media_data.channel.item.map(item => ({...item, thumbnail: { url: thumbnailimg }, publishedDate: item.pubDate, id: item.guid, episode: -1 })) 
                             : [];  
@@ -1993,6 +1998,24 @@
                         }
                     }
                     $parsed_data = array_values($youtube_list_output);
+
+                    // Check backup youtube stored data to see if it is older than 6 hours.  If so, update youtube data backup file
+
+                    $backup_data = json_encode([
+                        'time_stored' => time(),
+                        'data' => $parsed_data
+                    ]);
+                    
+                    $youtube_backup_file_path = $playlist_name . '_youtube_backup_data.txt';
+
+                    $youtube_backup_data = @file_get_contents($youtube_backup_file_path);
+
+                    if ($youtube_backup_data) {
+                        $decoded_backup_time = json_decode($youtube_backup_data, true) ?? null;
+                        if ($decoded_backup_time && $decoded_backup_time['time_stored'] < time() - 21600) {
+                            file_put_contents($youtube_backup_file_path, $backup_data);
+                        }
+                    } else file_put_contents($youtube_backup_file_path, $backup_data);
                 }
             }
 
@@ -2052,6 +2075,23 @@
                     document.cookie = "'.$cookie_name.'=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                 </script>';
             }
+
+            // Load backup server data if type is youtube
+
+            if ($type === 'youtube') {
+
+                $youtube_backup_file_path = $playlist_name . '_youtube_backup_data.txt';
+
+                $backup_youtube_data = @file_get_contents($youtube_backup_file_path);
+
+                if ($backup_youtube_data) {
+
+                    $parsed_backup_data = json_decode($backup_youtube_data, true);
+
+                    echo '<script>localStorage.setItem("'. $playlist_name . '_'. $type .'_playlist", JSON.stringify('. json_encode($parsed_backup_data['data']) .')); console.log("`'. $playlist_name . '` '. $type .' data loaded from Backup storage and saved on Local Storage as `'. $playlist_name .'_'.$type.'_playlist.` as there was an error when making a call to the youtube API.");</script>';
+            
+                }
+            }
         }
 
         // Data Stored In Local Storage If Cookie Expired And API Call Was Made With No Errors
@@ -2083,6 +2123,10 @@
             ';  
                         if ($type === 'podcast') {
                             echo '
+                                if ('. $playlist_name . '_'. $type .'_seo_data.channel.item && !'. $playlist_name . '_'. $type .'_seo_data.channel.item.length) {
+                                    '. $playlist_name . '_'. $type .'_seo_data.channel.item = ['. $playlist_name . '_'. $type .'_seo_data.channel.item];
+                                }
+
                                 if ('. $playlist_name . '_'. $type .'_seo_data.channel && '. $playlist_name . '_'. $type .'_seo_data.channel) {
                                     '. $playlist_name . '_'. $type .'_seo_output = '. $playlist_name . '_'. $type .'_seo_data.channel.item.map(item => (
                                         {
