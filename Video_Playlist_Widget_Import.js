@@ -1,4 +1,4 @@
-// VERSION 1.28
+// VERSION 1.30
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -958,9 +958,9 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="Layer_1" data-name="Layer 1" viewBox="0 0 145.2 145.2"><defs>
             <style>
                 .cls-1 { fill: none; }      
-                .cls-2 { clip-path: url(#clip-path); }      
+                .cls-2 { clip-path: none; }      
                 .cls-3 { opacity: 1; }      
-                .cls-4 { clip-path: url(#clip-path-3); }      
+                .cls-4 { clip-path: none; }      
                 .cls-5 { fill: ${playButtonColor}; }    
             </style>
             <clipPath id="clip-path" transform="translate(-264.41 -245.59)">
@@ -2098,7 +2098,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         // Error Message If Data Failed To Load
 
         playlistItems.innerHTML = `
-          <h2>There was an error loading the ${playlistService} playlist. ${errMsg}</h2>
+          <h2 style="max-width: 100%;">There was an error loading the ${playlistService} playlist. ${errMsg}</h2>
         `
       }
       
