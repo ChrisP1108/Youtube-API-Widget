@@ -1,4 +1,4 @@
-// Version 2.35
+// Version 2.42
 
     // Media API Widget Global CSS And Javascript
 
@@ -1876,6 +1876,10 @@
         // Variable To Check If Error Occured Loading Data
 
         $error_loading_data = false;
+
+        // Variable for console logging if data was loaded from cache or API call if cookie expired and data needed to be loaded from server
+
+        $data_loaded_method = 'API';
         
         // Checks If Cookie Has Expired Based Upon Expiration Parameter
 
@@ -1885,9 +1889,20 @@
 
             $parsed_data = [];
 
-            // Load Youtube Data If Media Is Youtube
+            // Check if data is stored in Cache in Wordpress Transients
+
+            $cached_data = get_transient($type . '_' . $playlist_name);
+
+            if ($cached_data) {
+                if ($type === 'podcast') {
+                    $parsed_data = json_decode($cached_data, true);
+                } else $parsed_data = $cached_data;
+                $data_loaded_method = 'server cache';
+            }
+
+            // Load Youtube Data If Media Is Youtube is nothing is found in cache
             
-            if ($type === 'youtube') {
+            if ($type === 'youtube' && !$cached_data) {
 
                 $youtube_req_url = 'https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId='. $media_data .'&key=' . $api_key . '&maxResults=10000';
 
@@ -2016,12 +2031,16 @@
                             file_put_contents($youtube_backup_file_path, $backup_data);
                         }
                     } else file_put_contents($youtube_backup_file_path, $backup_data);
+
+                    // Set parsed data to Wordpress transient server cache
+
+                    set_transient($type . '_' . $playlist_name, $parsed_data, 3600);
                 }
             }
 
-            // Podcast Data
+            // Podcast Data load if nothing in cache
 
-            if ($type === 'podcast') {
+            if ($type === 'podcast' && !$cached_data) {
 
                 $get_rss = null;
 
@@ -2060,6 +2079,10 @@
                     
                     }
                 }
+
+                // Set parsed data to Wordpress transient server cache
+
+                set_transient($type . '_' . $playlist_name, json_encode($parsed_data), 3600);
             }
         } 
 
@@ -2165,7 +2188,7 @@
 
             // Set Cookie Storage Time Stamp And Output Parsed '.$type.' Data Into Browser Local Storage
 
-            echo '<script>localStorage.setItem("'. $playlist_name . '_'. $type .'_playlist", JSON.stringify('. json_encode($parsed_data) .')); console.log("`'. $playlist_name . '` '. $type .' data loaded from API and saved on Local Storage as `'. $playlist_name .'_'.$type.'_playlist.`.");</script>';
+            echo '<script>localStorage.setItem("'. $playlist_name . '_'. $type .'_playlist", JSON.stringify('. json_encode($parsed_data) .')); console.log("`'. $playlist_name . '` '. $type .' data loaded from '.  $data_loaded_method .' and saved on Local Storage as `'. $playlist_name .'_'.$type.'_playlist.`.");</script>';
         } 
 
         // Data Loaded From Local Storage Due To An Error On API Call With Cookie Expired
@@ -2181,7 +2204,7 @@
 
         if (!$cookie_expired) {
             echo '<script>
-                    console.log("`'. $playlist_name . '` '. $type .' data loaded from Local Storage as cookie storage time interval has not yet passed.  If a fresh API call needs to be made, clear the browser cookie named `'.$cookie_name.'` and reload the page.");
+                    console.log("`'. $playlist_name . '` '. $type .' data loaded from Local Storage as cookie storage time interval has not yet passed.");
                     localStorage.setItem("'. $cookie_name . '_needs_seo_update", "false");
                 </script>
             ';
