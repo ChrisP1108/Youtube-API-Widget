@@ -1,4 +1,4 @@
-// VERSION 1.30
+// VERSION 1.32
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -42,7 +42,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       const toEpisodeNumber = typeof inputData.toEpisodeNumber === 'number' ? inputData.toEpisodeNumber : 2000; // If listByRange Is Set To: true, Set Starting Episode Number To Filter From.  Default Value Is: 1
       const showNonNumberedEpisodesOnly = typeof inputData.showNonNumberedEpisodesOnly === 'boolean' ? inputData.showNonNumberedEpisodesOnly : false; // Shows Videos That Do Not Have An Episode Number Only. Default Value Is: false 
       const hideNonNumberedVideos = typeof inputData.hideNonNumberedVideos === 'boolean' ? inputData.hideNonNumberedVideos : true; // Hides Non-Numbered Videos In Playlist.  Default Value Is: true   
-      const timeStorageInterval = typeof inputData.timeStorageInterval === 'number' ? inputData.timeStorageInterval * 60000 : 3600000; // Sets Time Interval That Another API Call Request Can Be Made Instead Of Loading From Local Storage In Minutes That Is Multiplied By 60000 To Convert Minutes To Milliseconds.  Default Value is 60
+      const timeStorageInterval = typeof inputData.timeStorageInterval === 'number' ? inputData.timeStorageInterval * 60000 : 21600000; // Sets Time Interval That Another API Call Request Can Be Made Instead Of Loading From Local Storage In Minutes That Is Multiplied By 60000 To Convert Minutes To Milliseconds.  Default Value is 60
       const showPlayButtons = typeof inputData.showPlayButtons === 'boolean' ? inputData.showPlayButtons : true; // Sets If Play Button Icons Should Be Shown Over Video Thumbnails.  Default Value Is: true
       let showVideoInfo = typeof inputData.showVideoInfo === 'boolean' ? inputData.showVideoInfo : true; // Sets If Text Information About Video Should Be Displayed Below Video Thumbnail.  Default Value Is: false
       const showDescriptionText = typeof inputData.showDescriptionText === 'boolean' ? inputData.showDescriptionText : true; // If showVideoInfo Is Set To True, Sets If Video Description Text Should Be Displayed.  Default Value Is: false
@@ -51,7 +51,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       const fastForwardSpeed = typeof inputData.fastForwardSpeed === 'number' ? inputData.fastForwardSpeed : 150; // Set The Speed That Frames Should Be Fast Forwarded Through On Carousel And Lightbox When User Holds Down Arrow.
       const showLogoImgUrl = typeof inputData.showLogoImgUrl === 'string' ? inputData.showLogoImgUrl : ''; // Show Logo Image URL For Playlist Heading.  If Nothing, Then TV Episodes Text Will Be Shown 
       let playlistButton = typeof inputData.playlistButton === 'boolean' ? inputData.playlistButton : true; // Sets If Playlist Button Will Be Shown On Page.  Default Value Is: true
-      const playlistLayout = typeof inputData.playlistLayout === 'grid' ? 'grid' : inputData.playlistLayout === 'carousel' ? 'carousel' : 'grid'; // Determines The Layout Of Videos On Page.  Default value is 'grid'.  Other value is 'carousel'
+      const playlistLayout = typeof inputData.playlistLayout === 'grid' ? 'grid' : inputData.playlistLayout === 'carousel' ? 'carousel' : inputData.playlistLayout === 'carousel-multi' ? 'carousel-multi' : 'grid'; // Determines The Layout Of Videos On Page.  Default value is 'grid'.  Other value is 'carousel'
       const playlistService = typeof inputData.playlistService === 'youtube' ? 'youtube' : inputData.playlistService === 'vimeo' ? 'vimeo' : 'youtube'; // Determines If Video Playlist Is Coming From.  Default Value Is 'youtube'
       const apiKey = typeof inputData.apiKey === 'string' ? inputData.apiKey : backupAPIKeys(); // API Key.  Loads Backup Keys If No Key Is Passed In
       const playlistId = inputData.playlistId; // Playlist Id.  REQUIRED FOR WIDGET TO WORK.
@@ -70,7 +70,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       const dropShadowColor = typeof inputData.dropShadowColor === 'string' ? inputData.dropShadowColor : '#01010147'; // Sets Drop-Shadow Color For Video Container.  Default Value Is: '#00000036'
       const textBelowThumbnailTopMargin = typeof inputData.textBelowThumbnailTopMargin === 'string' ? inputData.textBelowThumbnailTopMargin : '20px'; // Sets Text Below Video Thumbnail Margins On Top And Bottom. Default Value Is: '24px'
       const titleTextColorBelowThumbnail = typeof inputData.titleTextColorBelowThumbnail === 'string' ? inputData.titleTextColorBelowThumbnail : '#000000'; // Sets Color Of Video Title Text Below Video Thumbnail.  Default Value Is: '#000000'
-      const spaceBetweenTitleAndDescriptionBelowThumbnail = typeof inputData.spaceBetweenTitleAndDescriptionBelowThumbnail === 'string' ? inputData.spaceBetweenTitleAndDescriptionBelowThumbnail : '24px'; // Sets Vertical Space Gap Between Title Text And Description Text Below Video Thumbnail.  Default Value Is: '24px'
+      const spaceBetweenTitleAndDescriptionBelowThumbnail = typeof inputData.spaceBetweenTitleAndDescriptionBelowThumbnail === 'string' ? inputData.spaceBetweenTitleAndDescriptionBelowThumbnail : '0px'; // Sets Vertical Space Gap Between Title Text And Description Text Below Video Thumbnail.  Default Value Is: '24px'
       const descriptionTextColorBelowThumbnail = typeof inputData.descriptionTextColorBelowThumbnail === 'string' ? inputData.descriptionTextColorBelowThumbnail : '#00000090'; // Sets Color Of Description Text Below Video Thumbnail.  Default Value Is: '#000000'
       const imageDarkeningOpacity = typeof inputData.imageDarkeningOpacity === 'string' ? inputData.imageDarkeningOpacity : '20'; // Sets How Dark The Video Thumbnail Should Get Opacity On Mouse Hover.  Default Value Is: '20'
       const textOverThumbnailColor = typeof inputData.textOverThumbnailColor === 'string' ? inputData.textOverThumbnailColor : '#ffffff'; // Sets Color Of Text Over Video Thumbnail On Mouse Hover.  Default Value Is: '#ffffff'
@@ -80,8 +80,8 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       const playButtonOpacity = typeof inputData.playButtonOpacity === 'number' ? inputData.playButtonOpacity / 100 : .6; // Sets Opacity Of Play Button Icon Over Video Thumbnail.  Divides Number By 100 To Convert Percentage To Decimal. Default Value Is: 75
       const minimumWidthOfEachGridVideoItem = typeof inputData.minimumWidthOfEachGridVideoItem === 'number' ? inputData.minimumWidthOfEachGridVideoItem : 400; // Sets Minimun Width Size Of Each Video.  Default Value Is: 480
       const frameTransition = typeof inputData.frameTransition === 'number' ? inputData.frameTransition : 500; // Sets Transition Time Of LightBox Carousel Frame Transitioning In Milliseconds
-      const carouselTransition = typeof inputData.carouselTransition === 'number' ? inputData.carouselTransition : 2000; // Sets Transition Time Of Carousel Layout Frame Transitioning In Milliseconds
-      const carouselDelay = typeof inputData.carouselDelay === 'number' ? inputData.carouselDelay : 6000; // Sets Delay Carousel Layout Between Transitioning In Milliseconds
+      const carouselTransition = typeof inputData.carouselTransition === 'number' ? inputData.carouselTransition : 1000; // Sets Transition Time Of Carousel Layout Frame Transitioning In Milliseconds
+      const carouselDelay = typeof inputData.carouselDelay === 'number' ? inputData.carouselDelay : 7000; // Sets Delay Carousel Layout Between Transitioning In Milliseconds
       const carouselWidth = typeof inputData.carouselWidth === 'number' ? inputData.carouselWidth : 40 // Set Width Of Carousel Layout Thumbnails In REMs
       const carouselArrowsColor = typeof inputData.carouselArrowsColor === 'string' ? inputData.carouselArrowsColor : '#949494' // Sets Color Of Carousel Layout Arrows And Text Overlay During Fast Forward
       const showThemeColor = typeof inputData.showThemeColor === 'string' ? inputData.showThemeColor : '#949494' // Sets Theme Color For LightBox Playlist Outline
@@ -177,6 +177,27 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         padding: 0;
         box-sizing: border-box;
       }
+      ${playlistLayout === 'carousel-multi' ?
+        `.video-layout-container {
+          display: flex;
+          gap: clamp(12px, 4vw, 40px);
+          align-items: center;
+        }
+        .video-layout-container [data-carouselarrow="true"] {
+          min-width: clamp(28px, 5vw, 48px);
+        }
+        .video-layout-container .carousel-multi-items .video-item .hover-text-container p {
+          text-align: center;
+        }
+        .transition-carousel {
+          transition: ${carouselTransition / 1000}s !important;
+        }
+        ` 
+        : ''
+      }
+      ${widgetIdSelector} ol {
+        list-style: none;
+      }
       ${widgetIdSelector} h2 {
         display: block;
         width: 100vw;
@@ -191,7 +212,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         font-family: ${fontFamily} !important;
         font-weight: 700;
       }
-      ${widgetIdSelector} a, ${widgetIdSelector} a:hover
+      ${widgetIdSelector} li, ${widgetIdSelector} li:hover
       [data-lightboxid="${widgetIdSelector}"] a, [data-lightboxid="${widgetIdSelector}"] a:hover,
       ${widgetIdSelector} .playlist-button-page, ${widgetIdSelector} .playlist-button-page:hover {
         text-transform: revert !important;
@@ -211,6 +232,18 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       [data-lightboxid="${widgetIdSelector}"] .grid-layout {
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
       }
+      ${widgetIdSelector} .carousel-multi-items-layout {
+        max-width: 100%;
+        overflow: hidden;
+        -webkit-mask-image: linear-gradient(to right, transparent 0px, black min(4vw, 60px), black calc(100% - min(4vw, 60px)), transparent);
+      }
+      ${widgetIdSelector} .carousel-multi-items {
+        display: flex;
+        justify-content: center;
+        position: relative;
+        transition: 0s;
+        gap: ${gapBetweenGridVideos}px;
+      }
       ${widgetIdSelector} .loading-spinner {
         filter: drop-shadow(2px 4px 6px #00000090);
         position: absolute;
@@ -222,7 +255,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         left: 50%;
         transform: translate(-50%, -50%);
       }
-      ${widgetIdSelector} .video-item {
+      ${widgetIdSelector} .grid-layout .video-item, ${widgetIdSelector} .carousel-layout .video-item {
         max-width: 100%;
         text-align: center;
         border: ${videoContainerBorderThickness} ${videoContainerBorderColor} solid;
@@ -231,6 +264,16 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         animation-name: ${widgetId}-fade-in;
         animation-duration: 1s;
         cursor: auto !important;
+      }
+      ${widgetIdSelector} .carousel-layout .carousel-video-frame .video-item { 
+        left: 0;
+      }
+      ${widgetIdSelector} .carousel-multi-items .video-item {
+        width: min(340px, 100%) !important;
+        flex-shrink: 0;
+        align-self: stretch !important;
+        display: flex;
+        flex-direction: column;
       }
       @keyframes ${widgetId}-fade-in {
         from { opacity: 0; }
@@ -256,8 +299,8 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       }
       ${widgetIdSelector} .video-info-text-container h3 {
         color: ${titleTextColorBelowThumbnail};
-        margin-bottom: ${spaceBetweenTitleAndDescriptionBelowThumbnail};
         font-family: ${fontFamily} !important;
+        ${ showTitleText ? `margin-bottom: ${spaceBetweenTitleAndDescriptionBelowThumbnail} !important;` : ''};
       }
       ${widgetIdSelector} .video-info-text-container h6 {
         color: ${descriptionTextColorBelowThumbnail};
@@ -647,12 +690,14 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       }
       .arrow-left {
         cursor: pointer;
+        fill: ${carouselArrowsColor};
       }
       .arrow-left:hover {
         transform: scale(1.25);
         transition: 0.25s;
       }
       .arrow-right {
+        fill: ${carouselArrowsColor};
         cursor: pointer;
         transform: rotate(180deg);
       }
@@ -700,7 +745,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         align-items: center;
         position: relative;
       }
-      ${widgetIdSelector} .carousel-layout [data-carouselarrow="true"] g,
+      ${widgetIdSelector} [data-carouselarrow="true"] g,
       ${widgetIdSelector} .carousel-layout [data-fastforwardoverlay="true"] h1
       {
         fill: ${carouselArrowsColor};
@@ -708,7 +753,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         font-weight: 700;
         font-family: ${fontFamily} !important;
       }
-      ${widgetIdSelector} .carousel-layout a {
+      ${widgetIdSelector} .carousel-layout li {
         position: absolute;
         transition: ${carouselTransition / 1000}s;
       }
@@ -897,57 +942,65 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       </div>
       `;
 
+    // Carousel Arrows SVG Code
+
+    const carouselLeftArrowSVG = `<svg version="1.0" xmlns="http://www.w3.org/2000/svg" class="arrow-left" data-hideonidle="true" data-carouselarrowdirection="left" data-carouselarrow="true"
+        width="100.000000pt" height="100.000000pt" viewBox="0 0 100.000000 100.000000"
+        preserveAspectRatio="xMidYMid meet">
+        <g data-hideonidle="true" transform="translate(0.000000,100.000000) scale(0.100000,-0.100000)"
+        fill="#ffffff" stroke="none">
+        <path data-hideonidle="true" d="M415 720 l-220 -220 223 -222 222 -223 72 73 73 72 -148 148 -147 147 145 145 c80 80 145 149 145 155 0 0 -140 145 -140 145 0 0 -104 -99 -225 -220z"/>
+        </g>
+      </svg>
+    `;
+
+    const carouselRightArrowSVG = `<svg version="1.0" xmlns="http://www.w3.org/2000/svg" class="arrow-right" data-hideonidle="true" data-carouselarrowdirection="right" data-carouselarrow="true"
+        width="100.000000pt" height="100.000000pt" viewBox="0 0 100.000000 100.000000"
+        preserveAspectRatio="xMidYMid meet">
+        <g data-hideonidle="true" transform="translate(0.000000,100.000000) scale(0.100000,-0.100000)"
+        fill="#ffffff" stroke="none">
+        <path data-hideonidle="true" d="M415 720 l-220 -220 223 -222 222 -223 72 73 73 72 -148 148 -147 147 145 145 c80 80 145 149 145 155 0 0 -140 145 -140 145 0 0 -104 -99 -225 -220z"/>
+        </g>
+      </svg>
+    `;
+
     // Carousel Layout HTML
 
       const carouselHTML = `
         <div class="carousel-layout">
-          <svg version="1.0" xmlns="http://www.w3.org/2000/svg" class="arrow-left" data-hideonidle="true" data-carouselarrowdirection="left" data-carouselarrow="true"
-            width="100.000000pt" height="100.000000pt" viewBox="0 0 100.000000 100.000000"
-            preserveAspectRatio="xMidYMid meet">
-            <g data-hideonidle="true" transform="translate(0.000000,100.000000) scale(0.100000,-0.100000)"
-            fill="#ffffff" stroke="none">
-            <path data-hideonidle="true" d="M415 720 l-220 -220 223 -222 222 -223 72 73 73 72 -148 148 -147 147 145 145 c80 80 145 149 145 155 0 0 -140 145 -140 145 0 0 -104 -99 -225 -220z"/>
-            </g>
-          </svg>
+          ${carouselLeftArrowSVG}
           <div class="carousel-video-frame">
-            <div class="carousel-video-items" data-carouselvideoitems="true">
-              <a class="video-item frame-transition-left video-thumbnail-wrapper" data-itemclickable="true" data-frameposition="-1" class="frame-transition-left">
+            <ol class="carousel-video-items" data-carouselvideoitems="true">
+              <li class="video-item frame-transition-left video-thumbnail-wrapper" data-itemclickable="true" data-frameposition="-1" class="frame-transition-left">
                 <img src="" width="" height="" alt="">
                 ${showPlayButtons ? playButtonIcon() : ''}
                 <div class="hover-text-container">
                   <h3></h3>
                   ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
                 </div>
-              </a>
-              <a class="video-item video-thumbnail-wrapper" data-itemclickable="true" data-frameposition="0">
+              </li>
+              <li class="video-item video-thumbnail-wrapper" data-itemclickable="true" data-frameposition="0">
                 <img src="" width="" height="" alt="">
                 ${showPlayButtons ? playButtonIcon() : ''}
                 <div class="hover-text-container">
                   <h3></h3>
                   ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
                 </div>
-              </a>
-              <a class="video-item frame-transition-right video-thumbnail-wrapper" data-itemclickable="true" data-frameposition="1" class="frame-transition-right">
+              </li>
+              <li class="video-item frame-transition-right video-thumbnail-wrapper" data-itemclickable="true" data-frameposition="1" class="frame-transition-right">
                 <img src="" width="" height="" alt="">
                 ${showPlayButtons ? playButtonIcon() : ''}
                 <div class="hover-text-container">
                   <h3></h3>
                   ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
                 </div>
-              </a>
-            </div>
+              </li>
+            </ol>
             <div class="fast-forward-overlay element-invisible" data-fastforwardoverlay="true">
               <h3></h3>
             </div>
           </div>
-            <svg version="1.0" xmlns="http://www.w3.org/2000/svg" class="arrow-right" data-hideonidle="true" data-carouselarrowdirection="right" data-carouselarrow="true"
-              width="100.000000pt" height="100.000000pt" viewBox="0 0 100.000000 100.000000"
-              preserveAspectRatio="xMidYMid meet">
-              <g data-hideonidle="true" transform="translate(0.000000,100.000000) scale(0.100000,-0.100000)"
-              fill="#ffffff" stroke="none">
-              <path data-hideonidle="true" d="M415 720 l-220 -220 223 -222 222 -223 72 73 73 72 -148 148 -147 147 145 145 c80 80 145 149 145 155 0 0 -140 145 -140 145 0 0 -104 -99 -225 -220z"/>
-              </g>
-            </svg>
+          ${carouselRightArrowSVG}
         </div>
       `;
 
@@ -987,13 +1040,13 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       const htmlRender = 
         `
           <!-- ${title} (Published On - ${publishedDate}) -->
-          <a class="video-item">
+          <li class="video-item">
             <div class="${!playlistItem ? 'video-thumbnail-wrapper' : 'playlist-video-thumbnail-wrapper'}" data-itemclickable="true" data-id="${id}">
               <img src="${thumbnail.url}" width="${thumbnail.width}" height="${thumbnail.height}" alt="${title}">
               ${showPlayButtons ? playButtonIcon() : ''}
               ${ !playlistItem ? 
                 `<div class="hover-text-container">
-                  <h3>${setThumbnailText(item)}</h3>
+                  ${playlistLayout !== 'carousel-multi' ? `<h3>${setThumbnailText(item)}</h3>` : ''}
                   ${instructionMessage === '' ? '' : `<p>${instructionMessage}</p>`}
                 </div>` : ''
               }
@@ -1006,7 +1059,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
               : ''
             }
             ${ playlistItem ? `<h3 class="playlist-episode-text">${setThumbnailText(item)}</h3>` : ''} 
-          </a>
+          </li>
         `;
       return htmlRender
     }
@@ -1203,6 +1256,103 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
           advanceCarouselRight('carouselAutomated')
         }
       }, carouselDelay);
+    }
+
+  // Carousel Multi Handler
+
+    function carouselMultiHandlerInit() {
+      let cTransitioning = false;
+    
+      function slideCarousel(direction) {
+          const itemWidth = document.querySelector(`${widgetIdSelector} .video-item`).clientWidth;
+          
+          const carousel = document.querySelector(`${widgetIdSelector} .carousel-multi-items`);
+          
+          const carouselNodes = document.querySelectorAll(`${widgetIdSelector} .video-item`);
+          
+          if (carouselNodes.length % 2 === 0) {
+              carousel.style.transform = `translateX(${itemWidth / 2}px)`;
+          }
+          
+          if (!cTransitioning) {
+              
+              cTransitioning = true;
+          
+              switch(direction) {
+                  case 'left':
+                      
+                      const lastRemoved = carouselNodes[carouselNodes.length - 1];
+                      
+                      lastRemoved.remove();
+      
+                      carousel.prepend(lastRemoved);
+                      
+                      carousel.style.left = `-${itemWidth}px`;
+                      
+                      break;
+                      
+                  case 'right':
+                      
+                      const firstRemoved = carouselNodes[0];
+                      
+                      firstRemoved.remove();
+      
+                      carousel.append(firstRemoved);
+                      
+                      carousel.style.left = `${itemWidth}px`;
+      
+                      break;
+              }
+              
+              setTimeout(() => {
+                  carousel.classList.add("transition-carousel");
+                  carousel.style.left = `0px`;
+              }, 10)
+              
+              setTimeout(() => {
+                  carousel.classList.remove("transition-carousel");
+                  cTransitioning = false;
+              }, carouselTransition)
+          
+          }
+      }
+      
+      let dataIntCheck;
+      let dataIntCounter = 0;
+      
+      function initCarousel() {
+          dataIntCounter++;
+          
+          if (document.querySelector(`${widgetIdSelector} .video-item`)) {
+              clearInterval(dataIntCheck);
+              // Slide Once On Init
+          
+              slideCarousel("right");
+              
+              // Auto Slide Carousel
+              
+              setInterval(() => {
+                  slideCarousel("right")
+              }, carouselDelay);
+              
+              // Handle Clicking Of Arrows
+          
+              const arrowClickHandling = document.querySelectorAll("[data-carouselarrowdirection]");
+          
+              arrowClickHandling.forEach(arrow => {
+                arrow.addEventListener('click', () => {
+                    const direction = arrow.dataset.carouselarrowdirection;
+                    slideCarousel(direction);
+                }); 
+              });
+          }
+          
+          if (dataIntCounter > 200) {
+              clearInterval(dataIntCheck);
+          }
+      }
+      
+      dataIntCheck = setInterval(initCarousel, 50);
     }
 
     // Clear Lightbox
@@ -2014,9 +2164,9 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
           // Grid Layout Rendering
 
           const gridListMapping = 
-            '<div class="grid-layout">' + 
+            '<ol class="grid-layout">' + 
               gridItemsProcessing(pageOutputList)
-            + '</div>';       
+            + '</ol>';       
 
           if (playlistLayout === 'grid') {
             playlistItems.innerHTML = gridListMapping;
@@ -2027,6 +2177,21 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
           if (playlistLayout === 'carousel') {
             playlistItems.innerHTML = carouselHTML;
             carouselEventHandling();
+          }
+
+          // Carousel Multi Layout Rendering
+
+          const carouselMultiMapping = 
+          carouselLeftArrowSVG +
+            '<div class="carousel-multi-items-layout">' +  
+            '<ol class="carousel-multi-items">' + 
+              gridItemsProcessing(pageOutputList)
+          + '</ol>' + '</div>'
+          + carouselRightArrowSVG; 
+
+          if (playlistLayout === 'carousel-multi') {
+            playlistItems.innerHTML = carouselMultiMapping;
+            carouselMultiHandlerInit();
           }
 
           // Playlist View Button If playlistButton Is Set To True
