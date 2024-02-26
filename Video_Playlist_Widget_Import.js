@@ -1,4 +1,4 @@
-// VERSION 1.32
+// VERSION 1.33
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -197,6 +197,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       }
       ${widgetIdSelector} ol {
         list-style: none;
+        padding: 0;
       }
       ${widgetIdSelector} h2 {
         display: block;
@@ -1271,7 +1272,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
           const carouselNodes = document.querySelectorAll(`${widgetIdSelector} .video-item`);
           
           if (carouselNodes.length % 2 === 0) {
-              carousel.style.transform = `translateX(${itemWidth / 2}px)`;
+              carousel.style.transform = `translateX(${(itemWidth / 2) + (gapBetweenGridVideos / 2)}px)`;
           }
           
           if (!cTransitioning) {
