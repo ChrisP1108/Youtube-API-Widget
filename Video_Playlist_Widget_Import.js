@@ -1,4 +1,4 @@
-// VERSION 1.33
+// VERSION 1.38
 
 function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST API WIDGET CODE WRAPPED IN FUNCTION SO ALL VARIABLES ARE LOCALLY SCOPED TO AVOID ERRORS WITH UTILIZING THE WIDGET MORE THAN ONCE ON THE SAME PAGE
   
@@ -42,7 +42,7 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       const toEpisodeNumber = typeof inputData.toEpisodeNumber === 'number' ? inputData.toEpisodeNumber : 2000; // If listByRange Is Set To: true, Set Starting Episode Number To Filter From.  Default Value Is: 1
       const showNonNumberedEpisodesOnly = typeof inputData.showNonNumberedEpisodesOnly === 'boolean' ? inputData.showNonNumberedEpisodesOnly : false; // Shows Videos That Do Not Have An Episode Number Only. Default Value Is: false 
       const hideNonNumberedVideos = typeof inputData.hideNonNumberedVideos === 'boolean' ? inputData.hideNonNumberedVideos : true; // Hides Non-Numbered Videos In Playlist.  Default Value Is: true   
-      const timeStorageInterval = typeof inputData.timeStorageInterval === 'number' ? inputData.timeStorageInterval * 60000 : 21600000; // Sets Time Interval That Another API Call Request Can Be Made Instead Of Loading From Local Storage In Minutes That Is Multiplied By 60000 To Convert Minutes To Milliseconds.  Default Value is 60
+      const timeStorageInterval = typeof inputData.timeStorageInterval === 'number' ? inputData.timeStorageInterval * 60000 : 7200000; // Sets Time Interval That Another API Call Request Can Be Made Instead Of Loading From Local Storage In Minutes That Is Multiplied By 60000 To Convert Minutes To Milliseconds.  Default Value is 60
       const showPlayButtons = typeof inputData.showPlayButtons === 'boolean' ? inputData.showPlayButtons : true; // Sets If Play Button Icons Should Be Shown Over Video Thumbnails.  Default Value Is: true
       let showVideoInfo = typeof inputData.showVideoInfo === 'boolean' ? inputData.showVideoInfo : true; // Sets If Text Information About Video Should Be Displayed Below Video Thumbnail.  Default Value Is: false
       const showDescriptionText = typeof inputData.showDescriptionText === 'boolean' ? inputData.showDescriptionText : true; // If showVideoInfo Is Set To True, Sets If Video Description Text Should Be Displayed.  Default Value Is: false
@@ -51,9 +51,10 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       const fastForwardSpeed = typeof inputData.fastForwardSpeed === 'number' ? inputData.fastForwardSpeed : 150; // Set The Speed That Frames Should Be Fast Forwarded Through On Carousel And Lightbox When User Holds Down Arrow.
       const showLogoImgUrl = typeof inputData.showLogoImgUrl === 'string' ? inputData.showLogoImgUrl : ''; // Show Logo Image URL For Playlist Heading.  If Nothing, Then TV Episodes Text Will Be Shown 
       let playlistButton = typeof inputData.playlistButton === 'boolean' ? inputData.playlistButton : true; // Sets If Playlist Button Will Be Shown On Page.  Default Value Is: true
-      const playlistLayout = typeof inputData.playlistLayout === 'grid' ? 'grid' : inputData.playlistLayout === 'carousel' ? 'carousel' : inputData.playlistLayout === 'carousel-multi' ? 'carousel-multi' : 'grid'; // Determines The Layout Of Videos On Page.  Default value is 'grid'.  Other value is 'carousel'
+      const playlistLayout = typeof inputData.playlistLayout === 'grid' ? 'grid' : inputData.playlistLayout === 'carousel' ? 'carousel' : inputData.playlistLayout === 'carousel-multi' ? 'carousel-multi' : inputData.playlistLayout === 'unstyled' ? 'unstyled' : 'grid'; // Determines The Layout Of Videos On Page.  Default value is 'grid'.  Other value is 'carousel'
       const playlistService = typeof inputData.playlistService === 'youtube' ? 'youtube' : inputData.playlistService === 'vimeo' ? 'vimeo' : 'youtube'; // Determines If Video Playlist Is Coming From.  Default Value Is 'youtube'
       const apiKey = typeof inputData.apiKey === 'string' ? inputData.apiKey : backupAPIKeys(); // API Key.  Loads Backup Keys If No Key Is Passed In
+      const secureRestRoute = typeof inputData.secureRestRoute === 'string' ? inputData.secureRestRoute : null; // Used for making secure API request through third party API.
       const playlistId = inputData.playlistId; // Playlist Id.  REQUIRED FOR WIDGET TO WORK.
 
       // Input CSS Variable Declarations
@@ -105,8 +106,8 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
       let lightboxToggled = false; // Used To Determine If Lightbox Is Toggled
       let showPlaylist = false; // Toggles Lightbox Playlist On And Off
       const lightboxFrameVideoBaseUrl = playlistService === 'youtube' ? 'https://www.youtube.com/embed/' : ''; // Video Base Url For Lightbox Video Iframes
-      const baseUrl = playlistService === 'youtube' ? `https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=` : ``;
-      const fullPath = playlistService === 'youtube' ? `${baseUrl}${playlistId}&key=${apiKey}&maxResults=1000` : ``;
+      const youtubeBaseUrl = playlistService === 'youtube' ? `https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=` : ``;
+      const youtubeFullPath = playlistService === 'youtube' ? `${youtubeBaseUrl}${playlistId}&key=${apiKey}&maxResults=1000` : ``;
 
       // CSS Programming Variable Declarations
 
@@ -1897,21 +1898,22 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         }
       } 
 
-      // API Fetch If Local Storage Data Not Found Or If Local Storage Data Found And Time Stored Exceeded timeStorageInterval Declaration
+      // API Fetch If Local Storage Data Not Found Or If Local Storage Data Found And Time Stored Exceeded timeStorageInterval Declaration.  If secureRestRoute parameter was passed in, that will be used over youtubeFullPath
 
       if (!storedPlaylistRetrieved){
+        const youtubeReqUrl = secureRestRoute ? secureRestRoute : youtubeFullPath;
         try {
-          const res = await fetch(fullPath);
+          const res = await fetch(youtubeReqUrl);
           if (res.ok) {
             let data = await res.json();
 
-            // Youtube API Has A Limit Of Results Per Request Based Upon resultLimitPerRequest Declaration.  If Total Results In Playlist Exceeds This, Multiple Requests Are Made To The Youtube API Until Total Results Retrieved Equals Total In Playlist.
+            // This loop will only run if secureRestRoute value was never passed in.  Youtube API Has A Limit Of Results Per Request Based Upon resultLimitPerRequest Declaration.  If Total Results In Playlist Exceeds This, Multiple Requests Are Made To The Youtube API Until Total Results Retrieved Equals Total In Playlist.
 
-            if (playlistService === 'youtube') {
+            if (playlistService === 'youtube' && !secureRestRoute) {
               if (data.pageInfo.totalResults > resultLimitPerRequest) {
                 let nextPageToken = data.nextPageToken;
                 for (let totalVideos = data.items.length; totalVideos < data.pageInfo.totalResults; totalVideos) {
-                  const nextPageTokenPath = fullPath + `&pageToken=${nextPageToken}`;
+                  const nextPageTokenPath = youtubeFullPath + `&pageToken=${nextPageToken}`;
                   const page = await fetch(nextPageTokenPath);
                   if (res.ok) {
                     const pageData = await page.json();
@@ -1939,10 +1941,10 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
                   if (storedPlaylistId) {
                     revisedStoredPlaylists = storedPlaylists.map(list => {
                         if (list.items[0].snippet.playlistId === playlistId) {
-                            return data
-                        } else return list
+                            return data;
+                        } else return list;
                     });
-                  } else revisedStoredPlaylists = [...storedPlaylists, data]
+                  } else revisedStoredPlaylists = [...storedPlaylists, data];
                   localStorage.removeItem('youtubePlaylists');
                   localStorage.setItem('youtubePlaylists', JSON.stringify(revisedStoredPlaylists));
               } else {
@@ -1967,9 +1969,9 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
         } catch(err) {
           console.error(err);
           if (storedPlaylistId) {
-              console.warn(apiErrMsg)
+              console.warn(apiErrMsg);
               return { data: storedPlaylistId, ok: true }
-          } else return { status: res.status, ok: false, data: {msg: 'Failed To Fetch'} }
+          } else return { status: null, ok: false, data: {msg: 'Failed To Fetch'} }
         }
       }
     }
@@ -2255,17 +2257,17 @@ function initializeVideoPlaylist(inputData, elementRoot) { // ALL VIDEO PLAYLIST
 
         let errMsg;
 
-        console.error(res.data)
+        console.error(res.data);
 
-        if (playlistService === 'youtube') {
-          errMsg = res.data.error.message
-        }
+        if (playlistService === 'youtube' && !secureRestRoute) {
+          errMsg = res.data.error.message;
+        } else errMsg = 'Check browser console for more details.'
 
         // Error Message If Data Failed To Load
 
         playlistItems.innerHTML = `
           <h2 style="max-width: 100%;">There was an error loading the ${playlistService} playlist. ${errMsg}</h2>
-        `
+        `;
       }
       
     });
