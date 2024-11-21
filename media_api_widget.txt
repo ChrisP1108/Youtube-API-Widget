@@ -1,4 +1,4 @@
-// Version 2.42
+// Version 2.45
 
     // Media API Widget Global CSS And Javascript
 
@@ -1824,6 +1824,8 @@
 
         if ($rss_feed) {
 
+            $rss_url = null;
+
             if ($apple_data) {
                 $get_rss_data = json_decode($rss_feed);
 
@@ -1832,15 +1834,16 @@
                 $rss_url = get_object_vars($get_rss_data)['results'][0]->feedUrl;
 
                 $rss_feed = @file_get_contents($rss_url);
-            } 
+            } else {
+                $rss_url = $rss_feed;
+                $rss_feed = @file_get_contents($rss_feed);
+            }
 
             $parsed_rss_feed = simplexml_load_string($rss_feed);
 
-            $parsed_rss_feed->channel->playlistId = $media_data;
-
             $parsed_rss_feed->channel->rssUrl = $rss_url;
 
-            $parsed_rss_feed->channel->collectionViewUrl = get_object_vars($get_rss_data)['results'][0]->collectionViewUrl;
+            $parsed_rss_feed->channel->collectionViewUrl = $apple_data ? get_object_vars($get_rss_data)['results'][0]->collectionViewUrl : $rss_url;
 
             foreach($parsed_rss_feed->channel->item as $index => $item) {
                 $description_text = htmlspecialchars(strip_tags($item->description));
@@ -2044,16 +2047,21 @@
 
                 $get_rss = null;
 
-                if (str_split($media_data, 4)[0] !== 'http' &&  $podcast_platform !== 'embed') {
+                if ($podcast_platform !== 'embed') {
 
-                    if ($podcast_platform === 'omny' || $podcast_platform === 'soundcloud' || $podcast_platform === 'buzzsprout' || $podcast_platform === 'custom') {
+                    if ($podcast_platform === 'omny' || $podcast_platform === 'soundcloud' || $podcast_platform === 'buzzsprout' || $podcast_platform === 'other') {
                         $get_rss = @file_get_contents('https://itunes.apple.com/lookup?id='.$media_data.'&entity=podcast');
+                    }
+
+                    if ($podcast_platform === 'custom') {
+                        $get_rss = $media_data;
                     }
 
                     if (!$get_rss) {
                         $error_loading_data = true;
                     } else {
-                        $parsed_data = parse_rss_feed($get_rss, true);
+                        $is_apple_rss = $podcast_platform !== 'custom';
+                        $parsed_data = parse_rss_feed($get_rss, $is_apple_rss);
                     }
 
                 } else {
