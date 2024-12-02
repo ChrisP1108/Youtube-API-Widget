@@ -1,4 +1,4 @@
-// Version 2.49
+// Version 2.50
 
     // Media API Widget Global CSS And Javascript
 
@@ -697,7 +697,7 @@
                 let podcastPlayerData = customPodcastPlayer ? `data-podcastplayermode="${settings.podcastplayermode}" data-podcastplayerbuttoncolor="${settings.podcastplayerbuttoncolor}"
                     data-podcastplayercolor="${settings.podcastplayercolor}" data-podcastprogressplayerbarcolor="${settings.podcastprogressplayerbarcolor}" data-podcastplayerhighlightcolor="${settings.podcastplayerhighlightcolor}"
                     data-podcastplayerfont="${settings.podcastplayerfont}" data-podcastplayerscrollcolor="${settings.podcastplayerscrollcolor}"
-                    data-podcastplayertextcolor="${settings.podcastplayertextcolor}"
+                    data-podcastplayertextcolor="${settings.podcastplayertextcolor}" data-showepisodedateaftertitle="${settings.showepisodedateaftertitle}"
                     `: false;
 
                 const { name, type } = info;
@@ -881,6 +881,7 @@
                             settings.podcastplayerfont = itemData.podcastplayerfont ? itemData.podcastplayerfont : "";
                             settings.podcastplayerscrollcolor = itemData.podcastplayerscrollcolor ? itemData.podcastplayerscrollcolor.slice(1) : "";
                             settings.podcastplayertextcolor = itemData.podcastplayertextcolor ? itemData.podcastplayertextcolor.slice(1) : "";
+                            settings.showepisodedateaftertitle = itemData.showepisodedateaftertitle ? itemData.showepisodedateaftertitle : "";
                         }
 
                         let trackSelect = null;
@@ -1726,8 +1727,9 @@
                             const font = itemClicked.dataset.podcastplayerfont;
                             const scrollbarColor = itemClicked.dataset.podcastplayerscrollcolor;
                             const textColor = itemClicked.dataset.podcastplayertextcolor;
+                            const showEpisodeDateAfterTitle = itemClicked.dataset.showepisodedateaftertitle === "true" ? "adddatetotitle=true" : "";
 
-                            embedPlayerUrl = `https://www.partnerwithmagellan.com/podcast-player/?url=${rssUrl}&track=${itemClicked.dataset.trackselect}&mode=${mode}&buttoncolor=${playButtonColor}&color1=${color}&progressbarcolor=${progressBarColor}&highlightcolor=${highlightColor}&font=${font}&scrollcolor=${scrollbarColor}&textcolor=${textColor}`;
+                            embedPlayerUrl = `https://www.partnerwithmagellan.com/podcast-player/?url=${rssUrl}&track=${itemClicked.dataset.trackselect}&mode=${mode}&buttoncolor=${playButtonColor}&color1=${color}&progressbarcolor=${progressBarColor}&highlightcolor=${highlightColor}&font=${font}&scrollcolor=${scrollbarColor}&textcolor=${textColor}&${showEpisodeDateAfterTitle}`;
                         }
 
                         // If Window Resolution Is Less Than 872px, Open New Window In Apple Podcasts
