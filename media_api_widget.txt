@@ -1,4 +1,4 @@
-// Version 2.45
+// Version 2.49
 
     // Media API Widget Global CSS And Javascript
 
@@ -1820,14 +1820,14 @@
 
     // Parse Podcast RSS Feed
 
-    function parse_rss_feed($rss_feed = null, $apple_data = false) {
+    function parse_rss_feed($rss_feed_input = null, $apple_data = false) {
 
-        if ($rss_feed) {
+        if ($rss_feed_input) {
 
             $rss_url = null;
 
             if ($apple_data) {
-                $get_rss_data = json_decode($rss_feed);
+                $get_rss_data = json_decode($rss_feed_input);
 
                 // Extract RSS Feed Url From JSON data from iTunes
 
@@ -1835,8 +1835,8 @@
 
                 $rss_feed = @file_get_contents($rss_url);
             } else {
-                $rss_url = $rss_feed;
-                $rss_feed = @file_get_contents($rss_feed);
+                $rss_url = $rss_feed_input;
+                $rss_feed = @file_get_contents($rss_feed_input);
             }
 
             $parsed_rss_feed = simplexml_load_string($rss_feed);
@@ -1846,9 +1846,9 @@
             $parsed_rss_feed->channel->collectionViewUrl = $apple_data ? get_object_vars($get_rss_data)['results'][0]->collectionViewUrl : $rss_url;
 
             foreach($parsed_rss_feed->channel->item as $index => $item) {
-                $description_text = htmlspecialchars(strip_tags($item->description));
-                $item->description = $description_text;
-                $title_text = htmlspecialchars($item->title);
+                $description_text = strip_tags($item->description);
+                $item->description = strip_tags($description_text);
+                $title_text = strip_tags($item->title);
                 $item->title = $title_text;
             }
             
@@ -1867,7 +1867,7 @@
         // Get Parameter Data
 
         $type = $params['type'] ?? null;
-        $podcast_platform = $params['podcast_platform'] ?? null;
+        $podcast_platform = $params['podcast_platform'] ?? 'custom';
         $playlist_name = $params['playlist_name'] ?? 'unnamed';
         $api_key = $params['api_key'] ?? null;
         $media_data = $params['media_data'] ?? null;
@@ -2024,7 +2024,7 @@
                         'data' => $parsed_data
                     ]);
                     
-                    $youtube_backup_file_path = $playlist_name . '_youtube_backup_data.txt';
+                    $youtube_backup_file_path = $playlist_name . '_youtube_backup_data.json';
 
                     $youtube_backup_data = @file_get_contents($youtube_backup_file_path);
 
@@ -2057,7 +2057,7 @@
                         $get_rss = $media_data;
                     }
 
-                    if (!$get_rss) {
+                    if (!$get_rss && $podcast_platform !== 'custom') {
                         $error_loading_data = true;
                     } else {
                         $is_apple_rss = $podcast_platform !== 'custom';
@@ -2111,7 +2111,7 @@
 
             if ($type === 'youtube') {
 
-                $youtube_backup_file_path = $playlist_name . '_youtube_backup_data.txt';
+                $youtube_backup_file_path = $playlist_name . '_youtube_backup_data.json';
 
                 $backup_youtube_data = @file_get_contents($youtube_backup_file_path);
 
