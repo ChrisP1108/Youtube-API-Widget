@@ -1,4 +1,4 @@
-// Version 2.50
+// Version 2.51
 
     // Media API Widget Global CSS And Javascript
 
@@ -2026,7 +2026,7 @@
                         'data' => $parsed_data
                     ]);
                     
-                    $youtube_backup_file_path = $playlist_name . '_youtube_backup_data.json';
+                    $youtube_backup_file_path = 'wp-content/media-api-widget/backups/' . $playlist_name . '_youtube_backup_data.json';
 
                     $youtube_backup_data = @file_get_contents($youtube_backup_file_path);
 
